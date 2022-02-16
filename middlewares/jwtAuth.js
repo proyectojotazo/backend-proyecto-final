@@ -18,7 +18,7 @@ const jwtAuth = async (req, res, next) => {
   } catch (error) {
     const err = new Error(error.message);
     err.status = 401;
-    return res.status(error.status).json(error.message);
+    return res.status(err.status).json(err.message);
   }
 };
 

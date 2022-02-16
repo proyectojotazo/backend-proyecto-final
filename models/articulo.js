@@ -23,6 +23,7 @@ const articuloSchema = new Schema({
   fechaPublicacion: {
     // TODO: Validar que la fecha de publicación no se anterior al dia actual
     type: Date,
+    default: Date.now(),
     required: [true, "Fecha requerida"],
     index: true,
   },

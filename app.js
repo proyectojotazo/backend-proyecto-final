@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", articulosRouter);
+app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
 app.post("/login", loginController.post);
 
