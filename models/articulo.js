@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const { Schema, model } = require("mongoose");
 
 const articuloSchema = new Schema({
   titulo: {
@@ -49,4 +48,4 @@ const articuloSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("Articulo", articuloSchema);
+module.exports = model("Articulo", articuloSchema);
