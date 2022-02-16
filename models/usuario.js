@@ -5,33 +5,28 @@ const bcrypt = require("bcrypt");
 
 const usuarioSchema = new Schema({
   nombre: {
-    // TODO: Validar que solo puede contener letras
     type: String,
     required: [true, "Nombre requerido"],
     index: true,
   },
   apellidos: {
-    // TODO: Validar que solo puede contener letras
     type: String,
     required: [true, "Apellidos requeridos"],
     index: true,
   },
   email: {
-    // TODO: Validar que sea un email valido
     type: String,
     required: [true, "Email requerido"],
     index: true,
     unique: true,
   },
   nickname: {
-    // TODO: Validar que sea un nickname valido
     type: String,
     required: [true, "Nickname requerido"],
     index: true,
     unique: true,
   },
   password: {
-    // TODO: Validar que, mínimo 8 caracteres, 1 minuscula, 1 mayuscula, 1 numero y 1 caracter especial
     type: String,
     required: [true, "Password requerido"],
   },
@@ -45,12 +40,15 @@ const usuarioSchema = new Schema({
   },
 });
 
+// Plugin que comprueba que los campos marcados como `unique` sean únicos
 usuarioSchema.plugin(uniqueValidator);
 
+// Función que nos permitirá hashear el password
 usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
   return bcrypt.hash(passwordEnClaro, 7);
 };
 
+// Método que nos comprobará que el password introducido es correcto con el hasheado
 usuarioSchema.methods.comparePassword = function (passwordEnClaro) {
   return bcrypt.compare(passwordEnClaro, this.password);
 };

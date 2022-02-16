@@ -1,15 +1,19 @@
 const usuariosRouter = require("express").Router();
+
 const { Usuario } = require("../models");
 
-/* GET users listing. */
-usuariosRouter.get("/", function (req, res, next) {
-  res.send("respond with a resource");
-});
+const { camposValidos, registroManejoErrores } = require("../utils");
 
 usuariosRouter.post("/", async (req, res, next) => {
   const { nombre, apellidos, nickname, email, password } = req.body;
 
+  // Se validan los campos antes de crear al usuario
+  const [validos, err] = camposValidos(req.body);
+  // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
+  if (!validos) return res.status(400).json(err);
+
   try {
+    // La única validación que ejecuta mongoose es la de campos únicos (nick, email)
     const nuevoUsuario = new Usuario({
       nombre,
       apellidos,
@@ -17,27 +21,17 @@ usuariosRouter.post("/", async (req, res, next) => {
       email,
       password: await Usuario.hashPassword(password),
     });
+
     await nuevoUsuario.save();
+
     return res.status(201).json({
       created: "ok",
       status: 201,
     });
   } catch (error) {
-    const clavesError = Object.keys(error.errors);
-    const errores = {};
-    clavesError.forEach((clave) => {
-      errores[clave] = {
-        message: error.errors[clave].message,
-      };
-      const isUniqueError = errores[clave].message
-        .split(" ", 6)
-        .includes("unique.");
-      if (isUniqueError) {
-        errores[clave].message = `El campo ${clave} debe ser único`;
-      }
-    });
+    // Manejamos y limpiamos los errores que llegan
+    const errores = registroManejoErrores(error);
     return res.status(400).json(errores);
-    // return res.status(400).json(error);
   }
 });
 

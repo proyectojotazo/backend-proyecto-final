@@ -45,7 +45,7 @@ const articuloSchema = new Schema({
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: {
-    type: String,
+    type: [String],
   },
 });
 
