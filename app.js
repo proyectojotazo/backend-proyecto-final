@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
 const { articulosRouter, usuariosRouter } = require("./routes");
+const LoginController = require("./controllers/loginController");
+const loginController = new LoginController();
 
 const app = express();
 
@@ -17,5 +19,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", articulosRouter);
 app.use("/users", usuariosRouter);
+app.post("/login", loginController.post);
 
 module.exports = app;
