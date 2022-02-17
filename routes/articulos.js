@@ -12,45 +12,12 @@ articulosRouter.get("/", async (req, res, next) => {
       apellidos: 1,
       email: 1,
       nickname: 1,
-      _id: 0,
     });
     res.json({ articles: articulo });
   } catch (err) {
     next(err);
   }
 });
-
-// Upload Articles 
-articulosRouter.put("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const data = req.body;
-
-    if (id && data) {
-      await Articulo.findByIdAndUpdate(id, data)
-      res.json("Registro Actualizado.");
-    } else {
-      res.json({ msj: " Datos insuficientes" });
-    }
-  } catch (error) {
-    res.json(error);
-  }
-
-})
-
-
-// Delete Articles 
-articulosRouter.delete("/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    console.log(id);
-    const eliminado = await Articulo.findByIdAndUpdate(id, { active: false });
-    res.status(200).json({ msj: "Articulo borrado de forma satifactoria", isOk: true });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-})
-
 
 articulosRouter.get("/:id", async (req, res, next) => {
   try {
@@ -59,6 +26,37 @@ articulosRouter.get("/:id", async (req, res, next) => {
     res.json({ articulo });
   } catch (err) {
     next(err);
+  }
+});
+
+// Upload Articles
+articulosRouter.put("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+
+    if (id && data) {
+      await Articulo.findByIdAndUpdate(id, data);
+      res.json("Registro Actualizado.");
+    } else {
+      res.json({ msj: " Datos insuficientes" });
+    }
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+// Delete Articles
+articulosRouter.delete("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log(id);
+    const eliminado = await Articulo.findByIdAndUpdate(id, { active: false });
+    res
+      .status(200)
+      .json({ msj: "Articulo borrado de forma satifactoria", isOk: true });
+  } catch (error) {
+    res.status(500).json(error);
   }
 });
 
