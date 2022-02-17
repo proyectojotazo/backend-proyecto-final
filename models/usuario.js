@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+// unique-validator comprueba que el dato es único
 const uniqueValidator = require("mongoose-unique-validator");
 
 const bcrypt = require("bcrypt");
