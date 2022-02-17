@@ -7,6 +7,7 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
+    // populate. 
     const articulo = await Articulo.find({}).populate("usuario", {
       nombre: 1,
       apellidos: 1,

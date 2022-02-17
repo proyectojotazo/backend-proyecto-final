@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const { Usuario } = require('../models');
+const { Usuario, Articulo } = require('../models');
 
 const { camposValidos, registroManejoErrores } = require('../utils');
 
@@ -65,5 +65,32 @@ userController.login = async (req, res, next) => {
       res.json({ token: jwtToken });
     }
   );
+
 };
+
+userController.borrarUsuario = async (req, res, next) => {
+  try {
+    // obtenermos el id
+    const _id = req.params.id;
+    // buscamos al usuario
+    const usuario = await Usuario.find({ _id});
+    //  buscamos los articulos que ha creado el usuario
+    const articulos = usuario[0].articulos.creados
+    // borramos todos esos articulos
+    if (articulos.length>0) {
+      await Articulo.deleteMany({ _id: articulos }) } 
+    // borramos al usuario
+    await Usuario.findByIdAndDelete({_id})
+    return res.status(201).json({
+      deleted: 'ok',
+      status: 201,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+  
+};
+
+
+
 module.exports = userController;
