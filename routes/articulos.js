@@ -7,7 +7,13 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
-    const articulo = await Articulo.find({});
+    const articulo = await Articulo.find({}).populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+      _id: 0,
+    });
     res.json({ articles: articulo });
   } catch (err) {
     next(err);
