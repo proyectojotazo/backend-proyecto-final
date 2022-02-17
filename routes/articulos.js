@@ -20,8 +20,8 @@ articulosRouter.get("/", async (req, res, next) => {
   }
 });
 
-//Upload Articles 
-usuariosRouter.put("/:id", async (req, res) => {
+// Upload Articles 
+articulosRouter.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
@@ -40,7 +40,7 @@ usuariosRouter.put("/:id", async (req, res) => {
 
 
 // Delete Articles 
-usuariosRouter.delete("/:id", async (req, res) => {
+articulosRouter.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id;
     console.log(id);
