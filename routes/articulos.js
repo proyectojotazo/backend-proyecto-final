@@ -5,8 +5,19 @@ const { jwtAuth } = require("../middlewares");
 const getUserFromJwt = require("../utils/getUserFromJwt");
 
 /* GET home page. */
-articulosRouter.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
+articulosRouter.get("/", async (req, res, next) => {
+  try {
+    const articulos = await Articulo.find({}).populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+      _id: 0
+    });
+    return res.json(articulos);
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 });
 
 articulosRouter.post("/", jwtAuth, async (req, res, next) => {
@@ -54,7 +65,6 @@ articulosRouter.post("/", jwtAuth, async (req, res, next) => {
       msj: "articulo insertado de forma satifactoria",
       id: nuevoArticulo._id,
     });
-    
   } catch (error) {
     res.status(400).json(error);
   }
