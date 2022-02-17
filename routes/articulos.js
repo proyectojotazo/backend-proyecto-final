@@ -1,15 +1,31 @@
-const express = require('express');
+const express = require("express");
 const articulosRouter = express.Router();
-const { Articulo } = require('../models');
-const { jwtAuth } = require('../middlewares');
-const getUserFromJwt = require('../utils/getUserFromJwt');
+const { Articulo } = require("../models");
+const { jwtAuth } = require("../middlewares");
+const getUserFromJwt = require("../utils/getUserFromJwt");
 
-/* GET home page. */
-articulosRouter.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+/* GET */
+articulosRouter.get("/", async (req, res, next) => {
+  try {
+    const articulo = await Articulo.find({});
+    res.json({ articles: articulo });
+  } catch (err) {
+    next(err);
+  }
 });
 
-articulosRouter.post('/', jwtAuth, async (req, res, next) => {
+articulosRouter.get("/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const articulo = await Articulo.find({ _id: id });
+    res.json({ articulo });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* POST */
+articulosRouter.post("/", jwtAuth, async (req, res, next) => {
   const {
     titulo,
     archivoDestacado,
@@ -22,7 +38,7 @@ articulosRouter.post('/', jwtAuth, async (req, res, next) => {
   } = req.body;
 
   const jwtToken =
-    req.get('Authorization') || req.query.token || req.body.token;
+    req.get("Authorization") || req.query.token || req.body.token;
 
   const usuario = getUserFromJwt(jwtToken);
 
@@ -40,7 +56,7 @@ articulosRouter.post('/', jwtAuth, async (req, res, next) => {
     });
     await nuevoArticulo.save();
     res.json({
-      msj: 'articulo insertado de forma satifactoria',
+      msj: "articulo insertado de forma satifactoria",
       id: nuevoArticulo._id,
     });
   } catch (error) {
