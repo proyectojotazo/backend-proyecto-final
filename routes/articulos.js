@@ -7,6 +7,7 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
+<<<<<<< HEAD
     // populate. 
     const articulo = await Articulo.find({}).populate("usuario", {
       nombre: 1,
@@ -14,6 +15,16 @@ articulosRouter.get("/", async (req, res, next) => {
       email: 1,
       nickname: 1,
     });
+=======
+    const sort = req.query.sort;
+
+    const filtro = {};
+    Object.entries(req.query).forEach(
+      ([clave, valor]) => (filtro[clave] = valor)
+    );
+
+    const articulo = await Articulo.lista(filtro, null, sort);
+>>>>>>> 5675ba7e47c5922bbeb96f6579d6322c89a26ad4
     res.json({ articles: articulo });
   } catch (err) {
     next(err);
@@ -23,7 +34,12 @@ articulosRouter.get("/", async (req, res, next) => {
 articulosRouter.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
-    const articulo = await Articulo.find({ _id: id });
+    const articulo = await Articulo.find({ _id: id }).populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+    });
     res.json({ articulo });
   } catch (err) {
     next(err);
@@ -81,9 +97,7 @@ articulosRouter.delete("/:id", async (req, res, next) => {
     res
       .status(200)
       .json({ msj: "Articulo borrado de forma satifactoria", isOk: true });
-
   } catch (error) {
-    
     res.status(500).json(error);
   }
 });

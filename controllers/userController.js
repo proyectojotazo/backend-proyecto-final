@@ -1,8 +1,12 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
+<<<<<<< HEAD
 const { Usuario, Articulo } = require('../models');
+=======
+const { Usuario } = require("../models");
+>>>>>>> 5675ba7e47c5922bbeb96f6579d6322c89a26ad4
 
-const { camposValidos, registroManejoErrores } = require('../utils');
+const { camposValidos, registroManejoErrores } = require("../utils");
 
 const userController = {};
 
@@ -27,7 +31,7 @@ userController.registrar = async (req, res, next) => {
     await nuevoUsuario.save();
 
     return res.status(201).json({
-      created: 'ok',
+      created: "ok",
       status: 201,
     });
   } catch (error) {
@@ -47,15 +51,15 @@ userController.login = async (req, res, next) => {
   if (!usuario || !(await usuario.comparePassword(password))) {
     return res
       .status(400)
-      .json({ message: 'El usuario o contraseña no son correctos' });
+      .json({ message: "El usuario o contraseña no son correctos" });
   }
 
   // Si el usuario existe, valida contraseña y crea un JWT con el _id del usuario
   jwt.sign(
-    { _id: usuario._id },
+    { _id: usuario._id, nickname: usuario.nickname },
     process.env.JWT_SECRET,
     {
-      expiresIn: '15d',
+      expiresIn: "15d",
     },
     (error, jwtToken) => {
       if (error) {
