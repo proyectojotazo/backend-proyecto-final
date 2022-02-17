@@ -19,6 +19,16 @@ articulosRouter.get("/", async (req, res, next) => {
   }
 });
 
+articulosRouter.get("/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const articulo = await Articulo.find({ _id: id });
+    res.json({ articulo });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Upload Articles
 articulosRouter.put("/:id", async (req, res) => {
   try {
@@ -74,16 +84,6 @@ articulosRouter.delete("/:id", async (req, res, next) => {
   } catch (error) {
     
     res.status(500).json(error);
-  }
-});
-
-articulosRouter.get("/:id", async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const articulo = await Articulo.find({ _id: id });
-    res.json({ articulo });
-  } catch (err) {
-    next(err);
   }
 });
 
