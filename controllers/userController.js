@@ -2,7 +2,11 @@ const jwt = require("jsonwebtoken");
 
 const { Usuario, Articulo } = require("../models");
 
-const { camposValidos, registroManejoErrores } = require("../utils");
+const {
+  camposValidos,
+  registroManejoErrores,
+  getUserFromJwt,
+} = require("../utils");
 
 const userController = {};
 
@@ -69,8 +73,17 @@ userController.login = async (req, res, next) => {
 
 userController.borrarUsuario = async (req, res, next) => {
   try {
+    // obtener id de usuario del token
+    const tokenUser = req.get("Authorization");
+    const userId = getUserFromJwt(tokenUser);
     // obtenermos el id
     const _id = req.params.id;
+    // comprueba si el id del usuario a borrar es el mismo que esta logueado
+    if (userId !== _id) {
+      return res
+        .status(401)
+        .send({ message: "No estas autorizado para borrar este usuario" });
+    }
     // buscamos al usuario
     const usuario = await Usuario.find({ _id });
     //  buscamos los articulos que ha creado el usuario
