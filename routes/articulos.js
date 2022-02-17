@@ -4,22 +4,27 @@ const { Articulo, Usuario } = require("../models");
 const { jwtAuth } = require("../middlewares");
 const getUserFromJwt = require("../utils/getUserFromJwt");
 
-/* GET home page. */
+/* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
-    const articulos = await Articulo.find({}).populate("usuario", {
-      nombre: 1,
-      apellidos: 1,
-      email: 1,
-      nickname: 1,
-      _id: 0
-    });
-    return res.json(articulos);
-  } catch (error) {
-    return res.status(400).json(error);
+    const articulo = await Articulo.find({});
+    res.json({ articles: articulo });
+  } catch (err) {
+    next(err);
   }
 });
 
+articulosRouter.get("/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const articulo = await Articulo.find({ _id: id });
+    res.json({ articulo });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* POST */
 articulosRouter.post("/", jwtAuth, async (req, res, next) => {
   const {
     titulo,
