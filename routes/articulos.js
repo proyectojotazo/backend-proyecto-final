@@ -22,7 +22,12 @@ articulosRouter.get("/", async (req, res, next) => {
 articulosRouter.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
-    const articulo = await Articulo.find({ _id: id });
+    const articulo = await Articulo.find({ _id: id }).populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+    });
     res.json({ articulo });
   } catch (err) {
     next(err);
@@ -80,24 +85,13 @@ articulosRouter.delete("/:id", async (req, res, next) => {
     res
       .status(200)
       .json({ msj: "Articulo borrado de forma satifactoria", isOk: true });
-
   } catch (error) {
-    
     res.status(500).json(error);
   }
 });
 
 /* POST */
 articulosRouter.post("/", jwtAuth, async (req, res, next) => {
-  const {
-    titulo,
-    archivoDestacado,
-    textoIntroductorio,
-    contenido,
-    estado,
-    categorias,
-    comentarios,
-  } = req.body;
 
   const jwtToken =
     req.get("Authorization") || req.query.token || req.body.token;
@@ -109,14 +103,8 @@ articulosRouter.post("/", jwtAuth, async (req, res, next) => {
 
   try {
     const nuevoArticulo = new Articulo({
-      titulo,
-      archivoDestacado,
-      textoIntroductorio,
-      contenido,
-      estado,
-      categorias,
+      ...req.body,
       usuario: usuarioId,
-      comentarios,
     });
 
     await nuevoArticulo.save();

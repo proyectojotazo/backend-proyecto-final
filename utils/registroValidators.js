@@ -24,7 +24,7 @@ const CAMPOS = {
 
 const camposValidos = (data) => {
   const camposClave = Object.keys(data);
-  const err = {};
+  const err = { status: 400, type: "RegisterValidationError" };
   camposClave.forEach((campo) => {
     if (!CAMPOS[campo].reg.test(data[campo])) {
       err[campo] = {
@@ -33,7 +33,7 @@ const camposValidos = (data) => {
     }
   });
 
-  const sonValidos = Object.keys(err).length === 0;
+  const sonValidos = Object.keys(err).length === 2;
 
   return [sonValidos, err];
 };

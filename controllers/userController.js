@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const { Usuario } = require('../models');
+const { Usuario } = require("../models");
 
-const { camposValidos, registroManejoErrores } = require('../utils');
+const { camposValidos } = require("../utils");
 
 const userController = {};
 
@@ -12,7 +12,7 @@ userController.registrar = async (req, res, next) => {
   // Se validan los campos antes de crear al usuario
   const [validos, err] = camposValidos(req.body);
   // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
-  if (!validos) return res.status(400).json(err);
+  if (!validos) return next(err);
 
   try {
     // La única validación que ejecuta mongoose es la de campos únicos (nick, email)
@@ -27,13 +27,11 @@ userController.registrar = async (req, res, next) => {
     await nuevoUsuario.save();
 
     return res.status(201).json({
-      created: 'ok',
+      created: "ok",
       status: 201,
     });
   } catch (error) {
-    // Manejamos y limpiamos los errores que llegan
-    const errores = registroManejoErrores(error);
-    return res.status(400).json(errores);
+    return next(error);
   }
 };
 
@@ -45,9 +43,12 @@ userController.login = async (req, res, next) => {
 
   // Si no existe el usuario o no coincide la contraseña devuelve error
   if (!usuario || !(await usuario.comparePassword(password))) {
-    return res
-      .status(400)
-      .json({ message: 'El usuario o contraseña no son correctos' });
+    const err = {
+      status: 401,
+      type: "LoginValidationError",
+      message: "El usuario o contraseña no son correctos",
+    };
+    return next(err);
   }
 
   // Si el usuario existe, valida contraseña y crea un JWT con el _id del usuario
@@ -55,11 +56,11 @@ userController.login = async (req, res, next) => {
     { _id: usuario._id },
     process.env.JWT_SECRET,
     {
-      expiresIn: '15d',
+      expiresIn: "15d",
     },
     (error, jwtToken) => {
       if (error) {
-        return res.status(500).json({ error: error.message });
+        return next(error);
       }
       // Devuelve el token generado
       res.json({ token: jwtToken });
