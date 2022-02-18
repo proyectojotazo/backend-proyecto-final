@@ -28,13 +28,15 @@ Para arrancar el proyecto en modo desarrollo, usar el comando:
 
 > Esto nos iniciará el proyecto con "nodemon", por lo que podremos realizar cambios y que estos se apliquen, estando el servidor arrancado.
 
-## Rutas del API:
+## Rutas del API
 
 #### GET:
 
 **- Usuarios -**
 
-*...En construcción...*
+Mostrar usuario por ID:
+
+    	http://localhost:3001/users/<IdUsuario>
 
 **- Artículos -**
 

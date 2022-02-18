@@ -30,7 +30,7 @@ userController.getUsuario = async (req, res, next) => {
         select: "nickname nombre articulos.creados",
       });
 
-    // Si no se encuentra el articulo
+    // Si no se encuentra el usuario
     if (!usuario) {
       const error = {
         name: "NotFound",
