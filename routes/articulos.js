@@ -7,12 +7,14 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
-    const articulo = await Articulo.find({}).populate("usuario", {
-      nombre: 1,
-      apellidos: 1,
-      email: 1,
-      nickname: 1,
-    });
+    const sort = req.query.sort;
+
+    const filtro = {};
+    Object.entries(req.query).forEach(
+      ([clave, valor]) => (filtro[clave] = valor)
+    );
+
+    const articulo = await Articulo.lista(filtro, null, sort);
     res.json({ articles: articulo });
   } catch (err) {
     next(err);
@@ -34,11 +36,28 @@ articulosRouter.get("/:id", async (req, res, next) => {
   }
 });
 
-// Upload Articles
-articulosRouter.put("/:id", async (req, res) => {
+/* PATCH */
+articulosRouter.patch("/:id", jwtAuth, async (req, res) => {
   try {
+    // id del usuario desde el token
+    const tokenUser = req.get("Authorization");
+    const userIdAuth = getUserFromJwt(tokenUser);
+
+    // id del artículo
     const id = req.params.id;
+    // datos a actualizar
     const data = req.body;
+
+    // buscamos el artículo y extraemos el id del usuario creador
+    const articulo = await Articulo.findById({ _id: id });
+    const userIdArticle = articulo.usuario.toString();
+
+    // si no coinciden, devolvemos el error
+    if (userIdAuth !== userIdArticle) {
+      return res
+        .status(401)
+        .send({ message: "No estas autorizado para actualizar este artículo" });
+    }
 
     if (id && data) {
       await Articulo.findByIdAndUpdate(id, data);
@@ -51,7 +70,7 @@ articulosRouter.put("/:id", async (req, res) => {
   }
 });
 
-// Delete Articles
+/* DELETE */
 articulosRouter.delete("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;

@@ -49,4 +49,22 @@ const articuloSchema = new Schema({
   },
 });
 
-module.exports = model("Articulo", articuloSchema);
+articuloSchema.statics.lista = function (filtro, fields, sort) {
+  const query = Articulo.find(filtro).populate("usuario", {
+    nombre: 1,
+    apellidos: 1,
+    email: 1,
+    nickname: 1,
+  });
+  query.select(fields);
+  query.sort(sort);
+  return query.exec();
+};
+
+// .then((p) =>
+//       p.forEach((a) => a.usuario.forEach((b) => console.log(b.nombre)))
+//     );
+
+const Articulo = model("Articulo", articuloSchema);
+
+module.exports = Articulo;

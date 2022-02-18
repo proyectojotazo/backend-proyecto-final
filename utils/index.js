@@ -1,4 +1,5 @@
 module.exports = {
   camposValidos: require("./registroValidators"),
-  registroManejoErrores: require("./registroManejoErrores")
+  registroManejoErrores: require("./registroManejoErrores"),
+  getUserFromJwt: require("./getUserFromJwt"),
 };
