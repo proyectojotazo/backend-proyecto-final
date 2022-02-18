@@ -1,10 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-<<<<<<< HEAD
 const { Usuario, Articulo } = require('../models');
-=======
-const { Usuario } = require("../models");
->>>>>>> 5675ba7e47c5922bbeb96f6579d6322c89a26ad4
 
 const { camposValidos, registroManejoErrores } = require("../utils");
 

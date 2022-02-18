@@ -7,15 +7,6 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
   try {
-<<<<<<< HEAD
-    // populate. 
-    const articulo = await Articulo.find({}).populate("usuario", {
-      nombre: 1,
-      apellidos: 1,
-      email: 1,
-      nickname: 1,
-    });
-=======
     const sort = req.query.sort;
 
     const filtro = {};
@@ -24,7 +15,6 @@ articulosRouter.get("/", async (req, res, next) => {
     );
 
     const articulo = await Articulo.lista(filtro, null, sort);
->>>>>>> 5675ba7e47c5922bbeb96f6579d6322c89a26ad4
     res.json({ articles: articulo });
   } catch (err) {
     next(err);
