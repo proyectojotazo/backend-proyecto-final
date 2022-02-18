@@ -6,67 +6,100 @@ const getUserFromJwt = require("../utils/getUserFromJwt");
 
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
+  const sort = req.query.sort;
+
+  // Creamos el objeto de filtros
+  const filtro = {};
+  Object.entries(req.query).forEach(
+    ([clave, valor]) => (filtro[clave] = valor)
+  );
+
   try {
-    const sort = req.query.sort;
-
-    const filtro = {};
-    Object.entries(req.query).forEach(
-      ([clave, valor]) => (filtro[clave] = valor)
-    );
-
     const articulo = await Articulo.lista(filtro, null, sort);
-    res.json({ articles: articulo });
-  } catch (err) {
-    next(err);
+    return res.json({ articles: articulo });
+  } catch (error) {
+    return next(error);
   }
 });
 
 articulosRouter.get("/:id", async (req, res, next) => {
+  const id = req.params.id;
+
   try {
-    const id = req.params.id;
-    const articulo = await Articulo.find({ _id: id }).populate("usuario", {
+    const articulo = await Articulo.findById(id).populate("usuario", {
       nombre: 1,
       apellidos: 1,
       email: 1,
       nickname: 1,
     });
-    res.json({ articulo });
-  } catch (err) {
-    next(err);
+    // Si no se encuentra el articulo
+    if (!articulo) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Articulo no encontrado",
+      };
+      return next(error);
+    }
+    return res.status(302).json({ articulo });
+  } catch (error) {
+    return next(error);
   }
 });
 
 /* PATCH */
-articulosRouter.patch("/:id", jwtAuth, async (req, res) => {
+articulosRouter.patch("/:id", jwtAuth, async (req, res, next) => {
+  // id del artículo
+  const id = req.params.id;
+  // id del usuario desde el token
+  const tokenUser = req.get("Authorization");
+  const userIdAuth = getUserFromJwt(tokenUser);
+  // datos a actualizar
+  const datosActualizar = req.body;
+
   try {
-    // id del usuario desde el token
-    const tokenUser = req.get("Authorization");
-    const userIdAuth = getUserFromJwt(tokenUser);
-
-    // id del artículo
-    const id = req.params.id;
-    // datos a actualizar
-    const data = req.body;
-
     // buscamos el artículo y extraemos el id del usuario creador
-    const articulo = await Articulo.findById({ _id: id });
+    const articulo = await Articulo.findById(id);
+    // Si no existe el articulo
+    if (!articulo) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Articulo no encontrado",
+      };
+      return next(error);
+    }
+
+    const hayCamposVacios = Object.values(datosActualizar).some(
+      (campo) => campo === ""
+    );
+
+    // Si dejamos algún campo a actualizar vacío
+    if (hayCamposVacios) {
+      const error = {
+        name: "UpdateValidationError",
+        status: 400,
+        message: "Hay campos vacíos",
+      };
+      return next(error);
+    }
+
     const userIdArticle = articulo.usuario.toString();
 
     // si no coinciden, devolvemos el error
     if (userIdAuth !== userIdArticle) {
-      return res
-        .status(401)
-        .send({ message: "No estas autorizado para actualizar este artículo" });
+      const error = {
+        name: "Unauthorized",
+        status: 401,
+        message: "No estas autorizado para actualizar este artículo",
+      };
+      return next(error);
     }
 
-    if (id && data) {
-      await Articulo.findByIdAndUpdate(id, data);
-      res.json("Registro Actualizado.");
-    } else {
-      res.json({ msj: "Datos insuficientes" });
-    }
+    await Articulo.findByIdAndUpdate(id, datosActualizar);
+    return res.status(200).json({ message: "Artículo actualizado" });
   } catch (error) {
-    res.json(error);
+    return next(error);
   }
 });
 
@@ -111,7 +144,6 @@ articulosRouter.delete("/:id", async (req, res, next) => {
 
 /* POST */
 articulosRouter.post("/", jwtAuth, async (req, res, next) => {
-
   const jwtToken =
     req.get("Authorization") || req.query.token || req.body.token;
 

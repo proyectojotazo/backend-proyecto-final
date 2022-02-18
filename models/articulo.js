@@ -42,6 +42,7 @@ const articuloSchema = new Schema({
     // Acordar categorías
     type: [String],
     index: true,
+    required: true,
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: {

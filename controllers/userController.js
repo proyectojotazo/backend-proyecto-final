@@ -83,9 +83,9 @@ userController.borrarUsuario = async (req, res, next) => {
     if (usuario.length === 0) {
       // Si no encuentra al usuario
       const error = {
-        name: "UserNotFound",
+        name: "NotFound",
         status: 404,
-        message: "Usuario Inexistente",
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
