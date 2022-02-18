@@ -1,4 +1,4 @@
-const registroManejoErrores = require("../utils/registroManejoErrores");
+const { registroManejoErrores } = require("../utils");
 
 const errorHandler = (err, req, res, next) => {
   console.log(err.status);

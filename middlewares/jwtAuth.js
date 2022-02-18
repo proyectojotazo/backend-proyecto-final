@@ -1,27 +1,29 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const jwtAuth = async (req, res, next) => {
   const jwtToken =
-    req.get('Authorization') || req.query.token || req.body.token;
+    req.get("Authorization") || req.query.token || req.body.token;
 
   // Comprobamos existencia de Token
   if (!jwtToken) {
-    const error = new Error('No se ha proporcionado token');
-    error.status = 401;
-    return res.status(error.status).json(error.message);
+    const error = {
+      name: "Unauthorized",
+      status: 401,
+      message: "No se ha proporcionado token",
+    };
+    return next(error);
   }
 
   try {
     await jwt.verify(jwtToken, process.env.JWT_SECRET);
-    next();
-    return;
+    return next();
   } catch (error) {
-    const err = new Error(error.message);
-    err.status = 401;
-
-    console.log('hay un error al verificar el token:', jwtToken);
-
-    return res.status(err.status).json(err.message);
+    const err = {
+      name: error.name,
+      status: 400,
+      message: "Error al verificar el token",
+    };
+    return next(err);
   }
 };
 
