@@ -1,8 +1,11 @@
 const jwt = require("jsonwebtoken");
 
-const { Usuario, Articulo } = require('../models');
+const { Usuario, Articulo } = require("../models");
 
-const { camposValidos, registroManejoErrores } = require("../utils");
+const {
+  camposValidos,
+  getUserFromJwt,
+} = require("../utils");
 
 const userController = {};
 
@@ -12,7 +15,7 @@ userController.registrar = async (req, res, next) => {
   // Se validan los campos antes de crear al usuario
   const [validos, err] = camposValidos(req.body);
   // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
-  if (!validos) return res.status(400).json(err);
+  if (!validos) return next(err);
 
   try {
     // La única validación que ejecuta mongoose es la de campos únicos (nick, email)
@@ -31,9 +34,7 @@ userController.registrar = async (req, res, next) => {
       status: 201,
     });
   } catch (error) {
-    // Manejamos y limpiamos los errores que llegan
-    const errores = registroManejoErrores(error);
-    return res.status(400).json(errores);
+    return next(error);
   }
 };
 
@@ -45,9 +46,12 @@ userController.login = async (req, res, next) => {
 
   // Si no existe el usuario o no coincide la contraseña devuelve error
   if (!usuario || !(await usuario.comparePassword(password))) {
-    return res
-      .status(400)
-      .json({ message: "El usuario o contraseña no son correctos" });
+    const err = {
+      status: 401,
+      type: "LoginValidationError",
+      message: "El usuario o contraseña no son correctos",
+    };
+    return next(err);
   }
 
   // Si el usuario existe, valida contraseña y crea un JWT con el _id del usuario
@@ -59,38 +63,44 @@ userController.login = async (req, res, next) => {
     },
     (error, jwtToken) => {
       if (error) {
-        return res.status(500).json({ error: error.message });
+        return next(error);
       }
       // Devuelve el token generado
       res.json({ token: jwtToken });
     }
   );
-
 };
 
 userController.borrarUsuario = async (req, res, next) => {
   try {
+    // obtener id de usuario del token
+    const tokenUser = req.get("Authorization");
+    const userId = getUserFromJwt(tokenUser);
     // obtenermos el id
     const _id = req.params.id;
+    // comprueba si el id del usuario a borrar es el mismo que esta logueado
+    if (userId !== _id) {
+      return res
+        .status(401)
+        .send({ message: "No estas autorizado para borrar este usuario" });
+    }
     // buscamos al usuario
-    const usuario = await Usuario.find({ _id});
+    const usuario = await Usuario.find({ _id });
     //  buscamos los articulos que ha creado el usuario
-    const articulos = usuario[0].articulos.creados
+    const articulos = usuario[0].articulos.creados;
     // borramos todos esos articulos
-    if (articulos.length>0) {
-      await Articulo.deleteMany({ _id: articulos }) } 
+    if (articulos.length > 0) {
+      await Articulo.deleteMany({ _id: articulos });
+    }
     // borramos al usuario
-    await Usuario.findByIdAndDelete({_id})
+    await Usuario.findByIdAndDelete({ _id });
     return res.status(201).json({
-      deleted: 'ok',
+      deleted: "ok",
       status: 201,
     });
   } catch (error) {
     res.status(500).json(error);
   }
-  
 };
-
-
 
 module.exports = userController;
