@@ -61,10 +61,6 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   return query.exec();
 };
 
-// .then((p) =>
-//       p.forEach((a) => a.usuario.forEach((b) => console.log(b.nombre)))
-//     );
-
 const Articulo = model("Articulo", articuloSchema);
 
 module.exports = Articulo;
