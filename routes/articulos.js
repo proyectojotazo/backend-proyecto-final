@@ -104,28 +104,49 @@ articulosRouter.patch("/:id", jwtAuth, async (req, res, next) => {
 });
 
 /* DELETE */
-articulosRouter.delete("/:id", async (req, res, next) => {
+articulosRouter.delete("/:id", jwtAuth, async (req, res, next) => {
   try {
+    // id del usuario desde el token
+    const tokenUser = req.get("Authorization");
+    const userIdAuth = getUserFromJwt(tokenUser);
+
+    // id del artículo proporcionado desde la ruta
     const id = req.params.id;
 
-    // Obtenemos el artículo que se ha eliminado
-    const articuloEliminado = await Articulo.findByIdAndDelete(id);
+    // obtenemos el artículo por id
+    const articulo = await Articulo.findById({ _id: id });
 
     // Si la id del articulo no existe nos devolverá el error
-    if (!articuloEliminado)
-      return res.status(404).json({
-        error: {
-          message: "Artículo no encontrado",
-          id,
-        },
-      });
-    // Obtenemos el id del usuario que creó el articulo eliminado
-    const idUsuarioCreador = articuloEliminado.usuario[0];
+    if (!articulo) {
+      const error = {
+        name: "ArticleNotFound",
+        status: 404,
+        message: "Artículo no encontrado",
+      };
+      return next(error);
+    }
+
+    // extraemos el id del usuario creador del artículo
+    const userIdArticle = articulo.usuario.toString();
+
+    // si no coinciden ambos usuarios, devolvemos el error
+    if (userIdAuth !== userIdArticle) {
+      const error = {
+        name: "Unauthorized",
+        status: 401,
+        message: "No estas autorizado para eliminar este artículo",
+      };
+      return next(error);
+    }
+
+    // Obtenemos el artículo que se ha eliminado
+    await Articulo.findByIdAndDelete(id);
+
     // Obtenemos dicho usuario para modificar sus articulos creados
-    const usuario = await Usuario.findById(idUsuarioCreador);
+    const usuario = await Usuario.findById(userIdArticle);
 
     // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
-    await Usuario.findByIdAndUpdate(idUsuarioCreador, {
+    await Usuario.findByIdAndUpdate(userIdArticle, {
       articulos: {
         ...usuario.articulos,
         creados: usuario.articulos.creados.filter((articuloId) => {
@@ -134,11 +155,11 @@ articulosRouter.delete("/:id", async (req, res, next) => {
       },
     });
 
-    res
+    return res
       .status(200)
-      .json({ msj: "Articulo borrado de forma satifactoria", isOk: true });
+      .json({ message: "Articulo borrado de forma satifactoria", isOk: true });
   } catch (error) {
-    res.status(500).json(error);
+    return next(error);
   }
 });
 
@@ -169,11 +190,11 @@ articulosRouter.post("/", jwtAuth, async (req, res, next) => {
     });
 
     res.json({
-      msj: "articulo insertado de forma satifactoria",
+      message: "articulo insertado de forma satifactoria",
       id: nuevoArticulo._id,
     });
   } catch (error) {
-    res.status(400).json(error);
+    return next(error);
   }
 });
 
