@@ -3,6 +3,8 @@ const { jwtAuth } = require("../middlewares");
 
 const { userController } = require("../controllers");
 
+usuariosRouter.get("/:id", userController.getUsuario);
+
 usuariosRouter.post("/register", userController.registrar);
 
 usuariosRouter.post("/login", userController.login);

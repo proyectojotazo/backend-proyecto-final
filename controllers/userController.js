@@ -6,6 +6,45 @@ const { camposValidos, getUserFromJwt } = require("../utils");
 
 const userController = {};
 
+userController.getUsuario = async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const usuario = await Usuario.findById(id)
+      .populate({
+        path: "articulos.creados",
+        model: "Articulo",
+      })
+      .populate({
+        path: "articulos.favoritos",
+        model: "Articulo",
+      })
+      .populate({
+        path: "usuarios.seguidos",
+        model: "Usuario",
+        select: "nickname nombre articulos.creados",
+      })
+      .populate({
+        path: "usuarios.seguidores",
+        model: "Usuario",
+        select: "nickname nombre articulos.creados",
+      });
+
+    // Si no se encuentra el articulo
+    if (!usuario) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Usuario no encontrado",
+      };
+      return next(error);
+    }
+    return res.status(302).json({ usuario });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 userController.registrar = async (req, res, next) => {
   const { nombre, apellidos, nickname, email, password } = req.body;
 
@@ -31,7 +70,7 @@ userController.registrar = async (req, res, next) => {
       status: 201,
     });
   } catch (error) {
-    console.log('errores =>', error)
+    console.log("errores =>", error);
     return next(error);
   }
 };
