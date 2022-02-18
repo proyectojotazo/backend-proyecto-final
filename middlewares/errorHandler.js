@@ -1,13 +1,22 @@
 const { registroManejoErrores } = require("../utils");
 
 const errorHandler = (err, req, res, next) => {
-  console.log('err =>', err);
+  console.log("err =>", err.name);
+  let error = {};
   if (err.name === "ValidationError") {
     // Errores campos unicos Mongoose
-    const erroresUnique = registroManejoErrores(err);
-    return res.status(erroresUnique.status).json(erroresUnique);
+    error = registroManejoErrores(err);
+  } else if (err.name === "CastError") {
+    error = {
+      name: err.name,
+      message: "Bad ID",
+      status: 400,
+    };
+  } else {
+    error = { ...err };
   }
-  return res.status(err.status || 500).json(err);
+
+  return res.status(error.status || 500).json(error);
 };
 
 module.exports = errorHandler;

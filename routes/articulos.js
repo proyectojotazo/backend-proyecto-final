@@ -1,8 +1,8 @@
-const express = require("express");
-const articulosRouter = express.Router();
+const articulosRouter = require("express").Router();
+
 const { Articulo, Usuario } = require("../models");
 const { jwtAuth } = require("../middlewares");
-const getUserFromJwt = require("../utils/getUserFromJwt");
+const { getUserFromJwt } = require("../utils");
 
 /* GET */
 articulosRouter.get("/", async (req, res, next) => {
@@ -107,19 +107,20 @@ articulosRouter.patch("/:id", jwtAuth, async (req, res, next) => {
 articulosRouter.delete("/:id", jwtAuth, async (req, res, next) => {
   try {
     // id del usuario desde el token
-    const tokenUser = req.get("Authorization");
+    const tokenUser =
+      req.get("Authorization") || req.query.token || req.body.token;
     const userIdAuth = getUserFromJwt(tokenUser);
 
     // id del artículo proporcionado desde la ruta
     const id = req.params.id;
 
     // obtenemos el artículo por id
-    const articulo = await Articulo.findById({ _id: id });
+    const articulo = await Articulo.findById(id);
 
     // Si la id del articulo no existe nos devolverá el error
     if (!articulo) {
       const error = {
-        name: "ArticleNotFound",
+        name: "NotFound",
         status: 404,
         message: "Artículo no encontrado",
       };
@@ -155,9 +156,7 @@ articulosRouter.delete("/:id", jwtAuth, async (req, res, next) => {
       },
     });
 
-    return res
-      .status(200)
-      .json({ message: "Articulo borrado de forma satifactoria", isOk: true });
+    return res.status(200).json({ message: "Articulo borrado" });
   } catch (error) {
     return next(error);
   }
@@ -189,10 +188,7 @@ articulosRouter.post("/", jwtAuth, async (req, res, next) => {
       },
     });
 
-    res.json({
-      message: "articulo insertado de forma satifactoria",
-      id: nuevoArticulo._id,
-    });
+    return res.status(201).json({ message: "Artículo creado" });
   } catch (error) {
     return next(error);
   }

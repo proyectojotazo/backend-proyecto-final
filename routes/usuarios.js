@@ -7,6 +7,6 @@ usuariosRouter.post("/register", userController.registrar);
 
 usuariosRouter.post("/login", userController.login);
 
-usuariosRouter.delete("/borrar/:id", jwtAuth, userController.borrarUsuario);
+usuariosRouter.delete("/:id", jwtAuth, userController.borrarUsuario);
 
 module.exports = usuariosRouter;

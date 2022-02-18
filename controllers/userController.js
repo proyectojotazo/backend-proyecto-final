@@ -46,7 +46,7 @@ userController.login = async (req, res, next) => {
   if (!usuario || !(await usuario.comparePassword(password))) {
     const error = {
       status: 401,
-      type: "LoginValidationError",
+      name: "LoginValidationError",
       message: "El usuario o contraseña no son correctos",
     };
     return next(error);
