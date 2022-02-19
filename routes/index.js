@@ -3,4 +3,5 @@ module.exports = {
   usuariosRouter: require("./usuarios"),
   loginRouter: require("./login"),
   registerRouter: require("./register"),
+  passwordResetRouter: require("./passwordReset"),
 };

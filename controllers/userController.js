@@ -25,7 +25,7 @@ userController.getUsuario = async (req, res, next) => {
   }
 };
 
-userController.patchUsuario = async (req, res, next) => {
+userController.updateUsuario = async (req, res, next) => {
   // obtenemos id del usuario a actualizar
   const id = req.params.id;
 
