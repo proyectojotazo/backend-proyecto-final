@@ -1,0 +1,27 @@
+getArticulo:
+  !articulo:
+    name: "NotFound",
+    status: 404,
+    message: "Articulo no encontrado",
+actualizarArticulo:
+  !articulo:
+    name: "NotFound",
+    status: 404,
+    message: "Articulo no encontrado",
+  hayCamposVacios:
+    name: "UpdateValidationError",
+    status: 400,
+    message: "Hay campos vacíos",
+  (userIdAuth !== userIdArticle):
+    name: "Unauthorized",
+    status: 401,
+    message: "No estas autorizado para actualizar este artículo",
+borrarArticulo:
+  !articulo:
+    name: "NotFound",
+    status: 404,
+    message: "Articulo no encontrado",
+  (userIdAuth !== userIdArticle):
+    name: "Unauthorized",
+    status: 401,
+    message: "No estas autorizado para eliminar este artículo",

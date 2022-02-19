@@ -50,6 +50,19 @@ const articuloSchema = new Schema({
   },
 });
 
+/*
+ Modifica la muestra cuando retornamos el usuario como JSON no mostrando la 
+ propiedad __v.
+ TODO: Cambiar la propiedad _id por id?
+*/
+articuloSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    // returnedObject.id = returnedObject._id.toString()
+    // delete returnedObject._id
+    delete returnedObject.__v;
+  },
+});
+
 articuloSchema.statics.lista = function (filtro, fields, sort) {
   const query = Articulo.find(filtro).populate("usuario", {
     nombre: 1,

@@ -24,11 +24,11 @@ const CAMPOS = {
 
 const camposValidos = (data) => {
   const camposClave = Object.keys(data);
-  const err = { status: 400, type: "RegisterValidationError" };
+  const err = { status: 400, name: "RegisterValidationError" };
   camposClave.forEach((campo) => {
     if (!CAMPOS[campo].reg.test(data[campo])) {
       err[campo] = {
-        mensaje: CAMPOS[campo].mensaje,
+        message: CAMPOS[campo].mensaje,
       };
     }
   });

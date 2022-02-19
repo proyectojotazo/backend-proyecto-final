@@ -10,26 +10,8 @@ userController.getUsuario = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const usuario = await Usuario.findById(id)
-      .populate({
-        path: "articulos.creados",
-        model: "Articulo",
-      })
-      .populate({
-        path: "articulos.favoritos",
-        model: "Articulo",
-      })
-      .populate({
-        path: "usuarios.seguidos",
-        model: "Usuario",
-        select: "nickname nombre articulos.creados",
-      })
-      .populate({
-        path: "usuarios.seguidores",
-        model: "Usuario",
-        select: "nickname nombre articulos.creados",
-      });
-
+    const usuario = await Usuario.findByIdPopulated(id);
+    
     // Si no se encuentra el usuario
     if (!usuario) {
       const error = {
@@ -48,6 +30,7 @@ userController.getUsuario = async (req, res, next) => {
 userController.registrar = async (req, res, next) => {
   const { nombre, apellidos, nickname, email, password } = req.body;
 
+  // TODO: Manejar errores desde MONGO
   // Se validan los campos antes de crear al usuario
   const [validos, error] = camposValidos(req.body);
   // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
@@ -70,7 +53,6 @@ userController.registrar = async (req, res, next) => {
       status: 201,
     });
   } catch (error) {
-    console.log("errores =>", error);
     return next(error);
   }
 };
@@ -109,7 +91,7 @@ userController.login = async (req, res, next) => {
 };
 
 userController.borrarUsuario = async (req, res, next) => {
-  // obtenermos el id
+  // obtendremos el id
   const _id = req.params.id;
 
   // obtener id de usuario del token

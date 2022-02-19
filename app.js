@@ -19,6 +19,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
+// TODO: Sacar login y register rutas
 app.use(errorHandler);
 
 module.exports = app;

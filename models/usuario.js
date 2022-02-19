@@ -45,6 +45,20 @@ const usuarioSchema = new Schema({
 // Plugin que comprueba que los campos marcados como `unique` sean únicos
 usuarioSchema.plugin(uniqueValidator);
 
+/*
+ Modifica la muestra cuando retornamos el usuario como JSON no mostrando la 
+ propiedad __v.
+ TODO: Cambiar la propiedad _id por id?
+*/
+
+usuarioSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    // returnedObject.id = returnedObject._id.toString()
+    // delete returnedObject._id
+    delete returnedObject.__v;
+  },
+});
+
 // Función que nos permitirá hashear el password
 usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
   return bcrypt.hash(passwordEnClaro, 7);
@@ -53,6 +67,36 @@ usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
 // Método que nos comprobará que el password introducido es correcto con el hasheado
 usuarioSchema.methods.comparePassword = function (passwordEnClaro) {
   return bcrypt.compare(passwordEnClaro, this.password);
+};
+
+// Función que nos devuelve el usuario populated
+usuarioSchema.statics.findByIdPopulated = async function (id) {
+  /* 
+  Pongo select en articulos.creados porque creo que es redundante que al pedir
+  un usuario populado tambien demos la id del mismo
+  */
+  return await this.findById(id).populate([
+    {
+      path: "articulos.creados",
+      model: "Articulo",
+      select:
+        "-usuario",
+    },
+    {
+      path: "articulos.favoritos",
+      model: "Articulo",
+    },
+    {
+      path: "usuarios.seguidos",
+      model: "Usuario",
+      select: "nickname nombre articulos.creados",
+    },
+    {
+      path: "usuarios.seguidores",
+      model: "Usuario",
+      select: "nickname nombre articulos.creados",
+    },
+  ]);
 };
 
 module.exports = model("Usuario", usuarioSchema);
