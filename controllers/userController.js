@@ -1,8 +1,6 @@
-const jwt = require("jsonwebtoken");
-
 const { Usuario, Articulo } = require("../models");
 
-const { camposValidos, getUserFromJwt } = require("../utils");
+const { getUserFromJwt } = require("../utils");
 
 const userController = {};
 
@@ -25,69 +23,6 @@ userController.getUsuario = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-};
-
-userController.registrar = async (req, res, next) => {
-  const { nombre, apellidos, nickname, email, password } = req.body;
-
-  // TODO: Manejar errores desde MONGO
-  // Se validan los campos antes de crear al usuario
-  const [validos, error] = camposValidos(req.body);
-  // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
-  if (!validos) return next(error);
-
-  try {
-    // La única validación que ejecuta mongoose es la de campos únicos (nick, email)
-    const nuevoUsuario = new Usuario({
-      nombre,
-      apellidos,
-      nickname,
-      email,
-      password: await Usuario.hashPassword(password),
-    });
-
-    await nuevoUsuario.save();
-
-    return res.status(201).json({
-      created: "ok",
-      status: 201,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-userController.login = async (req, res, next) => {
-  const { email, password } = req.body;
-
-  // Busca el usuario en la BD
-  const usuario = await Usuario.findOne({ email });
-
-  // Si no existe el usuario o no coincide la contraseña devuelve error
-  if (!usuario || !(await usuario.comparePassword(password))) {
-    const error = {
-      status: 401,
-      name: "LoginValidationError",
-      message: "El usuario o contraseña no son correctos",
-    };
-    return next(error);
-  }
-
-  // Si el usuario existe, valida contraseña y crea un JWT con el _id del usuario
-  jwt.sign(
-    { _id: usuario._id, nickname: usuario.nickname },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "15d",
-    },
-    (error, jwtToken) => {
-      if (error) {
-        return next(error);
-      }
-      // Devuelve el token generado
-      res.json({ token: jwtToken });
-    }
-  );
 };
 
 userController.borrarUsuario = async (req, res, next) => {

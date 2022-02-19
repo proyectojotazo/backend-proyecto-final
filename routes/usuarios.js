@@ -3,11 +3,9 @@ const { jwtAuth } = require("../middlewares");
 
 const { userController } = require("../controllers");
 
+// TODO: Obtener todos los usuarios?
+
 usuariosRouter.get("/:id", userController.getUsuario);
-
-usuariosRouter.post("/register", userController.registrar);
-
-usuariosRouter.post("/login", userController.login);
 
 usuariosRouter.delete("/:id", jwtAuth, userController.borrarUsuario);
 

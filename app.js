@@ -7,7 +7,12 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const { errorHandler } = require("./middlewares");
 
-const { articulosRouter, usuariosRouter } = require("./routes");
+const {
+  articulosRouter,
+  usuariosRouter,
+  loginRouter,
+  registerRouter,
+} = require("./routes");
 
 const app = express();
 
@@ -17,9 +22,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/login", loginRouter);
+app.use("/register", registerRouter);
 app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
-// TODO: Sacar login y register rutas
 app.use(errorHandler);
 
 module.exports = app;
