@@ -7,6 +7,8 @@ const { userController } = require("../controllers");
 
 usuariosRouter.get("/:id", userController.getUsuario);
 
+usuariosRouter.patch("/:id", jwtAuth, userController.patchUsuario);
+
 usuariosRouter.delete("/:id", jwtAuth, userController.borrarUsuario);
 
 module.exports = usuariosRouter;

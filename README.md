@@ -86,7 +86,14 @@ Crear un artículo:
 
 **- Usuarios -**
 
-*...En construcción...*
+Actualizar un usuario (estando autenticado):
+
+    	http://localhost:3001/users/<IdUsuario>
+> Al usar PATCH, sólo será necesario enviar un "body" con los campos que quieran actualizarse y no todos los campos.
+
+> Para poder actualizar un usuario, se necesitará incluir el token del usuario que creó el usuario a modificar, en la cabecera "Authorization". Si se intentara actualizar un usuario con un token válido, perteneciente a otro usuario, devolvería un error.
+
+> Si el usuario no existe, también devolverá un error.
 
 **- Artículos -**
 
