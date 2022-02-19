@@ -67,10 +67,10 @@ Orden Descendente - Muestra artículos por fecha de publicación descendente (nu
 
 Registrar un usuario:
 
-    	http://localhost:3001/users/register
+    	http://localhost:3001/register
 Iniciar sesión con usuario:
 
-    	http://localhost:3001/users/login
+    	http://localhost:3001/login
 > Esta petición nos devolverá un token para poder hacer futuras peticiones.
 
 **- Artículos -**
