@@ -1,4 +1,4 @@
-const { Articulo, Usuario } = require("../models");
+const { Articulo, Usuario, Comentario } = require("../models");
 
 const { getUserFromJwt } = require("../utils");
 
@@ -25,12 +25,21 @@ articulosController.getArticulo = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const articulo = await Articulo.findById(id).populate("usuario", {
+    const articulo = await Articulo.findById(id)
+    .populate("usuario", {
       nombre: 1,
       apellidos: 1,
       email: 1,
       nickname: 1,
+    })
+    // TODO no funciona
+    .populate("comentarios", {
+      usuario: 1,
+      fechaPublicacion: 1,
+      contenido: 1,
+      respuesta: 1,
     });
+
     // Si no se encuentra el articulo
     if (!articulo) {
       const error = {
@@ -189,5 +198,82 @@ articulosController.creaArticulo = async (req, res, next) => {
     return next(error);
   }
 };
+
+articulosController.creaComentario = async (req, res, next) => {
+  const jwtToken =
+      req.get("Authorization") || req.query.token || req.body.token;
+
+  const usuarioId = getUserFromJwt(jwtToken);
+
+  // Obtenemos el id del articulo 
+  const idArticulo = req.params.id;
+  const articulo = await Articulo.findById(idArticulo);
+
+  try {
+      const nuevoComentario = new Comentario({
+      ...req.body,
+      usuario: usuarioId,
+      });
+
+      await nuevoComentario.save();
+      await Articulo.findByIdAndUpdate(idArticulo, {
+          comentarios: [...articulo.comentarios, nuevoComentario._id]
+        },
+      );
+      // TODO enviar email al creador del comentario diciendo que se ha comentado su articulo
+
+  return res.status(201).json({ message: "Comentario Creado"});
+  } catch (error) {
+    return next(error);
+  }
+};
+
+articulosController.getComentarios = async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+      const comentario = await Comentario.findById(id);
+    // Si no se encuentra el comentario
+  if (!comentario) {
+      const error = {
+      name: "NotFound",
+      status: 404,
+      message: "Articulo no encontrado",
+      };
+      return next(error);
+  }
+  return res.status(302).json({ comentario });
+  } catch (error) {
+  return next(error);
+  }
+};
+
+articulosController.responderComentario = async (req, res, next) => {
+  const jwtToken =
+      req.get("Authorization") || req.query.token || req.body.token;
+
+  const usuarioId = getUserFromJwt(jwtToken);
+
+  // Obtenemos el id del articulo 
+  const idComentario = req.params.id;
+  const comentario = await Comentario.findById(idComentario);
+
+  try {
+      const nuevoComentario = new Comentario({
+      ...req.body,
+      usuario: usuarioId,
+      });
+      await nuevoComentario.save();
+      await Comentario.findByIdAndUpdate(idComentario, {
+          comentarios: [...comentario.respuestas, nuevoComentario._id]
+        },
+      );
+      // TODO enviar email al creador del comentario diciendo que se ha comentado su articulo
+
+  return res.status(201).json({ message: "Comentario Creado"});
+  } catch (error) {
+    return next(error);
+  }
+}
 
 module.exports = articulosController;

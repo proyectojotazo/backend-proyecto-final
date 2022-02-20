@@ -45,9 +45,7 @@ const articuloSchema = new Schema({
     required: true,
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
-  comentarios: {
-    type: [String],
-  },
+  comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
 });
 
 /*
@@ -74,6 +72,7 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   query.sort(sort);
   return query.exec();
 };
+
 
 const Articulo = model("Articulo", articuloSchema);
 
