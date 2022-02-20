@@ -78,7 +78,6 @@ passwordResetRouter.post("/:userId/:token", async (req, res, next) => {
       return next(error);
     }
 
-    // TODO: Validar tipo de password
     // si se ha proporcionado password, convertirlo para almacenarlo en bd
     if (passwordActualizar.password) {
       passwordActualizar.password = await Usuario.hashPassword(
