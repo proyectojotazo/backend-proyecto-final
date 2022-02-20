@@ -73,6 +73,17 @@ Iniciar sesión con usuario:
     	http://localhost:3001/login
 > Esta petición nos devolverá un token para poder hacer futuras peticiones.
 
+Restablecer contraseña:
+
+    	http://localhost:3001/password-reset
+> Se debe enviar un objeto en el "body" con la clave "email" y como valor el email del usuario.
+
+> Si existe un usuario con ese email, se enviará un correo electrónico a la dirección del usuario, con un link que tendrá la petición para cambiar su contraseña por una nueva. El link tendrá la siguiente estructura:
+
+> **http://localhost:3001/password-reset/IdUsuario/TokenTemporalGenerado**
+
+> Para enviar la petición generada al API, se deberá añadir un objeto en el "body" con la clave "password" y como valor la nueva contraseña, para que pueda ser modificada correctamente.
+
 **- Artículos -**
 
 Crear un artículo:
