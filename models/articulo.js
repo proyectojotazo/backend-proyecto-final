@@ -45,9 +45,17 @@ const articuloSchema = new Schema({
     required: true,
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
-  comentarios: {
-    type: [String],
-  },
+  comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
+  // respuesta: [{
+  //   estado:{
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  //   referencia: {
+  //     type: String,
+  //     index:true
+  //   } 
+  // }]
 });
 
 /*
@@ -74,6 +82,7 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   query.sort(sort);
   return query.exec();
 };
+
 
 const Articulo = model("Articulo", articuloSchema);
 

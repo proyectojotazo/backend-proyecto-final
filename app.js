@@ -12,6 +12,8 @@ const {
   usuariosRouter,
   loginRouter,
   registerRouter,
+  passwordResetRouter,
+  comentariosRouter,
 } = require("./routes");
 
 const app = express();
@@ -24,8 +26,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/login", loginRouter);
 app.use("/register", registerRouter);
+app.use("/password-reset", passwordResetRouter);
 app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
+app.use("/comment", comentariosRouter)
 app.use(errorHandler);
 
 module.exports = app;

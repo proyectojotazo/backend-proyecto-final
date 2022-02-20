@@ -73,6 +73,17 @@ Iniciar sesión con usuario:
     	http://localhost:3001/login
 > Esta petición nos devolverá un token para poder hacer futuras peticiones.
 
+Restablecer contraseña:
+
+    	http://localhost:3001/password-reset
+> Se debe enviar un objeto en el "body" con la clave "email" y como valor el email del usuario.
+
+> Si existe un usuario con ese email, se enviará un correo electrónico a la dirección del usuario, con un link que tendrá la petición para cambiar su contraseña por una nueva. El link tendrá la siguiente estructura:
+
+> **http://localhost:3001/password-reset/IdUsuario/TokenTemporalGenerado**
+
+> Para enviar la petición generada al API, se deberá añadir un objeto en el "body" con la clave "password" y como valor la nueva contraseña, para que pueda ser modificada correctamente.
+
 **- Artículos -**
 
 Crear un artículo:
@@ -86,7 +97,14 @@ Crear un artículo:
 
 **- Usuarios -**
 
-*...En construcción...*
+Actualizar un usuario (estando autenticado):
+
+    	http://localhost:3001/users/<IdUsuario>
+> Al usar PATCH, sólo será necesario enviar un "body" con los campos que quieran actualizarse y no todos los campos.
+
+> Para poder actualizar un usuario, se necesitará incluir el token del usuario que creó el usuario a modificar, en la cabecera "Authorization". Si se intentara actualizar un usuario con un token válido, perteneciente a otro usuario, devolvería un error.
+
+> Si el usuario no existe, también devolverá un error.
 
 **- Artículos -**
 
