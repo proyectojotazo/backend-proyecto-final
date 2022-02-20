@@ -20,21 +20,17 @@ loginRouter.post("/", async (req, res, next) => {
     return next(error);
   }
 
-  // Si el usuario existe, valida contraseña y crea un JWT con el _id del usuario
-  jwt.sign(
-    { _id: usuario._id, nickname: usuario.nickname },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "15d",
-    },
-    (error, jwtToken) => {
-      if (error) {
-        return next(error);
-      }
-      // Devuelve el token generado
-      res.json({ token: jwtToken });
-    }
-  );
+  const usuarioToken = {
+    _id: usuario._id,
+    nickname: usuario.nickname,
+  };
+
+  // Si el usuario existe, valida contraseña y crea un JWT con el _id y el nickname del usuario
+  const token = jwt.sign(usuarioToken, process.env.JWT_SECRET, {
+    expiresIn: "15d",
+  });
+
+  return res.json({ token });
 });
 
 module.exports = loginRouter;

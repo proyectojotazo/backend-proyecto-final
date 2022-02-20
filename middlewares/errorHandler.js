@@ -1,10 +1,11 @@
 const { registroManejoErrores } = require("../utils");
 
 const errorHandler = (err, req, res, next) => {
-  console.log("err =>", err.name);
+  console.log("err =>", err);
+  console.log("err name =>", err.name);
   let error = {};
   if (err.name === "ValidationError") {
-    // Errores campos unicos Mongoose
+    // Errores validaciones registro Mongoose
     error = registroManejoErrores(err);
   } else if (err.name === "CastError") {
     error = {
@@ -15,7 +16,6 @@ const errorHandler = (err, req, res, next) => {
   } else {
     error = { ...err };
   }
-
   return res.status(error.status || 500).json(error);
 };
 

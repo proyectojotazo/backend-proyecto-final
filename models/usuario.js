@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 // unique-validator comprueba que el dato es único
+const validators = require("./customValidators");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const bcrypt = require("bcrypt");
@@ -9,28 +10,33 @@ const usuarioSchema = new Schema({
     type: String,
     required: [true, "Nombre requerido"],
     index: true,
+    validate: validators.nombre,
   },
   apellidos: {
     type: String,
     required: [true, "Apellidos requeridos"],
     index: true,
+    validate: validators.apellidos,
   },
   email: {
     type: String,
     required: [true, "Email requerido"],
     index: true,
     unique: true,
+    validate: validators.email,
   },
   nickname: {
     type: String,
     required: [true, "Nickname requerido"],
     index: true,
     unique: true,
+    validate: validators.nickname,
   },
   password: {
     type: String,
     select: false,
     required: [true, "Password requerido"],
+    validate: validators.password,
   },
   articulos: {
     creados: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],
@@ -59,7 +65,13 @@ usuarioSchema.set("toJSON", {
   },
 });
 
+usuarioSchema.pre("save", async function (next) {
+  this.password = await bcrypt.hash(this.password, 7);
+  next();
+});
+
 // Función que nos permitirá hashear el password
+// Innecesario, en pre.save ya hasheamos el password
 usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
   return bcrypt.hash(passwordEnClaro, 7);
 };
@@ -79,8 +91,7 @@ usuarioSchema.statics.findByIdPopulated = async function (id) {
     {
       path: "articulos.creados",
       model: "Articulo",
-      select:
-        "-usuario",
+      select: "-usuario",
     },
     {
       path: "articulos.favoritos",
