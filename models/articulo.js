@@ -46,6 +46,16 @@ const articuloSchema = new Schema({
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
+  // respuesta: [{
+  //   estado:{
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  //   referencia: {
+  //     type: String,
+  //     index:true
+  //   } 
+  // }]
 });
 
 /*

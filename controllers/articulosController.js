@@ -32,7 +32,6 @@ articulosController.getArticulo = async (req, res, next) => {
       email: 1,
       nickname: 1,
     })
-    // TODO no funciona
     .populate("comentarios", {
       usuario: 1,
       fechaPublicacion: 1,
@@ -199,7 +198,10 @@ articulosController.creaArticulo = async (req, res, next) => {
   }
 };
 
+// crea comentario
+
 articulosController.creaComentario = async (req, res, next) => {
+  // recoge el token para identificar el usuario
   const jwtToken =
       req.get("Authorization") || req.query.token || req.body.token;
 
@@ -207,14 +209,16 @@ articulosController.creaComentario = async (req, res, next) => {
 
   // Obtenemos el id del articulo 
   const idArticulo = req.params.id;
+  // buscamos el articulo
   const articulo = await Articulo.findById(idArticulo);
 
   try {
+      // creamos el articulo añadiendo el usuario y recogemos el contenido del body
       const nuevoComentario = new Comentario({
       ...req.body,
       usuario: usuarioId,
       });
-
+      // guardamos el comentario dentro del articulo
       await nuevoComentario.save();
       await Articulo.findByIdAndUpdate(idArticulo, {
           comentarios: [...articulo.comentarios, nuevoComentario._id]
@@ -228,11 +232,17 @@ articulosController.creaComentario = async (req, res, next) => {
   }
 };
 
+// visualizar un comentario y sus respuestas
 articulosController.getComentarios = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-      const comentario = await Comentario.findById(id);
+      const comentario = await Comentario.findById(id)
+      .populate("comentarios", {
+        usuario: 1,
+        fechaPublicacion: 1,
+        contenido: 1,
+      });
     // Si no se encuentra el comentario
   if (!comentario) {
       const error = {
@@ -248,6 +258,7 @@ articulosController.getComentarios = async (req, res, next) => {
   }
 };
 
+// Responder a un comentario (leí mal y pense que era uno de los requisitos)
 articulosController.responderComentario = async (req, res, next) => {
   const jwtToken =
       req.get("Authorization") || req.query.token || req.body.token;
