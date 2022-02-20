@@ -8,7 +8,7 @@ const { jwtAuth } = require("../middlewares");
 articulosRouter.get("/", articulosController.getArticulos);
 
 // GET comentario TODO ¿mover a otro lado para que quede más limpio?
-articulosRouter.get("/:idArticulo/comentario/:id", jwtAuth, articulosController.getComentarios)
+// articulosRouter.get("/:idArticulo/comment/:id", jwtAuth, articulosController.getComentarios)
 
 articulosRouter.get("/:id", articulosController.getArticulo);
 
@@ -20,9 +20,9 @@ articulosRouter.delete("/:id", jwtAuth, articulosController.borraArticulo);
 
 /* POST */
 // POST CREAR comentario TODO ¿mover a otro lado para que quede más limpio?
-articulosRouter.post("/:id/comentario", jwtAuth, articulosController.creaComentario)
+// articulosRouter.post("/:id/comment", jwtAuth, articulosController.creaComentario)
 // POST RESPONDER comentario TODO ¿mover a otro lado para que quede más limpio?
-articulosRouter.post("/:idArticulo/comentario/:id", jwtAuth, articulosController.responderComentario)
+// articulosRouter.post("/:idArticulo/comment/:id", jwtAuth, articulosController.responderComentario)
 
 articulosRouter.post("/", jwtAuth, articulosController.creaArticulo);
 

@@ -1,6 +1,6 @@
 const { Articulo, Usuario, Comentario } = require("../models");
 
-const { getUserFromJwt } = require("../utils");
+const { getUserFromJwt, sendEmail } = require("../utils");
 
 const articulosController = {};
 
@@ -225,6 +225,11 @@ articulosController.creaComentario = async (req, res, next) => {
         },
       );
       // TODO enviar email al creador del comentario diciendo que se ha comentado su articulo
+      const usuarioArticulo= await Usuario.findById(articulo.usuario[0]._id);
+      const texto = `${usuarioArticulo.nickname} a respondido a tu articulo con el siguiente comentario "${nuevoComentario.contenido}"`
+      const link = `${texto} \n ${process.env.BASE_URL}/articles/${idArticulo}`
+
+      await sendEmail(usuarioArticulo.email, `${usuarioArticulo.nickname} a respondido a tu articulo`, link);
 
   return res.status(201).json({ message: "Comentario Creado"});
   } catch (error) {
@@ -238,10 +243,8 @@ articulosController.getComentarios = async (req, res, next) => {
 
   try {
       const comentario = await Comentario.findById(id)
-      .populate("comentarios", {
-        usuario: 1,
-        fechaPublicacion: 1,
-        contenido: 1,
+      .populate("usuario", {
+        nickname: 1,
       });
     // Si no se encuentra el comentario
   if (!comentario) {
@@ -276,12 +279,19 @@ articulosController.responderComentario = async (req, res, next) => {
       });
       await nuevoComentario.save();
       await Comentario.findByIdAndUpdate(idComentario, {
-          comentarios: [...comentario.respuestas, nuevoComentario._id]
+          respuestas: [...comentario.respuestas, nuevoComentario._id]
         },
       );
-      // TODO enviar email al creador del comentario diciendo que se ha comentado su articulo
+      const usuario = await Usuario.findById(usuarioId);
+      const texto = `${usuario.nickname} a respondido a tu comentario con el siguiente texto "${nuevoComentario.contenido}"`
+      const link = `${texto} \n ${process.env.BASE_URL}/comment/${idComentario}`
 
-  return res.status(201).json({ message: "Comentario Creado"});
+      
+      const autor = await Usuario.findById(comentario.usuario)
+      await sendEmail(autor.email, `${usuario.nickname} a respondido a tu articulo`, link);
+      
+
+  return res.status(201).json({ message: "Respuesta Creada"});
   } catch (error) {
     return next(error);
   }
