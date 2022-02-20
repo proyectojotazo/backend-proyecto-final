@@ -1,6 +1,7 @@
 const { Usuario } = require("../models");
 const { Token } = require("../models");
 const { sendEmail } = require("../utils");
+const { camposValidos } = require("../utils");
 const crypto = require("crypto");
 const passwordResetRouter = require("express").Router();
 
@@ -45,6 +46,10 @@ passwordResetRouter.post("/", async (req, res, next) => {
 
 passwordResetRouter.post("/:userId/:token", async (req, res, next) => {
   const passwordActualizar = req.body;
+  const [validos, error] = camposValidos(passwordActualizar);
+  // Se comprueba si la contraseña no es válida
+  if (!validos) return next(error);
+
   try {
     // obtener usuario con el id de la ruta
     const usuario = await Usuario.findById(req.params.userId);
