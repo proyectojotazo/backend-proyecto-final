@@ -29,20 +29,14 @@ const { jwtAuth } = require("../middlewares");
  *                  type: string
  *                  description: Contenido del artículo
  *              fechaPublicacion:
- *                  type: date
+ *                  type: string
  *                  description: Fecha de publicación
  *              estado:
  *                  type: string
  *                  description: Borrador o Publicado
  *              categorias:
- *                  type: [string]
+ *                  type: array
  *                  description: Categorías
- *              usuario:
- *                  type: string
- *                  description: ID del usuario creador
- *              comentarios:
- *                  type: [string]
- *                  description: Comentarios del artículo
  *          required:
  *              - titulo
  *              - textoIntroductorio
@@ -126,17 +120,14 @@ articulosRouter.get("/:id", articulosController.getArticulo);
  *                              type: string
  *                              description: Contenido del artículo
  *                          fechaPublicacion:
- *                              type: date
+ *                              type: string
  *                              description: Fecha de publicación
  *                          estado:
  *                              type: string
  *                              description: Borrador o Publicado
  *                          categorias:
- *                              type: [string]
+ *                              type: array
  *                              description: Categorías
- *                          comentarios:
- *                              type: [string]
- *                              description: Comentarios del artículo
  *     responses:
  *          200:
  *              description: Artículo actualizado!

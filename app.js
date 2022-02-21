@@ -32,7 +32,11 @@ app.use("/password-reset", passwordResetRouter);
 app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
 app.use("/comment", comentariosRouter);
-app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
+app.use(
+  "/swagger",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerConfig.swaggerDocs, swaggerConfig.swaggerOptions)
+);
 app.use(errorHandler);
 
 module.exports = app;
