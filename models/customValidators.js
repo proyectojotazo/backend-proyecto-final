@@ -18,7 +18,7 @@ const CAMPOS = {
   password: {
     reg: /^(?=.*[a-zÀ-ÿ\u00f1\u00d1])(?=.*[A-ZÀ-ÿ\u00f1\u00d1])(?=.*\d)(?=.*[@$!%*?&\-_])[A-Za-zÀ-ÿ\u00f1\u00d1\d@$!%*?&\-_]{8,}$/,
     mensaje:
-      "La contraseña debe tener un mínimo 8 carácteres y debe contener: 1 letra mayúscula, 1 letra minúscula ,1 número y 1 carácter especial de los siguientes: @$!%*?&-_",
+      "La contraseña debe contener: 1 letra mayúscula, 1 letra minúscula ,1 número y 1 carácter especial de los siguientes: @$!%*?&-_",
   },
 };
 
@@ -43,11 +43,19 @@ const validators = {
   ],
   nickname: [
     {
+      validator: (v) => v.length > 3,
+      message: "El nickname debe tener un mínimo de 4 carácteres",
+    },
+    {
       validator: (v) => CAMPOS.nickname.reg.test(v),
       message: CAMPOS.nickname.mensaje,
     },
   ],
   password: [
+    {
+      validator: (v) => v.length > 7,
+      message: "La contraseña debe tener un mínimo 4 carácteres",
+    },
     {
       validator: (v) => CAMPOS.password.reg.test(v),
       message: CAMPOS.password.mensaje,

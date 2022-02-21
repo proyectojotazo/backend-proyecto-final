@@ -3,6 +3,8 @@ const { Schema, model } = require("mongoose");
 const validators = require("./customValidators");
 const uniqueValidator = require("mongoose-unique-validator");
 
+const Articulo = require("./articulo");
+
 const bcrypt = require("bcrypt");
 
 const usuarioSchema = new Schema({
@@ -108,6 +110,16 @@ usuarioSchema.statics.findByIdPopulated = async function (id) {
       select: "nickname nombre articulos.creados",
     },
   ]);
+};
+
+// Función borrado completo del usuario
+usuarioSchema.statics.deleteAllData = async function (userToDelete) {
+  //  buscamos los articulos que ha creado el usuario
+  const articulosId = userToDelete.articulos.creados;
+  // borramos todos esos articulos
+  await Articulo.deleteMany({ _id: articulosId });
+  // borramos al usuario
+  await this.findByIdAndDelete({ _id: userToDelete._id });
 };
 
 module.exports = model("Usuario", usuarioSchema);

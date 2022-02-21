@@ -2,5 +2,6 @@ node_modules
 
 .env
 
-# Carpeta Javier peticiones
+# Archivos Javier
 requests/ 
+.vscode
