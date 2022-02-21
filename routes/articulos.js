@@ -47,7 +47,6 @@ const { jwtAuth } = require("../middlewares");
  *              - titulo
  *              - textoIntroductorio
  *              - contenido
- *              - fechaPublicacion
  *          example:
  *              titulo: Título artículo de prueba
  *              textoIntroductorio: Esto es un artículo de prueba
@@ -94,9 +93,75 @@ articulosRouter.get("/", articulosController.getArticulos);
 articulosRouter.get("/:id", articulosController.getArticulo);
 
 /* PATCH */
+/**
+ * @swagger
+ * /articles/{id}:
+ *   patch:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Actualiza artículo
+ *     tags: [Artículos]
+ *     parameters:
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *     requestBody:
+ *          content:
+ *              application/x-www-form-urlencoded:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          titulo:
+ *                              type: string
+ *                              description: Nombre del artículo
+ *                          archivoDestacado:
+ *                              type: string
+ *                              description: Video o imagen opcional
+ *                          textoIntroductorio:
+ *                              type: string
+ *                              description: Texto de introducción
+ *                          contenido:
+ *                              type: string
+ *                              description: Contenido del artículo
+ *                          fechaPublicacion:
+ *                              type: date
+ *                              description: Fecha de publicación
+ *                          estado:
+ *                              type: string
+ *                              description: Borrador o Publicado
+ *                          categorias:
+ *                              type: [string]
+ *                              description: Categorías
+ *                          comentarios:
+ *                              type: [string]
+ *                              description: Comentarios del artículo
+ *     responses:
+ *          200:
+ *              description: Artículo actualizado!
+ */
 articulosRouter.patch("/:id", jwtAuth, articulosController.actualizarArticulo);
 
 /* DELETE */
+/**
+ * @swagger
+ * /articles/{id}:
+ *   delete:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Elimina un artículo
+ *     tags: [Artículos]
+ *     parameters:
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *     responses:
+ *          200:
+ *              description: Artículo eliminado!
+ */
 articulosRouter.delete("/:id", jwtAuth, articulosController.borraArticulo);
 
 /* POST */
@@ -111,7 +176,7 @@ articulosRouter.delete("/:id", jwtAuth, articulosController.borraArticulo);
  *     requestBody:
  *          required: true
  *          content:
- *              application/json:
+ *              application/x-www-form-urlencoded:
  *                  schema:
  *                      type: object
  *                      $ref: '#/components/schemas/Articles'
