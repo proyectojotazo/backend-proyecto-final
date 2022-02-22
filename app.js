@@ -6,6 +6,8 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const { errorHandler } = require("./middlewares");
+const swaggerUi = require("swagger-ui-express");
+const swaggerConfig = require("./swagger/swaggerConfig");
 
 const {
   articulosRouter,
@@ -29,7 +31,12 @@ app.use("/register", registerRouter);
 app.use("/password-reset", passwordResetRouter);
 app.use("/articles", articulosRouter);
 app.use("/users", usuariosRouter);
-app.use("/comment", comentariosRouter)
+app.use("/comment", comentariosRouter);
+app.use(
+  "/swagger",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerConfig.swaggerDocs, swaggerConfig.swaggerOptions)
+);
 app.use(errorHandler);
 
 module.exports = app;
