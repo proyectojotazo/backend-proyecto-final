@@ -19,9 +19,9 @@ const jwtAuth = async (req, res, next) => {
     return next();
   } catch (error) {
     const err = {
-      name: error.name || 'JsonWebTokenError',
-      status: error.status || 400,
-      message: error.message || "Error al verificar el token",
+      name: error.name,
+      status: error.status || 401,
+      message: error.message,
     };
     return next(err);
   }
