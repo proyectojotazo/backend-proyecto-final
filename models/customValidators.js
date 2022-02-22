@@ -54,7 +54,7 @@ const validators = {
   password: [
     {
       validator: (v) => v.length > 7,
-      message: "La contraseña debe tener un mínimo 4 carácteres",
+      message: "La contraseña debe tener un mínimo 8 carácteres",
     },
     {
       validator: (v) => CAMPOS.password.reg.test(v),

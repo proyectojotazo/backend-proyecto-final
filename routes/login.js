@@ -7,9 +7,8 @@ loginRouter.post("/", async (req, res, next) => {
   const { email, password } = req.body;
 
   // Busca el usuario en la BD
-  const usuario = await Usuario.findOne({ email }).select("password");
-  // TODO: Dejamos select?
-
+  const usuario = await Usuario.findOne({ email })
+  
   // Si no existe el usuario o no coincide la contraseña devuelve error
   if (!usuario || !(await usuario.comparePassword(password))) {
     const error = {

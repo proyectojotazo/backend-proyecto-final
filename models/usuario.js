@@ -36,7 +36,6 @@ const usuarioSchema = new Schema({
   },
   password: {
     type: String,
-    select: false,
     required: [true, "Password requerido"],
     validate: validators.password,
   },
@@ -64,6 +63,7 @@ usuarioSchema.set("toJSON", {
     // returnedObject.id = returnedObject._id.toString()
     // delete returnedObject._id
     delete returnedObject.__v;
+    delete returnedObject.password
   },
 });
 
@@ -81,6 +81,21 @@ usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
 // Método que nos comprobará que el password introducido es correcto con el hasheado
 usuarioSchema.methods.comparePassword = function (passwordEnClaro) {
   return bcrypt.compare(passwordEnClaro, this.password);
+};
+
+/* 
+Método que nos actualizará al usuario, en caso de querer actualizar el password
+nos correrá primero los validadores para comprobar que la contraseña no hasehada
+cumple con los validadores y luego la hasheará y la introducirá en nuestro
+usuario.
+*/
+usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
+  const { password } = datosActualizar;
+  await this.updateOne(datosActualizar, { runValidators: true });
+  if (password) {
+    this.password = await bcrypt.hash(this.password, 7);
+    await this.updateOne({ password: this.password });
+  }
 };
 
 // Función que nos devuelve el usuario populated

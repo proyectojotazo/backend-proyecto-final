@@ -1,5 +1,5 @@
 const { Usuario } = require("../models");
-const { getUserFromJwt, camposValidos } = require("../utils");
+const { getUserFromJwt } = require("../utils");
 
 const userController = {};
 
@@ -37,9 +37,9 @@ userController.updateUsuario = async (req, res, next) => {
 
   try {
     // buscamos al usuario
-    const usuario = await Usuario.find({ id });
+    const usuario = await Usuario.findById(id);
     // Si no encuentra al usuario devuelve error
-    if (usuario.length === 0) {
+    if (!usuario) {
       const error = {
         name: "NotFound",
         status: 404,
@@ -58,33 +58,12 @@ userController.updateUsuario = async (req, res, next) => {
       return next(error);
     }
 
-    const hayCamposVacios = Object.values(datosActualizar).some(
-      (campo) => campo === ""
-    );
+    await usuario.actualizaUsuario(datosActualizar);
 
-    // Si dejamos algún campo a actualizar vacío
-    if (hayCamposVacios) {
-      const error = {
-        name: "UpdateValidationError",
-        status: 400,
-        message: "Hay campos vacíos",
-      };
-      return next(error);
-    }
-
-    // Se validan los campos antes de actualizar usuario
-    const [validos, error] = camposValidos(req.body);
-    // Si hay algún campo no valido, se retornará un JSON con los campos inválidos
-    if (!validos) return next(error);
-
-    if (datosActualizar.password) {
-      datosActualizar.password = await Usuario.hashPassword(
-        datosActualizar.password
-      );
-    }
-
-    await Usuario.findByIdAndUpdate(id, datosActualizar);
-    return res.status(204).json({ updated: "ok", status: 204 });
+    return res.status(204).json({
+      upated: "ok",
+      status: 204,
+    });
   } catch (error) {
     return next(error);
   }
