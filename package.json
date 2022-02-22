@@ -2,9 +2,12 @@
   "name": "backend",
   "version": "0.0.0",
   "private": true,
+  "main": "app.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon"
+    "start": "cross-env NODE_ENV=production node ./bin/www",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "test": "cross-env NODE_ENV=test jest --verbose --silent",
+    "test:watch": "npm run test -- --watch"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -21,12 +24,15 @@
     "swagger-ui-express": "^4.3.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
-    "nodemon": "^2.0.15"
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.2"
   }
 }

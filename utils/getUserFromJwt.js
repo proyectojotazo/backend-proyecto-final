@@ -12,7 +12,7 @@ function getUserFromJwt(token) {
     return user._id;
     // return JSON.parse(userJSON);
   } catch (error) {
-    console.error("The token could not be decoded", error);
+    // console.error("The token could not be decoded", error);
     return null;
   }
 }
