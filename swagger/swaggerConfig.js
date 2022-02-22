@@ -15,7 +15,7 @@ const swaggerSpec = {
       version: "1.0.0",
     },
   },
-  apis: [`${path.join(__dirname, "../routes/*.js")}`],
+  apis: [`${path.join(__dirname, "./*.js")}`],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerSpec);
