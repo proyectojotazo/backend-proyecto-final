@@ -132,6 +132,13 @@ Crear un artículo:
 
 > Será necesario incluir un "body" con al menos los siguientes campos requeridos: "titulo", "textoIntroductorio" y "contenido".
 
+Crear un nuevo artículo en respuesta a otro artículo:
+
+    	http://localhost:3001/articles/response/{idArticulo}
+> Funciona igual que "Crear un artículo", sólo hay que añadir a la ruta el id del artículo existente del que se quiera crear la respuesta.
+
+> Al realizar la petición se añadirá automáticamente el id y título del artículo del que se crea la respuesta a la base de datos.
+
 **- Comentarios -**
 
 Añadir un comentario a un artículo:
