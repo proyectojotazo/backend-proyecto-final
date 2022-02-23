@@ -68,14 +68,14 @@ usuarioSchema.set("toJSON", {
 });
 
 usuarioSchema.pre("save", async function (next) {
-  this.password = await bcrypt.hash(this.password, 7);
+  this.password = await bcrypt.hash(this.password, Number(process.env.SALT));
   next();
 });
 
 // Función que nos permitirá hashear el password
 // Innecesario, en pre.save ya hasheamos el password
 usuarioSchema.statics.hashPassword = function (passwordEnClaro) {
-  return bcrypt.hash(passwordEnClaro, 7);
+  return bcrypt.hash(passwordEnClaro, Number(process.env.SALT));
 };
 
 // Método que nos comprobará que el password introducido es correcto con el hasheado
@@ -93,7 +93,7 @@ usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
   const { password } = datosActualizar;
   await this.updateOne(datosActualizar, { runValidators: true });
   if (password) {
-    this.password = await bcrypt.hash(password, 7);
+    this.password = await bcrypt.hash(password, Number(process.env.SALT));
     await this.updateOne({ password: this.password });
   }
 };
