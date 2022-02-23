@@ -26,7 +26,7 @@ loginRouter.post("/", async (req, res, next) => {
 
   // Si el usuario existe, valida contraseña y crea un JWT con el _id y el nickname del usuario
   const token = jwt.sign(usuarioToken, process.env.JWT_SECRET, {
-    expiresIn: "15d",
+    expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
   return res.json({ token });
