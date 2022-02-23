@@ -1,51 +1,51 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose');
 // unique-validator comprueba que el dato es único
-const validators = require("./customValidators");
-const uniqueValidator = require("mongoose-unique-validator");
+const validators = require('./customValidators');
+const uniqueValidator = require('mongoose-unique-validator');
 
-const Articulo = require("./articulo");
+const Articulo = require('./articulo');
 
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
 const usuarioSchema = new Schema({
   nombre: {
     type: String,
-    required: [true, "Nombre requerido"],
+    required: [true, 'Nombre requerido'],
     index: true,
     validate: validators.nombre,
   },
   apellidos: {
     type: String,
-    required: [true, "Apellidos requeridos"],
+    required: [true, 'Apellidos requeridos'],
     index: true,
     validate: validators.apellidos,
   },
   email: {
     type: String,
-    required: [true, "Email requerido"],
+    required: [true, 'Email requerido'],
     index: true,
     unique: true,
     validate: validators.email,
   },
   nickname: {
     type: String,
-    required: [true, "Nickname requerido"],
+    required: [true, 'Nickname requerido'],
     index: true,
     unique: true,
     validate: validators.nickname,
   },
   password: {
     type: String,
-    required: [true, "Password requerido"],
+    required: [true, 'Password requerido'],
     validate: validators.password,
   },
   articulos: {
-    creados: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],
-    favoritos: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],
+    creados: [{ type: Schema.Types.ObjectId, ref: 'Articulo' }],
+    favoritos: [{ type: Schema.Types.ObjectId, ref: 'Articulo' }],
   },
   usuarios: {
-    seguidos: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
-    seguidores: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
+    seguidos: [{ type: Schema.Types.ObjectId, ref: 'Usuario' }],
+    seguidores: [{ type: Schema.Types.ObjectId, ref: 'Usuario' }],
   },
 
 
@@ -60,7 +60,7 @@ usuarioSchema.plugin(uniqueValidator);
  TODO: Cambiar la propiedad _id por id?
 */
 
-usuarioSchema.set("toJSON", {
+usuarioSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     // returnedObject.id = returnedObject._id.toString()
     // delete returnedObject._id
@@ -69,7 +69,7 @@ usuarioSchema.set("toJSON", {
   },
 });
 
-usuarioSchema.pre("save", async function (next) {
+usuarioSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, Number(process.env.SALT));
   next();
 });
@@ -108,23 +108,23 @@ usuarioSchema.statics.findByIdPopulated = async function (id) {
   */
   return await this.findById(id).populate([
     {
-      path: "articulos.creados",
-      model: "Articulo",
-      select: "-usuario",
+      path: 'articulos.creados',
+      model: 'Articulo',
+      select: '-usuario',
     },
     {
-      path: "articulos.favoritos",
-      model: "Articulo",
+      path: 'articulos.favoritos',
+      model: 'Articulo',
     },
     {
-      path: "usuarios.seguidos",
-      model: "Usuario",
-      select: "nickname nombre articulos.creados",
+      path: 'usuarios.seguidos',
+      model: 'Usuario',
+      select: 'nickname nombre articulos.creados',
     },
     {
-      path: "usuarios.seguidores",
-      model: "Usuario",
-      select: "nickname nombre articulos.creados",
+      path: 'usuarios.seguidores',
+      model: 'Usuario',
+      select: 'nickname nombre articulos.creados',
     },
   ]);
 };
@@ -139,4 +139,4 @@ usuarioSchema.statics.deleteAllData = async function (userToDelete) {
   await this.findByIdAndDelete({ _id: userToDelete._id });
 };
 
-module.exports = model("Usuario", usuarioSchema);
+module.exports = model('Usuario', usuarioSchema);
