@@ -20,4 +20,7 @@ usuariosRouter.post('/follow/:user', jwtAuth, userController.followUsuario);
 // UNFOLLOW USER
 usuariosRouter.post('/unfollow/:user', jwtAuth, userController.unfollowUsuario);
 
+// FAVORITO ARTICULO
+usuariosRouter.post('/articlefavourite/:id', jwtAuth, userController.articulosfavorito);
+
 module.exports = usuariosRouter;

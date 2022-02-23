@@ -1,4 +1,4 @@
-const { Usuario } = require('../models');
+const { Usuario, Articulo } = require('../models');
 const { getUserFromJwt } = require('../utils');
 
 const userController = {};
@@ -267,5 +267,62 @@ userController.unfollowUsuario = async (req, res, next) => {
     return next(error);
   }
 };
+
+userController.articulosfavorito = async (req, res, next) => {
+  
+  try {
+    // obtenemos el id
+    const _id = req.params.id;
+    // buscamos el articulo
+    const articulo = await Articulo.findById(_id)
+
+    if (!articulo) {
+      const error = {
+        name: 'NotFound',
+        status: 404,
+        message: 'Articulo no encontrado',
+      };
+      return next(error);
+    }
+
+    // obtener id de usuario del token
+    const tokenUser = req.get('Authorization');
+    const usuario = await Usuario.findOne({ _id: getUserFromJwt(tokenUser)});
+    // vemos si el articulos existe en favoritos
+    const articuloseguido = async ()=> {
+      
+      if (usuario.articulos.favoritos.includes(_id)) {
+        const result = usuario.articulos.favoritos.filter(ar => ar.toString()!==articulo._id.toString());
+        const articulofavorito = {
+          articulos: {
+            creados: [...usuario.articulos.creados],
+            favoritos: [...result],
+          },
+        };
+        await usuario.actualizaUsuario(articulofavorito);
+        return res.status(200).json({
+          Message: `Has dejado de seguir el articulo ${articulo.titulo}`,
+        })
+      } else {
+        const articulofavorito = {
+          articulos: {
+            creados: [...usuario.articulos.creados],
+            favoritos: [...usuario.articulos.favoritos, _id],
+          },
+        };
+        await usuario.actualizaUsuario(articulofavorito);
+        return res.status(200).json({
+          Message: `Has añadido a favoritos el articulo ${articulo.titulo}`,
+        })
+      }
+    }
+
+    articuloseguido();
+
+  } catch (error) {
+    return next(error);
+  }
+};
+
 
 module.exports = userController;
