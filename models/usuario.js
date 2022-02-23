@@ -47,6 +47,8 @@ const usuarioSchema = new Schema({
     seguidos: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
     seguidores: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   },
+
+
 });
 
 // Plugin que comprueba que los campos marcados como `unique` sean únicos
