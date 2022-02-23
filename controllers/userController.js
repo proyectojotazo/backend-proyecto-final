@@ -60,10 +60,8 @@ userController.updateUsuario = async (req, res, next) => {
 
     await usuario.actualizaUsuario(datosActualizar);
 
-    return res.status(204).json({
-      upated: "ok",
-      status: 204,
-    });
+    // Al no enviar información simplemente enviaremos .end()
+    return res.status(204).end();
   } catch (error) {
     return next(error);
   }
@@ -102,10 +100,8 @@ userController.borrarUsuario = async (req, res, next) => {
 
     await Usuario.deleteAllData(usuario);
 
-    return res.status(201).json({
-      deleted: "ok",
-      status: 201,
-    });
+    // Al no enviar información simplemente enviaremos .end()
+    return res.status(204).end();
   } catch (error) {
     return next(error);
   }

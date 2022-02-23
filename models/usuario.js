@@ -63,7 +63,7 @@ usuarioSchema.set("toJSON", {
     // returnedObject.id = returnedObject._id.toString()
     // delete returnedObject._id
     delete returnedObject.__v;
-    delete returnedObject.password
+    delete returnedObject.password;
   },
 });
 
@@ -93,7 +93,7 @@ usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
   const { password } = datosActualizar;
   await this.updateOne(datosActualizar, { runValidators: true });
   if (password) {
-    this.password = await bcrypt.hash(this.password, 7);
+    this.password = await bcrypt.hash(password, 7);
     await this.updateOne({ password: this.password });
   }
 };
