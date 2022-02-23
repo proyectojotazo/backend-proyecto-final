@@ -133,7 +133,7 @@ describe("/users", () => {
     });
     test("Si la id del token es diferente de la id del usuario a actualizar devuelve 401", async () => {
       // Obtenemos la id de otro usuario (TEST2) a actualizar
-      const otherUserId = userServices.getOtherUserId();
+      const otherUserId = await userServices.getOtherUserId();
       
       // Obtenemos el token del usuario TEST que va a actualizar
       const token = apiServices.getToken();
@@ -172,9 +172,9 @@ describe("/users", () => {
     });
     test("Si la id del token es diferente de la id del usuario a borrar devuelve 401", async () => {
       // Obtenemos la id de otro usuario (TEST2) a borrar
-      const otherUserId = userServices.getOtherUserId();
+      const otherUserId = await userServices.getOtherUserId();
       // Obtenemos el token del usuario TEST que va a borrar
-      const token = apiServices.getToken();
+      const token = await apiServices.getToken();
 
       await api
         .delete(`/users/${otherUserId}`)
