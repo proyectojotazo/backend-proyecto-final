@@ -17,7 +17,7 @@ usuariosRouter.delete('/:id', jwtAuth, userController.borrarUsuario);
 // FOLLOW USER
 usuariosRouter.post('/follow/:user', jwtAuth, userController.followUsuario);
 
-// FOLLOW USER
+// UNFOLLOW USER
 usuariosRouter.post('/unfollow/:user', jwtAuth, userController.unfollowUsuario);
 
 module.exports = usuariosRouter;
