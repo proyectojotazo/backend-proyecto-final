@@ -1,3 +1,5 @@
+const multer = require("multer");
+const upload = multer();
 const articulosRouter = require("express").Router();
 
 const { articulosController } = require("../controllers");
@@ -10,12 +12,22 @@ articulosRouter.get("/", articulosController.getArticulos);
 articulosRouter.get("/:id", articulosController.getArticulo);
 
 /* PATCH */
-articulosRouter.patch("/:id", jwtAuth, articulosController.actualizarArticulo);
+articulosRouter.patch(
+  "/:id",
+  jwtAuth,
+  upload.single("archivoDestacado"),
+  articulosController.actualizarArticulo
+);
 
 /* DELETE */
 articulosRouter.delete("/:id", jwtAuth, articulosController.borraArticulo);
 
 /* POST */
-articulosRouter.post("/", jwtAuth, articulosController.creaArticulo);
+articulosRouter.post(
+  "/",
+  jwtAuth,
+  upload.single("archivoDestacado"),
+  articulosController.creaArticulo
+);
 
 module.exports = articulosRouter;

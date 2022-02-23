@@ -20,6 +20,13 @@ Antes de nada debemos usar el siguiente comando para instalar todas las dependen
 
 Para configurar las variables de entorno, deberemos crear un archivo `.env` en la raíz del proyecto y añadir las variables de entorno proporcionadas en el archivo `.example.env`, con los valores que queramos usar.
 
+#### Añadir fichero .npmrc (sólo en Windows)
+
+Si se usa Windows, deberemos crear el archivo `.npmrc` en la carpeta raíz del proyecto y dentro incluir la siguiente línea:
+
+    	script-shell = "C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+> Con esa línea le estaríamos pasando la ruta por defecto de PowerShell en Windows, para que pueda ejecutar correctamente los scripts incluidos en el `package.json`.
+
 #### Iniciar en modo desarrollo:
 
 Para arrancar el proyecto en modo desarrollo, usar el comando:
@@ -60,6 +67,11 @@ Orden Descendente - Muestra artículos por fecha de publicación descendente (nu
 
     	http://localhost:3001/articles?sort=-fechaPublicacion
 
+**- Comentarios -**
+
+Mostrar comentario por ID:
+
+    	http://localhost:3001/comment/<idComentario>
 
 #### POST:
 
@@ -92,6 +104,16 @@ Crear un artículo:
 > Para poder crear un artículo será necesario un token válido, incluido en la cabecera "Authorization".
 
 > Será necesario incluir un "body" con al menos los siguientes campos requeridos: "titulo", "textoIntroductorio" y "contenido".
+
+**- Comentarios -**
+
+Añadir un comentario a un artículo:
+
+    	http://localhost:3001/comment/<idArticulo>
+
+Responder a un comentario de un artículo:
+
+    	http://localhost:3001/comment/response/<idComentario>
 
 #### PATCH:
 

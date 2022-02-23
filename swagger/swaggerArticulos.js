@@ -15,6 +15,7 @@
  *                  description: Nombre del artículo
  *              archivoDestacado:
  *                  type: string
+ *                  format: binary
  *                  description: Video o imagen opcional
  *              textoIntroductorio:
  *                  type: string
@@ -95,7 +96,7 @@
  *            required: true
  *     requestBody:
  *          content:
- *              application/x-www-form-urlencoded:
+ *              multipart/form-data:
  *                  schema:
  *                      type: object
  *                      properties:
@@ -157,7 +158,7 @@
  *     requestBody:
  *          required: true
  *          content:
- *              application/x-www-form-urlencoded:
+ *              multipart/form-data:
  *                  schema:
  *                      type: object
  *                      $ref: '#/components/schemas/Articles'
