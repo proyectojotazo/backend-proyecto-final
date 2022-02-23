@@ -5,9 +5,8 @@ module.exports = {
     node: true,
     jest: true,
   },
-  extends: ["standard", "prettier"],
+  extends: ['standard', 'prettier'],
   parserOptions: {
-    ecmaVersion: "latest",
+    ecmaVersion: 'latest',
   },
-  rules: { "no-console": "error" },
 };
