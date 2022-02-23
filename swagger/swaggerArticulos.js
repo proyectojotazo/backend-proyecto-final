@@ -166,3 +166,30 @@
  *          201:
  *              description: Nuevo artículo creado!
  */
+
+/**
+ * @swagger
+ * /articles/response/{idArticulo}:
+ *   post:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Crea un nuevo artículo en respuesta a otro artículo
+ *     description: Crea un nuevo artículo en respuesta a otro artículo ya existente
+ *     tags: [Artículos]
+ *     parameters:
+ *          - in: path
+ *            name: idArticulo
+ *            schema:
+ *              type: string
+ *            required: true
+ *     requestBody:
+ *          required: true
+ *          content:
+ *              multipart/form-data:
+ *                  schema:
+ *                      type: object
+ *                      $ref: '#/components/schemas/Articles'
+ *     responses:
+ *          201:
+ *              description: Nuevo artículo creado!
+ */

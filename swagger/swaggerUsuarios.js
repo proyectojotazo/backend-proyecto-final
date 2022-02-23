@@ -66,7 +66,7 @@
  *          - bearerAuth: []
  *     summary: Seguir a un usuario
  *     tags: [Usuarios]
- *     description: Puedes seguir a un usuario proporcionando su "nickname" o "email" por parámetros
+ *     description: Puedes seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
  *            name: nicknameOemailUser
@@ -86,7 +86,7 @@
  *          - bearerAuth: []
  *     summary: Dejar de seguir a un usuario
  *     tags: [Usuarios]
- *     description: Puedes dejar de seguir a un usuario proporcionando su "nickname" o "email" por parámetros
+ *     description: Puedes dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
  *            name: nicknameOemailUser
