@@ -1,5 +1,5 @@
-const { Usuario } = require('../models');
-const { getUserFromJwt } = require('../utils');
+const { Usuario } = require("../models");
+const { getUserFromJwt, CAMPOS } = require("../utils");
 
 const userController = {};
 
@@ -12,9 +12,9 @@ userController.getUsuario = async (req, res, next) => {
     // Si no se encuentra el usuario
     if (!usuario) {
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Usuario no encontrado',
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
@@ -29,7 +29,7 @@ userController.updateUsuario = async (req, res, next) => {
   const id = req.params.id;
 
   // obtener id de usuario del token
-  const tokenUser = req.get('Authorization');
+  const tokenUser = req.get("Authorization");
   const userId = getUserFromJwt(tokenUser);
 
   // datos a actualizar
@@ -41,9 +41,9 @@ userController.updateUsuario = async (req, res, next) => {
     // Si no encuentra al usuario devuelve error
     if (!usuario) {
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Usuario no encontrado',
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
@@ -51,9 +51,9 @@ userController.updateUsuario = async (req, res, next) => {
     // comprueba si el id del usuario a actualizar es el mismo que esta logueado
     if (userId !== id) {
       const error = {
-        name: 'Unauthorized',
+        name: "Unauthorized",
         status: 401,
-        message: 'No estas autorizado para actualizar este usuario',
+        message: "No estas autorizado para actualizar este usuario",
       };
       return next(error);
     }
@@ -72,7 +72,7 @@ userController.borrarUsuario = async (req, res, next) => {
   const _id = req.params.id;
 
   // obtener id de usuario del token
-  const tokenUser = req.get('Authorization');
+  const tokenUser = req.get("Authorization");
   const userId = getUserFromJwt(tokenUser);
 
   try {
@@ -82,18 +82,18 @@ userController.borrarUsuario = async (req, res, next) => {
     if (!usuario) {
       // Si no encuentra al usuario
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Usuario no encontrado',
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
     // comprueba si el id del usuario a borrar es el mismo que esta logueado
     if (userId !== _id) {
       const error = {
-        name: 'Unauthorized',
+        name: "Unauthorized",
         status: 401,
-        message: 'No estas autorizado para borrar este usuario',
+        message: "No estas autorizado para borrar este usuario",
       };
       return next(error);
     }
@@ -108,7 +108,7 @@ userController.borrarUsuario = async (req, res, next) => {
 };
 
 userController.followUsuario = async (req, res, next) => {
-  const mailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const mailRegex = CAMPOS.email.reg;
   try {
     // Comprueba si es un mail
     const isMail = mailRegex.test(req.params.user);
@@ -122,9 +122,9 @@ userController.followUsuario = async (req, res, next) => {
 
     if (!usuarioDestino) {
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Usuario no encontrado',
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
@@ -132,7 +132,7 @@ userController.followUsuario = async (req, res, next) => {
     const userIdDestino = usuarioDestino._id.toString();
 
     // El usuario propietario que sigue a otro
-    const tokenUser = req.get('Authorization');
+    const tokenUser = req.get("Authorization");
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
@@ -140,9 +140,9 @@ userController.followUsuario = async (req, res, next) => {
     // No permitir seguise a uno mismo
     if (userIdDestino === userIdRemitente) {
       const error = {
-        name: 'Cant follow your self',
+        name: "Cant follow your self",
         status: 404,
-        message: 'No puedes seguirte a ti mismo',
+        message: "No puedes seguirte a ti mismo",
       };
       return next(error);
     }
@@ -150,9 +150,9 @@ userController.followUsuario = async (req, res, next) => {
     // No permitir seguir el usuario más de una vez
     if (usuarioDestino.usuarios.seguidores.includes(userIdRemitente)) {
       const error = {
-        name: 'Already followed',
+        name: "Already followed",
         status: 404,
-        message: 'Ya sigues a ese usuario',
+        message: "Ya sigues a ese usuario",
       };
       return next(error);
     }
@@ -187,7 +187,7 @@ userController.followUsuario = async (req, res, next) => {
 };
 
 userController.unfollowUsuario = async (req, res, next) => {
-  const mailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+  const mailRegex = CAMPOS.email.reg;
   try {
     // Comprueba si es un mail
     const isMail = mailRegex.test(req.params.user);
@@ -201,9 +201,9 @@ userController.unfollowUsuario = async (req, res, next) => {
 
     if (!usuarioDestino) {
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Usuario no encontrado',
+        message: "Usuario no encontrado",
       };
       return next(error);
     }
@@ -211,7 +211,7 @@ userController.unfollowUsuario = async (req, res, next) => {
     const userIdDestino = usuarioDestino._id.toString();
 
     // El usuario propietario que deja de seguir a otro
-    const tokenUser = req.get('Authorization');
+    const tokenUser = req.get("Authorization");
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
@@ -219,9 +219,9 @@ userController.unfollowUsuario = async (req, res, next) => {
     // No se permite dejar de seguirse a uno mismo
     if (userIdDestino === userIdRemitente) {
       const error = {
-        name: 'Cant unfollow your self',
+        name: "Cant unfollow your self",
         status: 404,
-        message: 'No puedes dejar de seguirte a ti mismo',
+        message: "No puedes dejar de seguirte a ti mismo",
       };
       return next(error);
     }
@@ -229,9 +229,9 @@ userController.unfollowUsuario = async (req, res, next) => {
     // No puedes dejar de seguir a alguien que no sigues
     if (!usuarioDestino.usuarios.seguidores.includes(userIdRemitente)) {
       const error = {
-        name: 'Cant be unfollowed',
+        name: "Cant be unfollowed",
         status: 404,
-        message: 'No puedes dejar de seguir a ese usuario porque no le sigues',
+        message: "No puedes dejar de seguir a ese usuario porque no le sigues",
       };
       return next(error);
     }
