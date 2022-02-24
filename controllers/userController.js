@@ -4,10 +4,10 @@ const { getUserFromJwt, CAMPOS } = require("../utils");
 const userController = {};
 
 userController.getUsuario = async (req, res, next) => {
-  const id = req.params.id;
+  const { nickname } = req.params;
 
   try {
-    const usuario = await Usuario.findByIdPopulated(id);
+    const usuario = await Usuario.findOnePopulated(nickname);
 
     // Si no se encuentra el usuario
     if (!usuario) {

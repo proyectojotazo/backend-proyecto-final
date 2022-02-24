@@ -47,8 +47,6 @@ const usuarioSchema = new Schema({
     seguidos: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
     seguidores: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   },
-
-
 });
 
 // Plugin que comprueba que los campos marcados como `unique` sean únicos
@@ -105,12 +103,12 @@ usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
 };
 
 // Función que nos devuelve el usuario populated
-usuarioSchema.statics.findByIdPopulated = async function (id) {
+usuarioSchema.statics.findOnePopulated = async function (nick) {
   /* 
   Pongo select en articulos.creados porque creo que es redundante que al pedir
   un usuario populado tambien demos la id del mismo
   */
-  return await this.findById(id).populate([
+  return await this.findOne({ nickname: nick.toLowerCase() }).populate([
     {
       path: "articulos.creados",
       model: "Articulo",

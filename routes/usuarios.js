@@ -4,7 +4,7 @@ const { jwtAuth, userAuthorized, userExists } = require("../middlewares");
 const { userController } = require("../controllers");
 
 /* GET */
-usuariosRouter.get("/:id", userController.getUsuario);
+usuariosRouter.get("/:nickname", userController.getUsuario);
 
 /* PATCH */
 usuariosRouter.patch(
