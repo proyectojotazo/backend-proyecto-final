@@ -50,9 +50,10 @@ El API dispone de una documentación a través de Swagger, para poder probar tod
 
 **- Usuarios -**
 
-Mostrar usuario por ID:
+Mostrar usuario por su Nickname:
 
-    	http://localhost:3001/users/<IdUsuario>
+    	http://localhost:3001/users/<nickName>
+> Esta petición se puede realizar indicando el nick del usuario en mayúscula o minúscula. La búsqueda se hará en minúscula indistintamente, ya que así es como se almacena en la base de datos.
 
 **- Artículos -**
 
