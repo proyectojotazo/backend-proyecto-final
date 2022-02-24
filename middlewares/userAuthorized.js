@@ -11,7 +11,7 @@ const userAuthorized = (req, res, next) => {
     const error = {
       name: "Unauthorized",
       status: 401,
-      message: "No estas autorizado para actualizar este usuario",
+      message: "No estas autorizado para realizar ésta acción",
     };
     return next(error);
   }
