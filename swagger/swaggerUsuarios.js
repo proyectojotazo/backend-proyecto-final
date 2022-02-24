@@ -36,25 +36,20 @@
 // GET
 /**
  * @swagger
- * /users/{id}:
+ * /users/{nickname}:
  *   get:
- *     summary: Muestra un usuario
+ *     summary: Muestra un usuario por nickname
  *     tags: [Usuarios]
- *     description: Devuelve un usuario por id
+ *     description: Devuelve un usuario por nickname
  *     parameters:
  *          - in: path
- *            name: id
+ *            name: nickname
  *            schema:
  *              type: string
  *            required: true
  *     responses:
  *       302:
- *         description: Muestra un usuario por id
- *         content:
- *              application/json:
- *                  schema:
- *                      type: object
- *                      $ref: '#components/schemas/Users'
+ *         description: Muestra un usuario por nickname
  */
 
 // POST
