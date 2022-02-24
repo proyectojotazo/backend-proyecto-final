@@ -25,19 +25,7 @@ articulosController.getArticulo = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const articulo = await Articulo.findById(id)
-      .populate("usuario", {
-        nombre: 1,
-        apellidos: 1,
-        email: 1,
-        nickname: 1,
-      })
-      .populate("comentarios", {
-        usuario: 1,
-        fechaPublicacion: 1,
-        contenido: 1,
-        respuesta: 1,
-      });
+    const articulo = await Articulo.findByIdPopulated(id)
 
     // Si no se encuentra el articulo
     if (!articulo) {

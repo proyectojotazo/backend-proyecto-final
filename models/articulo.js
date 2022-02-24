@@ -78,6 +78,21 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   return query.exec();
 };
 
+articuloSchema.statics.findByIdPopulated = async function (id) {
+  return await this.findById(id)
+    .populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+    })
+    .populate("comentarios", {
+      usuario: 1,
+      fechaPublicacion: 1,
+      contenido: 1,
+      respuesta: 1,
+    });
+};
 
 const Articulo = model("Articulo", articuloSchema);
 
