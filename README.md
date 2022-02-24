@@ -9,11 +9,11 @@ Backend del proyecto final...
 
 ## Equipo
 
-[![](https://avatars.githubusercontent.com/u/50462927?s=50&v=4)](https://github.com/Jotazo)
-[![](https://avatars.githubusercontent.com/u/74027079?s=50&v=4)](https://github.com/MiwelR)
-[![](https://avatars.githubusercontent.com/u/73942230?s=50&v=4)](https://github.com/Venganzaalchocolate)
-[![](https://avatars.githubusercontent.com/u/63161873?s=50&v=4)](https://github.com/csrap)
-[![](https://avatars.githubusercontent.com/u/67967342?s=50&v=4)](https://github.com/tommyshelby1917)
+[![](https://github.com/Jotazo.png?size=50)](https://github.com/Jotazo)
+[![](https://github.com/MiwelR.png?size=50)](https://github.com/MiwelR)
+[![](https://github.com/Venganzaalchocolate.png?size=50)](https://github.com/Venganzaalchocolate)
+[![](https://github.com/csrap.png?size=50)](https://github.com/csrap)
+[![](https://github.com/tommyshelby1917.png?size=50)](https://github.com/tommyshelby1917)
 
 ## Instrucciones
 
