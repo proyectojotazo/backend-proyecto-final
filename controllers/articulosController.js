@@ -166,6 +166,7 @@ articulosController.creaArticulo = async (req, res, next) => {
     const nuevoArticulo = new Articulo({
       ...req.body,
       usuario: usuarioId,
+      archivoDestacado: req.file.path,
     });
 
     await nuevoArticulo.save();

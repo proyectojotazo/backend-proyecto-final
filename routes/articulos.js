@@ -1,5 +1,6 @@
-const multer = require("multer");
-const upload = multer();
+// const multer = require("multer");
+// const upload = multer();
+const upload = require("../lib/multerConfig");
 const articulosRouter = require("express").Router();
 
 const { articulosController } = require("../controllers");
