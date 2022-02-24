@@ -3,9 +3,9 @@
  * components:
  *  securitySchemes:
  *      bearerAuth:
- *          type: apiKey
- *          name: Authorization
- *          in: header
+ *          type: http
+ *          scheme: bearer
+ *          bearerFormat: JWT
  *  schemas:
  *      Articles:
  *          type: object
