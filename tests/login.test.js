@@ -1,7 +1,7 @@
 const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-const { app, server } = require("../bin/www");
+const { app, server } = require("../app");
 
 const { Usuario } = require("../models");
 
@@ -47,7 +47,7 @@ describe("/login", () => {
   });
 });
 
-afterAll(async () => {
-  server.close();
+afterAll(() => {
   mongoose.connection.close();
+  server.close();
 });

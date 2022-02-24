@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 
-const { app } = require("../bin/www");
+const { app } = require("../app");
 
 const { Usuario } = require("../models");
 

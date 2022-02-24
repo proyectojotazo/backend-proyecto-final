@@ -1,7 +1,7 @@
 const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-const { app, server } = require("../bin/www");
+const { app, server } = require("../app");
 const { Usuario, Articulo } = require("../models");
 
 const {
@@ -27,34 +27,25 @@ beforeEach(async () => {
 describe("/users", () => {
   describe("GET /:id", () => {
     test("devuelve 302 (Found)", async () => {
-      const userId = await userServices.getUserId();
+      const { nickname } = testUser;
 
       await api
-        .get(`/users/${userId}`)
+        .get(`/users/${nickname}`)
         .expect(302)
         .expect("Content-Type", /application\/json/);
     });
     test("devuelve el usuario correcto", async () => {
-      const userId = await userServices.getUserId();
+      const { nickname } = testUser;
 
-      const response = await api.get(`/users/${userId}`);
+      const response = await api.get(`/users/${nickname}`);
 
       const usuarioDevuelto = response.body.usuario;
 
       expect(usuarioDevuelto.nombre).toBe(testUser.nombre);
     });
-    test("devuelve error 400 con id malformada", async () => {
+    test("devuelve error 404 con nickname inexistente", async () => {
       const response = await api
-        .get("/users/6214b593b6c1fa7fee58f95")
-        .expect(400)
-        .expect("Content-Type", /application\/json/);
-
-      const errorDevuelto = response.body;
-      expect(errorDevuelto.name).toBe(ERRORS[errorDevuelto.name]);
-    });
-    test("devuelve error 404 con id inexistente", async () => {
-      const response = await api
-        .get("/users/6214b593b6c1fa7fee58f955")
+        .get("/users/calabuig")
         .expect(404)
         .expect("Content-Type", /application\/json/);
 
@@ -214,7 +205,7 @@ describe("/users", () => {
   });
 });
 
-afterAll(async () => {
-  await server.close();
-  await mongoose.connection.close();
+afterAll(() => {
+  mongoose.connection.close();
+  server.close();
 });
