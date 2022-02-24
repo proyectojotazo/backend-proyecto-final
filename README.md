@@ -9,11 +9,7 @@ Backend del proyecto final...
 
 ## Equipo
 
-[![](https://github.com/Jotazo.png?size=50)](https://github.com/Jotazo)
-[![](https://github.com/MiwelR.png?size=50)](https://github.com/MiwelR)
-[![](https://github.com/Venganzaalchocolate.png?size=50)](https://github.com/Venganzaalchocolate)
-[![](https://github.com/csrap.png?size=50)](https://github.com/csrap)
-[![](https://github.com/tommyshelby1917.png?size=50)](https://github.com/tommyshelby1917)
+[![](https://contrib.rocks/image?repo=proyectojotazo/backend-proyecto-final)](https://github.com/proyectojotazo/backend-proyecto-final/graphs/contributors)
 
 ## Instrucciones
 
