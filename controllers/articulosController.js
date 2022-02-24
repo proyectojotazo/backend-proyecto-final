@@ -300,4 +300,46 @@ articulosController.responderComentario = async (req, res, next) => {
   }
 };
 
+// Creación de un articulo en respuesta a otro articulo 
+articulosController.respuestaArticulo = async (req, res, next) => {
+  const jwtToken =
+    req.get("Authorization");
+
+  const usuarioId = getUserFromJwt(jwtToken);
+
+  // Obtenemos el id del articulo para poder responderlo 
+  const idArticulo = req.params.id;
+  // buscar el articulo 
+  const articulo = await Articulo.findById(idArticulo);
+  // buscamos el usuario el cual esta respondiendo el articulo creado
+  const usuario = await Usuario.findById(usuarioId);
+
+  try {
+    // creamos el articulo en respuesta al original 
+    const respuestaArticulo = new Articulo({
+      ...req.body,
+      usuario: usuarioId,
+      respuesta: {
+        idArticulo: idArticulo,
+        titulo: articulo.titulo
+      }
+
+    });
+
+    await respuestaArticulo.save();
+
+    // Creamos el nuevo articulo en respuesta al articulo original 
+    await Usuario.findByIdAndUpdate(usuarioId, {
+      articulos: {
+        creados: [...usuario.articulos.creados, respuestaArticulo._id],
+        favoritos: [...usuario.articulos.favoritos],
+      },
+    });
+
+    return res.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = articulosController;

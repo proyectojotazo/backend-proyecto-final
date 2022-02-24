@@ -7,6 +7,9 @@
 
 Backend del proyecto final...
 
+## Equipo
+
+[![](https://contrib.rocks/image?repo=proyectojotazo/backend-proyecto-final)](https://github.com/proyectojotazo/backend-proyecto-final/graphs/contributors)
 
 ## Instrucciones
 
@@ -37,7 +40,13 @@ Para arrancar el proyecto en modo desarrollo, usar el comando:
 
 ## Rutas del API
 
-#### GET:
+![](https://static1.smartbear.co/swagger/media/assets/images/swagger_logo.svg)
+
+El API dispone de una documentación a través de Swagger, para poder probar todos los endpoints disponibles. La ruta de acceso al Swagger del API es la siguiente:
+
+    	http://localhost:3001/swagger
+
+### GET:
 
 **- Usuarios -**
 
@@ -73,7 +82,7 @@ Mostrar comentario por ID:
 
     	http://localhost:3001/comment/<idComentario>
 
-#### POST:
+### POST:
 
 **- Usuarios -**
 
@@ -96,6 +105,27 @@ Restablecer contraseña:
 
 > Para enviar la petición generada al API, se deberá añadir un objeto en el "body" con la clave "password" y como valor la nueva contraseña, para que pueda ser modificada correctamente.
 
+Seguir a un usuario:
+
+    	http://localhost:3001/users/follow/<nickNameOrEmail>
+> Puedes seguir a un usuario añadiendo a la ruta su "nickname" o "email".
+
+> Esta petición necesita el header "Authorization" con el token
+
+Dejar de seguir a un usuario:
+
+    	http://localhost:3001/users/unfollow/<nickNameOrEmail>
+> Puedes dejar de seguir a un usuario añadiendo a la ruta su "nickname" o "email".
+
+> Esta petición necesita el header "Authorization" con el token
+
+Añadir o eliminar un artículo de favoritos:
+
+    	http://localhost:3001/users/articles/favourites/<idArticulo>
+> Puedes añadir o eliminar artículos favoritos a un usuario autenticado, incluyendo el id del artículo en la ruta. Al hacer la petición si el artículo no esta en tus artículos favoritos, lo añade, si no eliminará el artículo de favoritos con la misma petición.
+
+> Esta petición necesita el header "Authorization" con el token
+
 **- Artículos -**
 
 Crear un artículo:
@@ -104,6 +134,13 @@ Crear un artículo:
 > Para poder crear un artículo será necesario un token válido, incluido en la cabecera "Authorization".
 
 > Será necesario incluir un "body" con al menos los siguientes campos requeridos: "titulo", "textoIntroductorio" y "contenido".
+
+Crear un nuevo artículo en respuesta a otro artículo:
+
+    	http://localhost:3001/articles/response/{idArticulo}
+> Funciona igual que "Crear un artículo", sólo hay que añadir a la ruta el id del artículo existente del que se quiera crear la respuesta.
+
+> Al realizar la petición se añadirá automáticamente el id y título del artículo del que se crea la respuesta a la base de datos.
 
 **- Comentarios -**
 
@@ -115,7 +152,7 @@ Responder a un comentario de un artículo:
 
     	http://localhost:3001/comment/response/<idComentario>
 
-#### PATCH:
+### PATCH:
 
 **- Usuarios -**
 
@@ -139,7 +176,7 @@ Actualizar un artículo:
 
 > Si el artículo no existe, también devolverá un error.
 
-#### DELETE:
+### DELETE:
 
 **- Usuarios -**
 

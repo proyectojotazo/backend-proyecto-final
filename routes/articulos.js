@@ -30,4 +30,11 @@ articulosRouter.post(
   articulosController.creaArticulo
 );
 
+articulosRouter.post(
+  "/response/:id",
+  jwtAuth,
+  upload.single("archivoDestacado"),
+  articulosController.respuestaArticulo
+);
+
 module.exports = articulosRouter;

@@ -4,12 +4,12 @@ const { articulosController } = require("../controllers");
 
 const { jwtAuth } = require("../middlewares");
 
-// GET comentario TODO ¿mover a otro lado para que quede más limpio?
+// GET comentario TODO 
 comentariosRouter.get("/:id", jwtAuth, articulosController.getComentarios)
 
-// POST CREAR comentario TODO ¿mover a otro lado para que quede más limpio?
+// POST CREAR comentario TODO 
 comentariosRouter.post("/:id", jwtAuth, articulosController.creaComentario)
-// POST RESPONDER comentario TODO ¿mover a otro lado para que quede más limpio?
+// POST RESPONDER comentario TODO 
 comentariosRouter.post("/response/:id", jwtAuth, articulosController.responderComentario)
 
 module.exports = comentariosRouter;
