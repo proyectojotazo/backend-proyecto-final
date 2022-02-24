@@ -26,11 +26,7 @@ userController.getUsuario = async (req, res, next) => {
 
 userController.updateUsuario = async (req, res, next) => {
   // obtenemos id del usuario a actualizar
-  const id = req.params.id;
-
-  // obtener id de usuario del token
-  const tokenUser = req.get("Authorization");
-  const userId = getUserFromJwt(tokenUser);
+  const { id } = req.params;
 
   // datos a actualizar
   const datosActualizar = req.body;
@@ -38,25 +34,6 @@ userController.updateUsuario = async (req, res, next) => {
   try {
     // buscamos al usuario
     const usuario = await Usuario.findById(id);
-    // Si no encuentra al usuario devuelve error
-    if (!usuario) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Usuario no encontrado",
-      };
-      return next(error);
-    }
-
-    // comprueba si el id del usuario a actualizar es el mismo que esta logueado
-    if (userId !== id) {
-      const error = {
-        name: "Unauthorized",
-        status: 401,
-        message: "No estas autorizado para actualizar este usuario",
-      };
-      return next(error);
-    }
 
     await usuario.actualizaUsuario(datosActualizar);
 
@@ -69,34 +46,11 @@ userController.updateUsuario = async (req, res, next) => {
 
 userController.borrarUsuario = async (req, res, next) => {
   // obtendremos el id
-  const _id = req.params.id;
-
-  // obtener id de usuario del token
-  const tokenUser = req.get("Authorization");
-  const userId = getUserFromJwt(tokenUser);
+  const { id } = req.params;
 
   try {
     // buscamos al usuario
-    const usuario = await Usuario.findById({ _id });
-
-    if (!usuario) {
-      // Si no encuentra al usuario
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Usuario no encontrado",
-      };
-      return next(error);
-    }
-    // comprueba si el id del usuario a borrar es el mismo que esta logueado
-    if (userId !== _id) {
-      const error = {
-        name: "Unauthorized",
-        status: 401,
-        message: "No estas autorizado para borrar este usuario",
-      };
-      return next(error);
-    }
+    const usuario = await Usuario.findById(id);
 
     await Usuario.deleteAllData(usuario);
 
@@ -108,10 +62,9 @@ userController.borrarUsuario = async (req, res, next) => {
 };
 
 userController.followUsuario = async (req, res, next) => {
-  const mailRegex = CAMPOS.email.reg;
   try {
     // Comprueba si es un mail
-    const isMail = mailRegex.test(req.params.user);
+    const isMail = CAMPOS.email.reg.test(req.params.user);
 
     // El usuario al que se seguira
     const usuarioDestino = isMail
@@ -132,7 +85,7 @@ userController.followUsuario = async (req, res, next) => {
     const userIdDestino = usuarioDestino._id.toString();
 
     // El usuario propietario que sigue a otro
-    const tokenUser = req.get("Authorization");
+    const tokenUser = req.get("Authorization").split(" ")[1];
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
@@ -187,10 +140,9 @@ userController.followUsuario = async (req, res, next) => {
 };
 
 userController.unfollowUsuario = async (req, res, next) => {
-  const mailRegex = CAMPOS.email.reg;
   try {
     // Comprueba si es un mail
-    const isMail = mailRegex.test(req.params.user);
+    const isMail = CAMPOS.email.reg.test(req.params.user);
 
     // El usuario al que se dejara de seguir
     const usuarioDestino = isMail
@@ -211,7 +163,7 @@ userController.unfollowUsuario = async (req, res, next) => {
     const userIdDestino = usuarioDestino._id.toString();
 
     // El usuario propietario que deja de seguir a otro
-    const tokenUser = req.get("Authorization");
+    const tokenUser = req.get("Authorization").split(" ")[1];
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
@@ -269,30 +221,30 @@ userController.unfollowUsuario = async (req, res, next) => {
 };
 
 userController.articulosfavorito = async (req, res, next) => {
-  
   try {
     // obtenemos el id
-    const _id = req.params.id;
+    const { id } = req.params;
     // buscamos el articulo
-    const articulo = await Articulo.findById(_id)
+    const articulo = await Articulo.findById(id);
 
     if (!articulo) {
       const error = {
-        name: 'NotFound',
+        name: "NotFound",
         status: 404,
-        message: 'Articulo no encontrado',
+        message: "Articulo no encontrado",
       };
       return next(error);
     }
 
     // obtener id de usuario del token
-    const tokenUser = req.get('Authorization');
-    const usuario = await Usuario.findOne({ _id: getUserFromJwt(tokenUser)});
+    const tokenUser = req.get("Authorization").split(" ")[1];
+    const usuario = await Usuario.findOne({ _id: getUserFromJwt(tokenUser) });
     // vemos si el articulos existe en favoritos
-    const articuloseguido = async ()=> {
-      
-      if (usuario.articulos.favoritos.includes(_id)) {
-        const result = usuario.articulos.favoritos.filter(ar => ar.toString()!==articulo._id.toString());
+    const articuloseguido = async () => {
+      if (usuario.articulos.favoritos.includes()) {
+        const result = usuario.articulos.favoritos.filter(
+          (ar) => ar.toString() !== articulo._id.toString()
+        );
         const articulofavorito = {
           articulos: {
             creados: [...usuario.articulos.creados],
@@ -302,27 +254,25 @@ userController.articulosfavorito = async (req, res, next) => {
         await usuario.actualizaUsuario(articulofavorito);
         return res.status(200).json({
           Message: `Has dejado de seguir el articulo ${articulo.titulo}`,
-        })
+        });
       } else {
         const articulofavorito = {
           articulos: {
             creados: [...usuario.articulos.creados],
-            favoritos: [...usuario.articulos.favoritos, _id],
+            favoritos: [...usuario.articulos.favoritos, id],
           },
         };
         await usuario.actualizaUsuario(articulofavorito);
         return res.status(200).json({
           Message: `Has añadido a favoritos el articulo ${articulo.titulo}`,
-        })
+        });
       }
-    }
+    };
 
     articuloseguido();
-
   } catch (error) {
     return next(error);
   }
 };
-
 
 module.exports = userController;

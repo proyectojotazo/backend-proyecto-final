@@ -39,6 +39,7 @@ const USERS = [testUser, testUser2];
 const ERRORS = {
   CastError: "CastError",
   NotFound: "NotFound",
+  Unauthorized: "Unauthorized",
 };
 
 const userServices = {

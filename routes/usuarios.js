@@ -1,5 +1,5 @@
 const usuariosRouter = require("express").Router();
-const { jwtAuth } = require("../middlewares");
+const { jwtAuth, userAuthorized, userExists } = require("../middlewares");
 
 const { userController } = require("../controllers");
 
@@ -7,10 +7,22 @@ const { userController } = require("../controllers");
 usuariosRouter.get("/:id", userController.getUsuario);
 
 /* PATCH */
-usuariosRouter.patch("/:id", jwtAuth, userController.updateUsuario);
+usuariosRouter.patch(
+  "/:id",
+  jwtAuth,
+  userExists,
+  userAuthorized,
+  userController.updateUsuario
+);
 
 /* DELETE */
-usuariosRouter.delete("/:id", jwtAuth, userController.borrarUsuario);
+usuariosRouter.delete(
+  "/:id",
+  jwtAuth,
+  userExists,
+  userAuthorized,
+  userController.borrarUsuario
+);
 
 /* POST */
 usuariosRouter.post("/follow/:user", jwtAuth, userController.followUsuario);
