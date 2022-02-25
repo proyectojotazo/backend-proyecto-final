@@ -105,6 +105,7 @@
  *                              description: Nombre del artículo
  *                          archivoDestacado:
  *                              type: string
+ *                              format: binary
  *                              description: Video o imagen opcional
  *                          textoIntroductorio:
  *                              type: string

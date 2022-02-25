@@ -1,5 +1,6 @@
 const { Usuario, Articulo } = require("../models");
 const { getUserFromJwt, CAMPOS } = require("../utils");
+const { deleteFolderUser } = require("../utils/deleteFiles");
 
 const userController = {};
 
@@ -53,6 +54,8 @@ userController.borrarUsuario = async (req, res, next) => {
     const usuario = await Usuario.findById(id);
 
     await Usuario.deleteAllData(usuario);
+
+    deleteFolderUser(id);
 
     // Al no enviar información simplemente enviaremos .end()
     return res.status(204).end();
