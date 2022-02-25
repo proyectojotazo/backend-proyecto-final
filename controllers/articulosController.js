@@ -300,4 +300,18 @@ articulosController.responderComentario = async (req, res, next) => {
   }
 };
 
+// Devuelve una lista de tags existentes
+articulosController.categorias = async (req, res, next) => {
+
+  try {
+      const articulo = await Articulo.find({}).select(null)
+      return res.json({ articles: articulo })
+      //let lista=[]
+      //articulo.forEach(ar=>{ar.categorias.forEach(y=>{if (!lista.includes(y)) {listaTags.push(y)}})})
+      //res.json({lista})   
+  } catch (err) {
+      next(err);
+  }
+}
+
 module.exports = articulosController;

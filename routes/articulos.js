@@ -11,6 +11,8 @@ articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/:id", articulosController.getArticulo);
 
+articulosRouter.get("/categorias", articulosController.categorias);
+
 /* PATCH */
 articulosRouter.patch(
   "/:id",

@@ -43,19 +43,26 @@ const articuloSchema = new Schema({
     type: [String],
     index: true,
     required: true,
+    frontend: {
+      values: ['html','css','javascript'],
+      message: '{VALUE} is not supported'
+    },
+    backend: {
+      values: ['php','python','java'],
+      message: '{VALUE} is not supported'
+    },
+    db: {
+      values: ['mysql', 'mongodb'],
+      message: '{VALUE} is not supported'
+    }
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
-  // respuesta: [{
-  //   estado:{
-  //     type: Boolean,
-  //     default: false,
-  //   },
-  //   referencia: {
-  //     type: String,
-  //     index:true
-  //   } 
-  // }]
+
+  respuesta: {
+    idArticulo: { type: Schema.Types.ObjectId, ref: "Respuesta" },
+    titulo: { type: String },
+  },
 });
 
 /*
@@ -83,6 +90,21 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   return query.exec();
 };
 
+articuloSchema.statics.findByIdPopulated = async function (id) {
+  return await this.findById(id)
+    .populate("usuario", {
+      nombre: 1,
+      apellidos: 1,
+      email: 1,
+      nickname: 1,
+    })
+    .populate("comentarios", {
+      usuario: 1,
+      fechaPublicacion: 1,
+      contenido: 1,
+      respuesta: 1,
+    });
+};
 
 const Articulo = model("Articulo", articuloSchema);
 
