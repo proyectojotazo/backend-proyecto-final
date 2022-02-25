@@ -1,8 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const jwtAuth = async (req, res, next) => {
-  const jwtToken = req.get("Authorization")
-
+  const jwtToken = req.get("Authorization").split(" ")[1];
   // Comprobamos existencia de Token
   if (!jwtToken) {
     const error = {

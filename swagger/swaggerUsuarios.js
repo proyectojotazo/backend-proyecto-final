@@ -3,9 +3,9 @@
  * components:
  *  securitySchemes:
  *      bearerAuth:
- *          type: apiKey
- *          name: Authorization
- *          in: header
+ *          type: http
+ *          scheme: bearer
+ *          bearerFormat: JWT
  *  schemas:
  *      Users:
  *          type: object
@@ -36,25 +36,20 @@
 // GET
 /**
  * @swagger
- * /users/{id}:
+ * /users/{nickname}:
  *   get:
- *     summary: Muestra un usuario
+ *     summary: Muestra un usuario por nickname
  *     tags: [Usuarios]
- *     description: Devuelve un usuario por id
+ *     description: Devuelve un usuario por nickname
  *     parameters:
  *          - in: path
- *            name: id
+ *            name: nickname
  *            schema:
  *              type: string
  *            required: true
  *     responses:
  *       302:
- *         description: Muestra un usuario por id
- *         content:
- *              application/json:
- *                  schema:
- *                      type: object
- *                      $ref: '#components/schemas/Users'
+ *         description: Muestra un usuario por nickname
  */
 
 // POST
@@ -66,7 +61,7 @@
  *          - bearerAuth: []
  *     summary: Seguir a un usuario
  *     tags: [Usuarios]
- *     description: Puedes seguir a un usuario proporcionando su "nickname" o "email" por parámetros
+ *     description: Puedes seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
  *            name: nicknameOemailUser
@@ -86,7 +81,7 @@
  *          - bearerAuth: []
  *     summary: Dejar de seguir a un usuario
  *     tags: [Usuarios]
- *     description: Puedes dejar de seguir a un usuario proporcionando su "nickname" o "email" por parámetros
+ *     description: Puedes dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
  *            name: nicknameOemailUser

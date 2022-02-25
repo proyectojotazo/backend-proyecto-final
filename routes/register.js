@@ -10,10 +10,7 @@ registerRouter.post("/", async (req, res, next) => {
 
     await nuevoUsuario.save();
 
-    return res.status(201).json({
-      created: "ok",
-      status: 201,
-    });
+    return res.status(201).end();
   } catch (error) {
     return next(error);
   }

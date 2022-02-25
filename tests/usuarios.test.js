@@ -78,7 +78,7 @@ describe("/users", () => {
       // Hacemos la peticion 'PATCH'
       await api
         .patch(`/users/${userId}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .send(fieldToUpdate)
         .expect(204);
 
@@ -102,7 +102,7 @@ describe("/users", () => {
 
       await api
         .patch(`/users/${userId}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .send(fieldToUpdate)
         .expect(204);
 
@@ -124,7 +124,7 @@ describe("/users", () => {
 
       const response = await api
         .patch(`/users/${idNotExists}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .expect(404);
 
       const errorName = response.body.name;
@@ -134,18 +134,22 @@ describe("/users", () => {
     test("Si la id del token es diferente de la id del usuario a actualizar devuelve 401", async () => {
       // Obtenemos la id de otro usuario (TEST2) a actualizar
       const otherUserId = await userServices.getOtherUserId();
-      
+
       // Obtenemos el token del usuario TEST que va a actualizar
-      const token = apiServices.getToken();
+      const token = await apiServices.getToken();
 
       const fieldToUpdate = { nombre: "Actualizado" };
       // Hacemos la peticion path
-      await api
+      const response = await api
         .patch(`/users/${otherUserId}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .send(fieldToUpdate)
         .expect(401);
       // Debe devolver 401
+
+      const error = JSON.parse(response.error.text);
+
+      expect(error.name).toBe(ERRORS[error.name]);
     });
   });
   describe("DELETE /:id", () => {
@@ -154,7 +158,10 @@ describe("/users", () => {
 
       const id = await userServices.getUserId();
 
-      await api.delete(`/users/${id}`).set("Authorization", token).expect(204);
+      await api
+        .delete(`/users/${id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
 
       const dbUsers = await Usuario.find({});
 
@@ -167,7 +174,7 @@ describe("/users", () => {
 
       await api
         .delete(`/users/${idNotExists}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .expect(404);
     });
     test("Si la id del token es diferente de la id del usuario a borrar devuelve 401", async () => {
@@ -178,7 +185,7 @@ describe("/users", () => {
 
       await api
         .delete(`/users/${otherUserId}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .expect(401);
       // Debe devolver 401
     });
@@ -187,14 +194,17 @@ describe("/users", () => {
       const token = await apiServices.getToken();
 
       // Creamos el articulo
-      await api.post("/articles").set("Authorization", token).send(testArticle);
+      await api
+        .post("/articles")
+        .set("Authorization", `Bearer ${token}`)
+        .send(testArticle);
 
       // Obtenemos el id del usuario a borrar
       const userId = await userServices.getUserId();
 
       await api
         .delete(`/users/${userId}`)
-        .set("Authorization", token)
+        .set("Authorization", `Bearer ${token}`)
         .expect(204);
 
       const articles = await Articulo.find({});
@@ -205,6 +215,6 @@ describe("/users", () => {
 });
 
 afterAll(async () => {
-  server.close();
-  mongoose.connection.close();
+  await server.close();
+  await mongoose.connection.close();
 });
