@@ -1,8 +1,8 @@
 const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-const { app, server } = require("../app");
-const { Usuario, Articulo } = require("../models");
+const { app, server } = require("../../app");
+const { Usuario, Articulo } = require("../../models");
 
 const {
   testUser,
@@ -11,7 +11,7 @@ const {
   ERRORS,
   userServices,
   apiServices,
-} = require("./helpers");
+} = require("../helpers");
 
 const api = supertest(app);
 

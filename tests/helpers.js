@@ -40,6 +40,7 @@ const ERRORS = {
   CastError: "CastError",
   NotFound: "NotFound",
   Unauthorized: "Unauthorized",
+  RegisterValidationError: "RegisterValidationError",
 };
 
 const userServices = {
