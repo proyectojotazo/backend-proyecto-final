@@ -137,6 +137,24 @@ usuarioSchema.statics.deleteAllData = async function (userToDelete) {
   const articulosId = userToDelete.articulos.creados;
   // borramos todos esos articulos
   await Articulo.deleteMany({ _id: articulosId });
+  // buscamos a los usuarios seguidores de éste
+  const followers = await this.find({ "usuarios.seguidos": userToDelete._id });
+
+  // eliminamos la referencia a dicho usuario
+  for (const follower of followers) {
+    const usuarios = {
+      seguidos: follower.usuarios.seguidos.filter(
+        (userId) => userId.toString() !== userToDelete._id.toString()
+      ),
+
+      seguidores: follower.usuarios.seguidores.filter(
+        (userId) => userId.toString() !== userToDelete._id.toString()
+      ),
+    };
+    // Actualizamos a los followers del usuario a borrar
+    await follower.actualizaUsuario({ usuarios });
+  }
+
   // borramos al usuario
   await this.findByIdAndDelete({ _id: userToDelete._id });
 };

@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 
-const { app } = require("../bin/www");
+const { app } = require("../app");
 
 const { Usuario } = require("../models");
 
@@ -40,6 +40,7 @@ const ERRORS = {
   CastError: "CastError",
   NotFound: "NotFound",
   Unauthorized: "Unauthorized",
+  RegisterValidationError: "RegisterValidationError",
 };
 
 const userServices = {
