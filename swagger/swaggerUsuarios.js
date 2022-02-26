@@ -3,9 +3,9 @@
  * components:
  *  securitySchemes:
  *      bearerAuth:
- *          type: apiKey
- *          name: Authorization
- *          in: header
+ *          type: http
+ *          scheme: bearer
+ *          bearerFormat: JWT
  *  schemas:
  *      Users:
  *          type: object
@@ -36,25 +36,81 @@
 // GET
 /**
  * @swagger
- * /users/{id}:
+ * /users/{nickname}:
  *   get:
- *     summary: Muestra un usuario
+ *     summary: Muestra un usuario por nickname
  *     tags: [Usuarios]
- *     description: Devuelve un usuario por id
+ *     description: Devuelve un usuario por nickname
  *     parameters:
  *          - in: path
- *            name: id
+ *            name: nickname
  *            schema:
  *              type: string
  *            required: true
  *     responses:
  *       302:
- *         description: Muestra un usuario por id
- *         content:
- *              application/json:
- *                  schema:
- *                      type: object
- *                      $ref: '#components/schemas/Users'
+ *         description: Muestra un usuario por nickname
+ */
+
+// POST
+/**
+ * @swagger
+ * /users/follow/{nicknameOemailUser}:
+ *   post:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Seguir a un usuario
+ *     tags: [Usuarios]
+ *     description: Puedes seguir a un usuario incluyendo su "nickname" o "email" en la ruta
+ *     parameters:
+ *          - in: path
+ *            name: nicknameOemailUser
+ *            schema:
+ *              type: string
+ *            required: true
+ *     responses:
+ *       200:
+ *         description: Ahora sigues al usuario que has indicado!
+ */
+
+/**
+ * @swagger
+ * /users/unfollow/{nicknameOemailUser}:
+ *   post:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Dejar de seguir a un usuario
+ *     tags: [Usuarios]
+ *     description: Puedes dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
+ *     parameters:
+ *          - in: path
+ *            name: nicknameOemailUser
+ *            schema:
+ *              type: string
+ *            required: true
+ *     responses:
+ *       200:
+ *         description: Ya no sigues al usuario que has indicado!
+ */
+
+/**
+ * @swagger
+ * /users/articles/favourites/{idArticulo}:
+ *   post:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Añadir o eliminar artículo favorito en usuario
+ *     tags: [Usuarios]
+ *     description: Puedes añadir o eliminar un artículo favorito al usuario autenticado
+ *     parameters:
+ *          - in: path
+ *            name: idArticulo
+ *            schema:
+ *              type: string
+ *            required: true
+ *     responses:
+ *       200:
+ *         description: Se ha realizado la petición correctamente!
  */
 
 // PATCH

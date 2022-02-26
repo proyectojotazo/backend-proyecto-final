@@ -1,6 +1,6 @@
 const { Articulo, Usuario, Comentario } = require("../models");
-
 const { getUserFromJwt, sendEmail } = require("../utils");
+const { deleteFileOfPath } = require("../utils/deleteFiles");
 
 const articulosController = {};
 
@@ -25,19 +25,7 @@ articulosController.getArticulo = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const articulo = await Articulo.findById(id)
-      .populate("usuario", {
-        nombre: 1,
-        apellidos: 1,
-        email: 1,
-        nickname: 1,
-      })
-      .populate("comentarios", {
-        usuario: 1,
-        fechaPublicacion: 1,
-        contenido: 1,
-        respuesta: 1,
-      });
+    const articulo = await Articulo.findByIdPopulated(id);
 
     // Si no se encuentra el articulo
     if (!articulo) {
@@ -58,10 +46,11 @@ articulosController.actualizarArticulo = async (req, res, next) => {
   // id del artículo
   const id = req.params.id;
   // id del usuario desde el token
-  const tokenUser = req.get("Authorization");
+  const tokenUser = req.get("Authorization").split(" ")[1];
   const userIdAuth = getUserFromJwt(tokenUser);
   // datos a actualizar
   const datosActualizar = req.body;
+  if (req.file) datosActualizar.archivoDestacado = req.file.path;
 
   try {
     // buscamos el artículo y extraemos el id del usuario creador
@@ -102,6 +91,13 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    if (
+      (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
+      undefined
+    ) {
+      deleteFileOfPath(articulo.archivoDestacado);
+    }
+
     await Articulo.findByIdAndUpdate(id, datosActualizar);
     return res.status(200).json({ message: "Artículo actualizado" });
   } catch (error) {
@@ -112,8 +108,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
 articulosController.borraArticulo = async (req, res, next) => {
   try {
     // id del usuario desde el token
-    const tokenUser =
-      req.get("Authorization") || req.query.token || req.body.token;
+    const tokenUser = req.get("Authorization").split(" ")[1];
     const userIdAuth = getUserFromJwt(tokenUser);
 
     // id del artículo proporcionado desde la ruta
@@ -145,6 +140,10 @@ articulosController.borraArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    if (articulo.archivoDestacado) {
+      deleteFileOfPath(articulo.archivoDestacado);
+    }
+
     // Obtenemos el artículo que se ha eliminado
     await Articulo.findByIdAndDelete(id);
 
@@ -168,18 +167,18 @@ articulosController.borraArticulo = async (req, res, next) => {
 };
 
 articulosController.creaArticulo = async (req, res, next) => {
-  const jwtToken =
-    req.get("Authorization") || req.query.token || req.body.token;
-
+  const jwtToken = req.get("Authorization").split(" ")[1];
   const usuarioId = getUserFromJwt(jwtToken);
+  const archivo = req.file ? req.file.path : undefined;
 
-  // Obtenemos al usuario para actualizarlo con el nuevo post cread
+  // Obtenemos al usuario para actualizarlo con el nuevo post creado
   const usuario = await Usuario.findById(usuarioId);
 
   try {
     const nuevoArticulo = new Articulo({
       ...req.body,
       usuario: usuarioId,
+      archivoDestacado: archivo,
     });
 
     await nuevoArticulo.save();
@@ -202,8 +201,7 @@ articulosController.creaArticulo = async (req, res, next) => {
 
 articulosController.creaComentario = async (req, res, next) => {
   // recoge el token para identificar el usuario
-  const jwtToken =
-    req.get("Authorization") || req.query.token || req.body.token;
+  const jwtToken = req.get("Authorization").split(" ")[1];
 
   const usuarioId = getUserFromJwt(jwtToken);
 
@@ -265,8 +263,7 @@ articulosController.getComentarios = async (req, res, next) => {
 
 // Responder a un comentario (leí mal y pense que era uno de los requisitos)
 articulosController.responderComentario = async (req, res, next) => {
-  const jwtToken =
-    req.get("Authorization") || req.query.token || req.body.token;
+  const jwtToken = req.get("Authorization").split(" ")[1];
 
   const usuarioId = getUserFromJwt(jwtToken);
 
@@ -300,18 +297,44 @@ articulosController.responderComentario = async (req, res, next) => {
   }
 };
 
-// Devuelve una lista de tags existentes
-articulosController.categorias = async (req, res, next) => {
+// Creación de un articulo en respuesta a otro articulo
+articulosController.respuestaArticulo = async (req, res, next) => {
+  const jwtToken = req.get("Authorization").split(" ")[1];
+
+  const usuarioId = getUserFromJwt(jwtToken);
+
+  // Obtenemos el id del articulo para poder responderlo
+  const idArticulo = req.params.id;
+  // buscar el articulo
+  const articulo = await Articulo.findById(idArticulo);
+  // buscamos el usuario el cual esta respondiendo el articulo creado
+  const usuario = await Usuario.findById(usuarioId);
 
   try {
-      const articulo = await Articulo.find({}).select(null)
-      return res.json({ articles: articulo })
-      //let lista=[]
-      //articulo.forEach(ar=>{ar.categorias.forEach(y=>{if (!lista.includes(y)) {listaTags.push(y)}})})
-      //res.json({lista})   
-  } catch (err) {
-      next(err);
+    // creamos el articulo en respuesta al original
+    const respuestaArticulo = new Articulo({
+      ...req.body,
+      usuario: usuarioId,
+      respuesta: {
+        idArticulo: idArticulo,
+        titulo: articulo.titulo,
+      },
+    });
+
+    await respuestaArticulo.save();
+
+    // Creamos el nuevo articulo en respuesta al articulo original
+    await Usuario.findByIdAndUpdate(usuarioId, {
+      articulos: {
+        creados: [...usuario.articulos.creados, respuestaArticulo._id],
+        favoritos: [...usuario.articulos.favoritos],
+      },
+    });
+
+    return res.status(204).end();
+  } catch (error) {
+    return next(error);
   }
-}
+};
 
 module.exports = articulosController;
