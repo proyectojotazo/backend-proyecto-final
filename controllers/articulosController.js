@@ -1,6 +1,6 @@
 const { Articulo, Usuario, Comentario } = require("../models");
-
 const { getUserFromJwt, sendEmail } = require("../utils");
+const { deleteFileOfPath } = require("../utils/deleteFiles");
 
 const articulosController = {};
 
@@ -50,6 +50,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
   const userIdAuth = getUserFromJwt(tokenUser);
   // datos a actualizar
   const datosActualizar = req.body;
+  if (req.file) datosActualizar.archivoDestacado = req.file.path;
 
   try {
     // buscamos el artículo y extraemos el id del usuario creador
@@ -88,6 +89,13 @@ articulosController.actualizarArticulo = async (req, res, next) => {
         message: "No estas autorizado para actualizar este artículo",
       };
       return next(error);
+    }
+
+    if (
+      (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
+      undefined
+    ) {
+      deleteFileOfPath(articulo.archivoDestacado);
     }
 
     await Articulo.findByIdAndUpdate(id, datosActualizar);
@@ -132,6 +140,10 @@ articulosController.borraArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    if (articulo.archivoDestacado) {
+      deleteFileOfPath(articulo.archivoDestacado);
+    }
+
     // Obtenemos el artículo que se ha eliminado
     await Articulo.findByIdAndDelete(id);
 
@@ -156,16 +168,17 @@ articulosController.borraArticulo = async (req, res, next) => {
 
 articulosController.creaArticulo = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
-
   const usuarioId = getUserFromJwt(jwtToken);
+  const archivo = req.file ? req.file.path : undefined;
 
-  // Obtenemos al usuario para actualizarlo con el nuevo post cread
+  // Obtenemos al usuario para actualizarlo con el nuevo post creado
   const usuario = await Usuario.findById(usuarioId);
 
   try {
     const nuevoArticulo = new Articulo({
       ...req.body,
       usuario: usuarioId,
+      archivoDestacado: archivo,
     });
 
     await nuevoArticulo.save();
