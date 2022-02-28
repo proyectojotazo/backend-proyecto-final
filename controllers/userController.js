@@ -1,5 +1,7 @@
 const { Usuario, Articulo } = require("../models");
 const { getUserFromJwt } = require("../utils");
+
+const getFollowData = require("../utils/getFollowData");
 const { deleteFolderUser } = require("../utils/deleteFiles");
 
 const userController = {};
@@ -64,42 +66,20 @@ userController.borrarUsuario = async (req, res, next) => {
   }
 };
 
-// ToCheck: Porque buscar por mail o nickname y no por ID
-
 userController.followUsuario = async (req, res, next) => {
   const { id: userIdDestino } = req.params;
 
   try {
-
     const usuarioDestino = await Usuario.findById(userIdDestino);
     const tokenUser = req.get("Authorization").split(" ")[1];
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
 
-    const isFollowing =
-      usuarioDestino.usuarios.seguidores.includes(userIdRemitente);
-
-    const dataToDestino = {
-      usuarios: {
-        ...usuarioDestino.usuarios,
-        seguidores: isFollowing
-          ? usuarioDestino.usuarios.seguidores.filter(
-              (userId) => userId.toString() !== userIdRemitente.toString()
-            )
-          : [...usuarioDestino.usuarios.seguidores, userIdRemitente],
-      },
-    };
-    const dataToRemitente = {
-      usuarios: {
-        ...usuarioRemitente.usuarios,
-        seguidos: isFollowing
-          ? usuarioRemitente.usuarios.seguidores.filter(
-              (userId) => userId.toString() !== userIdDestino.toString()
-            )
-          : [...usuarioRemitente.usuarios.seguidores, userIdDestino],
-      },
-    };
+    const {
+      dataToRemitente,
+      dataToDestino,
+    } = getFollowData(usuarioDestino, usuarioRemitente);
 
     // Actualizamos el usuario remitente y añadimos que sigue a esa persona
     await usuarioRemitente.actualizaUsuario(dataToRemitente);

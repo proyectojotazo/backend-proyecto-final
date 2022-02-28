@@ -24,7 +24,7 @@ usuariosRouter.delete(
 );
 
 /* POST */
-usuariosRouter.post("/follow/:id", userExists, jwtAuth, userController.followUsuario);
+usuariosRouter.post("/follow/:id", jwtAuth, userExists, userController.followUsuario);
 
 usuariosRouter.post(
   "/articles/favourites/:id",
