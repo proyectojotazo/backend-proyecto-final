@@ -6,6 +6,8 @@ const { articulosController } = require("../controllers");
 /* GET */
 articulosRouter.get("/", articulosController.getArticulos);
 
+articulosRouter.get("/search", articulosController.buscarArticulos);
+
 articulosRouter.get("/:id", articulosController.getArticulo);
 
 /* PATCH */

@@ -7,7 +7,6 @@ const articuloSchema = new Schema({
     index: true,
   },
   archivoDestacado: {
-    // Opcional? Puede ser video o imagen
     type: String,
   },
   textoIntroductorio: {
@@ -39,7 +38,6 @@ const articuloSchema = new Schema({
   },
   categorias: {
     // TODO: Validar que debe de contener como mínimo una categoría?
-    // Acordar categorías
     type: [String],
     index: true,
     required: true,
