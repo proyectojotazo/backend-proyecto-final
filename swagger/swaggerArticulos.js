@@ -56,6 +56,19 @@
  *         description: Muestra todos los artículos
  */
 
+/* GET */
+/**
+ * @swagger
+ * /articles/categories:
+ *   get:
+ *     summary: Muestra todas las categorias disponibles
+ *     tags: [Artículos]
+ *     description: Devuelve todas las categorias
+ *     responses:
+ *       200:
+ *         description: Muestra todas las categorias
+ */
+
 /**
  * @swagger
  * /articles/{id}:

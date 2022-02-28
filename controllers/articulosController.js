@@ -356,4 +356,12 @@ articulosController.buscarArticulos = async (req, res, next) => {
   }
 };
 
+articulosController.getCategorias = async (req, res, next) => {
+  try {
+    return res.json(Articulo.listcategories());
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = articulosController;
