@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+
 const valores = [
   "html",
   "css",
@@ -52,6 +53,7 @@ const articuloSchema = new Schema({
     ],
     index: true,
   },
+
   categorias: {
     type: [String],
     validate: [
