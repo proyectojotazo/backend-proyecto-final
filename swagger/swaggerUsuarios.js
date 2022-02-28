@@ -59,9 +59,9 @@
  *   post:
  *     security:
  *          - bearerAuth: []
- *     summary: Seguir a un usuario
+ *     summary: Seguir o dejar de seguir a un usuario
  *     tags: [Usuarios]
- *     description: Puedes seguir a un usuario incluyendo su "nickname" o "email" en la ruta
+ *     description: Puedes seguir o dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
  *            name: nicknameOemailUser
@@ -70,27 +70,7 @@
  *            required: true
  *     responses:
  *       200:
- *         description: Ahora sigues al usuario que has indicado!
- */
-
-/**
- * @swagger
- * /users/unfollow/{nicknameOemailUser}:
- *   post:
- *     security:
- *          - bearerAuth: []
- *     summary: Dejar de seguir a un usuario
- *     tags: [Usuarios]
- *     description: Puedes dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
- *     parameters:
- *          - in: path
- *            name: nicknameOemailUser
- *            schema:
- *              type: string
- *            required: true
- *     responses:
- *       200:
- *         description: Ya no sigues al usuario que has indicado!
+ *         description: Petición realizada con éxito!
  */
 
 /**

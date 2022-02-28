@@ -4,14 +4,11 @@ const upload = require("../lib/multerConfig");
 const { articulosController } = require("../controllers");
 
 /* GET */
-articulosRouter.get("/categories", articulosController.getCategorias);
-
 articulosRouter.get("/", articulosController.getArticulos);
 
-articulosRouter.get("/search", articulosController.buscarArticulos);
+articulosRouter.get("/categories", articulosController.getCategorias);
 
 articulosRouter.get("/:id", articulosController.getArticulo);
-
 
 /* PATCH */
 articulosRouter.patch(
@@ -31,6 +28,8 @@ articulosRouter.post(
   upload.single("archivoDestacado"),
   articulosController.creaArticulo
 );
+
+articulosRouter.post("/search", articulosController.buscarArticulos);
 
 articulosRouter.post(
   "/response/:id",

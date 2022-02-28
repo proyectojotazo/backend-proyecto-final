@@ -56,7 +56,6 @@
  *         description: Muestra todos los artículos
  */
 
-/* GET */
 /**
  * @swagger
  * /articles/categories:
@@ -85,11 +84,6 @@
  *     responses:
  *       302:
  *         description: Muestra un artículo por id
- *         content:
- *              application/json:
- *                  schema:
- *                      type: object
- *                      $ref: '#components/schemas/Articles'
  */
 
 /* PATCH */
@@ -179,6 +173,32 @@
  *     responses:
  *          201:
  *              description: Nuevo artículo creado!
+ */
+
+/**
+ * @swagger
+ * /articles/search?{asc}:
+ *   post:
+ *     summary: Realiza búsqueda de artículos
+ *     tags: [Artículos]
+ *     description: Realiza búsqueda de artículos (incluir "asc" para orden ascendente, si no se incluye, el orden será descendente)
+ *     parameters:
+ *          - in: path
+ *            name: asc
+ *            schema:
+ *              type: string
+ *     requestBody:
+ *          content:
+ *              application/x-www-form-urlencoded:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          search:
+ *                              type: string
+ *                              description: Búsqueda por título, introducción o contenido
+ *     responses:
+ *       200:
+ *         description: Búsqueda realizada con éxito!
  */
 
 /**
