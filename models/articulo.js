@@ -1,4 +1,6 @@
 const { Schema, model } = require("mongoose");
+const mongooseDateFormat = require('mongoose-date-format');
+
 
 const articuloSchema = new Schema({
   titulo: {
@@ -20,10 +22,27 @@ const articuloSchema = new Schema({
     required: [true, "Contenido requerido"],
     index: true,
   },
-  fechaPublicacion: {
-    // TODO: Validar que la fecha de publicación no se anterior al dia actual
+  fechaBorrador: {
     type: Date,
+    min: Date.now(),
+    // validate: [
+    //   {
+    //     validator: (v) => v === min,
+    //     message: 'La fecha no puede ser menor al dia actual"',
+    //   },
+    // ],
     default: Date.now(),
+    required: [true, "Fecha requerida"],
+    index: true,
+  },
+  fechaPublicacion: {
+    type: Date,
+    // validate: [
+    //   {
+    //     validator: (v) => v === min,
+    //     message: 'La fecha no puede ser menor al dia actual"',
+    //   },
+    // ],
     required: [true, "Fecha requerida"],
     index: true,
   },
@@ -52,6 +71,8 @@ const articuloSchema = new Schema({
     titulo: { type: String },
   },
 });
+
+articuloSchema.plugin(mongooseDateFormat);
 
 /*
  Modifica la muestra cuando retornamos el usuario como JSON no mostrando la 
@@ -97,3 +118,5 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
 const Articulo = model("Articulo", articuloSchema);
 
 module.exports = Articulo;
+
+
