@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const valores = ['html','css','javascript','angular','vue','react','python','php','java','node','laravel','mysql','mongodb']
 
 const articuloSchema = new Schema({
   titulo: {
@@ -27,6 +28,7 @@ const articuloSchema = new Schema({
     required: [true, "Fecha requerida"],
     index: true,
   },
+
   estado: {
     type: String,
     validate: [
@@ -37,13 +39,23 @@ const articuloSchema = new Schema({
     ],
     index: true,
   },
-  categorias: {
-    // TODO: Validar que debe de contener como mínimo una categoría?
-    // Acordar categorías
+  categorias: { 
     type: [String],
-    index: true,
+    validate:  [
+      {
+        validator: v => Array.isArray(v) && v.length > 0,
+        message: 'Debes elegir por lo menos una categoria',
+      },
+    ],
     required: true,
+    index: true,
+    enum: {
+      values: valores,
+      message: `Categoria no valida, las categorias disponibles son: ${valores}` 
+    }
   },
+
+
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
 
@@ -93,6 +105,9 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
       respuesta: 1,
     });
 };
+
+articuloSchema.statics.listcategories = () => {
+  return valores}
 
 const Articulo = model("Articulo", articuloSchema);
 

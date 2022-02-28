@@ -4,9 +4,13 @@ const upload = require("../lib/multerConfig");
 const { articulosController } = require("../controllers");
 
 /* GET */
+articulosRouter.get("/categories", articulosController.getCategorias);
+
 articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/:id", articulosController.getArticulo);
+
+
 
 /* PATCH */
 articulosRouter.patch(
