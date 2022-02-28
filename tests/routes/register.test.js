@@ -1,13 +1,16 @@
-const supertest = require("supertest");
 const mongoose = require("mongoose");
 
 const { Usuario } = require("../../models");
 
-const { app, server } = require("../../app");
+const { server } = require("../../app");
 
-const { testUser, testUser2, ERRORS } = require("../helpers");
-
-const api = supertest(app);
+const {
+  testUser,
+  testUser2,
+  ERRORS,
+  userServices,
+  api,
+} = require("../helpers");
 
 const userWrongFields = {
   nombre: "Wr2ong",
@@ -35,7 +38,7 @@ describe("/register", () => {
     await api.post("/register").send(testUser2).expect(201);
     const usersAfterRegister = await Usuario.find();
 
-    const userRegistered = await Usuario.findOne({ name: testUser2.name });
+    const userRegistered = await userServices.getUser(testUser2);
 
     expect(usersAfterRegister).toHaveLength(usersBeforeRegister.length + 1);
     expect(usersAfterRegister).toContainEqual(userRegistered);
@@ -50,7 +53,7 @@ describe("/register", () => {
 
     const errName = response.body.name;
 
-    expect(errName).toBe(ERRORS[errName]);
+    expect(errName).toBe(ERRORS.registerTest);
   });
 
   test("Debe devolver error 400 con campos unicos", async () => {
@@ -62,7 +65,7 @@ describe("/register", () => {
 
     const errName = response.body.name;
 
-    expect(errName).toBe(ERRORS[errName]);
+    expect(errName).toBe(ERRORS.registerTest);
   });
 });
 

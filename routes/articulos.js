@@ -1,18 +1,15 @@
-// const multer = require("multer");
-// const upload = multer();
-const upload = require("../lib/multerConfig");
 const articulosRouter = require("express").Router();
-
+const { jwtAuth } = require("../middlewares");
+const upload = require("../lib/multerConfig");
 const { articulosController } = require("../controllers");
 
-const { jwtAuth } = require("../middlewares");
-
 /* GET */
+articulosRouter.get("/categories", articulosController.getCategorias);
+
 articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/:id", articulosController.getArticulo);
 
-articulosRouter.get("/categorias", articulosController.categorias);
 
 /* PATCH */
 articulosRouter.patch(

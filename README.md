@@ -5,7 +5,11 @@
 
 ### EL ÚLTIMO Y ME VOY
 
-Backend del proyecto final...
+*Este repositorio es la parte "Backend" del proyecto final del Bootcamp, el cual hemos llamado: "El último y me voy".*
+
+"El último y me voy" es una aplicación web de "*Blogging*" enfocada en temas relacionados con la programación y, más concretamente, con la programación web. En ella se brinda al usuario la posibilidad de leer, buscar o compartir, cualquier tipo de artículo relacionado con la tecnología web que más le interese. Además, también tiene la posibilidad de hacerse miembro realizando el proceso de registro, y esto, le añadirá muchas más funcionalidades.
+
+*...Continuará...*
 
 ## Equipo
 
@@ -23,6 +27,32 @@ Antes de nada debemos usar el siguiente comando para instalar todas las dependen
 
 Para configurar las variables de entorno, deberemos crear un archivo `.env` en la raíz del proyecto y añadir las variables de entorno proporcionadas en el archivo `.example.env`, con los valores que queramos usar.
 
+Estructura del `.env`:
+
+    	# PORTS
+		PRODUCTION_PORT=<Aquí el puerto para producción>
+		DEV_PORT=<Aquí el puerto para entorno de desarrollo>
+		TEST_PORT=<Aquí el puerto para ejecutar los test>
+		
+		# DB_URI
+		MONGODB_URI=<Colocar la ruta a la base de datos de producción>
+		MONGODB_URI_DEV=mongodb://localhost/<Nombre para base de datos dev en local>
+		MONGODB_URI_TEST=mongodb://localhost/<Nombre para base de datos test en local>
+		
+		#BCRYPT
+		SALT=<Incluir "Salt" para el hash (número a elegir)>
+		
+		# JWT_TOKEN
+		JWT_SECRET=<Aquí tu clave secreta para JWT>
+		JWT_EXPIRES_IN=<Tiempo de caducidad del token (ejemplo: 30d)>
+		
+		# EMAIL_SENDER_CONFIG
+		HOST=<Host para envío de email (ejemplo: smtp.gmail.com)>
+		USER=<Dirección de email (ejemplo: demo@gmail.com)>
+		PASS=<Contraseña de la dirección email>
+		SERVICE=<Servicio de envío (ejemplo: gmail)>
+		BASE_URL=<URL Base (ejemplo: http://localhost:3001)>
+
 #### Añadir fichero .npmrc (sólo en Windows)
 
 Si se usa Windows, deberemos crear el archivo `.npmrc` en la carpeta raíz del proyecto y dentro incluir la siguiente línea:
@@ -30,13 +60,29 @@ Si se usa Windows, deberemos crear el archivo `.npmrc` en la carpeta raíz del p
     	script-shell = "C:\\windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
 > Con esa línea le estaríamos pasando la ruta por defecto de PowerShell en Windows, para que pueda ejecutar correctamente los scripts incluidos en el `package.json`.
 
-#### Iniciar en modo desarrollo:
+#### Iniciar proyecto en entorno de producción:
 
-Para arrancar el proyecto en modo desarrollo, usar el comando:
+Para iniciar el proyecto en entorno de producción, usar el comando:
+
+    npm start
+
+> Esto iniciará el proyecto en el puerto configurado en el archivo `.env`, con la base de datos usada para producción. Al no usarse "nodemon" con este comando, será necesario reiniciar el servidor cada vez que apliquemos cambios sobre el proyecto.
+
+#### Iniciar proyecto en entorno de desarrollo:
+
+Para iniciar el proyecto en entorno de desarrollo, usar el comando:
 
     npm run dev
 
-> Esto nos iniciará el proyecto con "nodemon", por lo que podremos realizar cambios y que estos se apliquen, estando el servidor arrancado.
+> Esto iniciará el proyecto en el puerto configurado en el archivo `.env`, con "nodemon", por lo que podremos realizar cambios y que estos se apliquen sin necesidad de reiniciar el servidor.
+
+#### Iniciar comprobación de test:
+
+Para iniciar la comprobación de todos los test realizados, usar el comando:
+
+    npm run test
+
+> Esto iniciará la comprobación de todos los test realizados sobre el proyecto, por consola. Una vez terminada la comprobación, devolverá los resultados, indicando cuales han pasado o han fallado.
 
 ## Rutas del API
 

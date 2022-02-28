@@ -1,5 +1,6 @@
 const { unlink, rm, access } = require("fs");
 
+// Eliminar archivo del artículo en la ruta del usuario
 const deleteFileOfPath = (path) => {
   const splitPath = path.split("\\");
   const splitFile = splitPath[3].split("_");
@@ -19,6 +20,7 @@ const deleteFileOfPath = (path) => {
   }
 };
 
+// Eliminar carpeta del usuario
 const deleteFolderUser = (userId) => {
   const deleteFolderPath = `./public/upload/${userId}/`;
   try {
