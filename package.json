@@ -24,6 +24,10 @@
     "mongoose-unique-validator": "^3.0.0",
     "morgan": "~1.9.1",
     "multer": "^1.4.4",
+<<<<<<< HEAD
+=======
+    "node-cron": "^3.0.0",
+>>>>>>> 878ef5dec68e9bf14f7cb3ceccdb7268ed5f00ad
     "nodemailer": "^6.7.2",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.3.0"
