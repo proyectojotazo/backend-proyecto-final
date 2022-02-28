@@ -1,19 +1,18 @@
-const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-const { app, server } = require("../../app");
+const { server } = require("../../app");
 const { Usuario, Articulo } = require("../../models");
 
 const {
   testUser,
+  testUser2,
   testArticle,
+  api,
   USERS,
   ERRORS,
   userServices,
   apiServices,
 } = require("../helpers");
-
-const api = supertest(app);
 
 beforeEach(async () => {
   await Usuario.deleteMany({});
@@ -51,17 +50,17 @@ describe("/users", () => {
 
       const errorDevuelto = response.body;
 
-      expect(errorDevuelto.name).toBe(ERRORS[errorDevuelto.name]);
+      expect(errorDevuelto.name).toBe(ERRORS.notFound);
     });
   });
   describe("PATCH /:id", () => {
     // Actualiza correctamente
     test("Actualiza nombre correctamente", async () => {
       // Obtenemos el token
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       // Obtenemos el id del usuario a actualizar
-      const userId = await userServices.getUserId();
+      const userId = await userServices.getUserId(testUser);
 
       // Generamos el campo a actualizar
       const fieldToUpdate = { nombre: "Actualizado" };
@@ -80,10 +79,10 @@ describe("/users", () => {
     });
     test("Actualiza password correctamente", async () => {
       // Obtenemos el token
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       // Obtenemos el id del usuario
-      const userId = await userServices.getUserId();
+      const userId = await userServices.getUserId(testUser);
 
       // Generamos el campo a actualizar
       const fieldToUpdate = {
@@ -109,7 +108,7 @@ describe("/users", () => {
     });
     test("Si la id no existe devuelve 404 (NotFound)", async () => {
       // Obtenemos el token
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       const idNotExists = "621600f9a5e09ea330bdc4a6";
 
@@ -120,14 +119,14 @@ describe("/users", () => {
 
       const errorName = response.body.name;
 
-      expect(errorName).toBe(ERRORS[errorName]);
+      expect(errorName).toBe(ERRORS.notFound);
     });
     test("Si la id del token es diferente de la id del usuario a actualizar devuelve 401", async () => {
       // Obtenemos la id de otro usuario (TEST2) a actualizar
-      const otherUserId = await userServices.getOtherUserId();
+      const otherUserId = await userServices.getUserId(testUser2);
 
       // Obtenemos el token del usuario TEST que va a actualizar
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       const fieldToUpdate = { nombre: "Actualizado" };
       // Hacemos la peticion path
@@ -140,14 +139,14 @@ describe("/users", () => {
 
       const error = JSON.parse(response.error.text);
 
-      expect(error.name).toBe(ERRORS[error.name]);
+      expect(error.name).toBe(ERRORS.unauthorized);
     });
   });
   describe("DELETE /:id", () => {
     test("Borra un usuario correctamente", async () => {
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
-      const id = await userServices.getUserId();
+      const id = await userServices.getUserId(testUser);
 
       await api
         .delete(`/users/${id}`)
@@ -161,7 +160,7 @@ describe("/users", () => {
     test("Si no encuentra al usuario devuelve 404", async () => {
       const idNotExists = "6214b593b6c1fa7fee58f955";
 
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       await api
         .delete(`/users/${idNotExists}`)
@@ -170,9 +169,9 @@ describe("/users", () => {
     });
     test("Si la id del token es diferente de la id del usuario a borrar devuelve 401", async () => {
       // Obtenemos la id de otro usuario (TEST2) a borrar
-      const otherUserId = await userServices.getOtherUserId();
+      const otherUserId = await userServices.getUserId(testUser2);
       // Obtenemos el token del usuario TEST que va a borrar
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       await api
         .delete(`/users/${otherUserId}`)
@@ -182,7 +181,7 @@ describe("/users", () => {
     });
     test("Si se borra al usuario todos sus articulos se deben borrar", async () => {
       // Conseguir token
-      const token = await apiServices.getToken();
+      const token = await apiServices.getToken(testUser);
 
       // Creamos el articulo
       await api
@@ -191,7 +190,7 @@ describe("/users", () => {
         .send(testArticle);
 
       // Obtenemos el id del usuario a borrar
-      const userId = await userServices.getUserId();
+      const userId = await userServices.getUserId(testUser);
 
       await api
         .delete(`/users/${userId}`)
@@ -201,6 +200,74 @@ describe("/users", () => {
       const articles = await Articulo.find({});
 
       expect(articles.length).toBe(0);
+    });
+    test("Si se borra al usuario debe eliminarse de los usuarios seguidores", async () => {
+      await apiServices.followUser(testUser, testUser2);
+
+      // Conseguir el token del usuario a eliminar
+      const token = await apiServices.getToken(testUser);
+      // Conseguir la id del usuario a eliminar
+      const id = await userServices.getUserId(testUser);
+
+      await api
+        .delete(`/users/${id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
+
+      // Obtenemos el usuario que queda en la bd
+      const lastUser = await userServices.getUser(testUser2);
+
+      const { seguidos } = lastUser.usuarios;
+
+      expect(seguidos.length).toBe(0);
+
+      //
+    });
+  });
+  describe("POST /follow/:id", () => {
+    test("Un usuario sigue a otro correctamente", async () => {
+      await apiServices.followUser(testUser, testUser2);
+
+      const idUserToFollow = await userServices.getUserId(testUser);
+
+      // Obtenemos al usuario seguidor una vez hecha la petición de follow
+      const userFollower = await userServices.getUser(testUser2);
+
+      const { seguidos } = userFollower.usuarios;
+
+      // Comprobamos que la id del usuario a seguir se encuentra en el usuario follower
+      expect(seguidos.includes(idUserToFollow)).toBe(true);
+
+      // Obtenemos al usuario seguido una vez hecha la petición de follow
+      const userFollowed = await userServices.getUser(testUser);
+
+      const { seguidores } = userFollowed.usuarios;
+      // Comprobamos que la id del usuario seguidor se encuentra en el usuario a seguir
+      expect(seguidores.includes(userFollower.id)).toBe(true);
+    });
+    test("Un usuario deja de seguir a otro correctamente", async () => {
+      // Seguimos al usuario y seguidamente dejamos de seguir
+      await apiServices.followUser(testUser, testUser2);
+      await apiServices.followUser(testUser, testUser2);
+
+      // Obtenemos la id del usuario seguido
+      const idUserToFollow = await userServices.getUserId(testUser);
+
+      // Obtenemos al usuario seguidor una vez hecha la petición de follow
+      const userFollower = await userServices.getUser(testUser2);
+
+      const { seguidos } = userFollower.usuarios;
+
+      // Comprobamos que la id del usuario a seguir se encuentra en el usuario follower
+      expect(seguidos.includes(idUserToFollow)).not.toBe(true);
+
+      // Obtenemos al usuario seguido una vez hecha la petición de follow
+      const userFollowed = await userServices.getUser(testUser);
+
+      const { seguidores } = userFollowed.usuarios;
+
+      // Comprobamos que la id del usuario seguidor se encuentra en el usuario a seguir
+      expect(seguidores.includes(userFollower.id)).not.toBe(true);
     });
   });
 });

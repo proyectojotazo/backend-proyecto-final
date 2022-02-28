@@ -2,6 +2,22 @@ const { Schema, model } = require("mongoose");
 const mongooseDateFormat = require('mongoose-date-format');
 
 
+const valores = [
+  "html",
+  "css",
+  "javascript",
+  "angular",
+  "vue",
+  "react",
+  "python",
+  "php",
+  "java",
+  "node",
+  "laravel",
+  "mysql",
+  "mongodb",
+];
+
 const articuloSchema = new Schema({
   titulo: {
     type: String,
@@ -9,7 +25,6 @@ const articuloSchema = new Schema({
     index: true,
   },
   archivoDestacado: {
-    // Opcional? Puede ser video o imagen
     type: String,
   },
   textoIntroductorio: {
@@ -56,13 +71,23 @@ const articuloSchema = new Schema({
     ],
     index: true,
   },
+
   categorias: {
-    // TODO: Validar que debe de contener como mínimo una categoría?
-    // Acordar categorías
     type: [String],
-    index: true,
+    validate: [
+      {
+        validator: (v) => Array.isArray(v) && v.length > 0,
+        message: "Debes elegir por lo menos una categoria",
+      },
+    ],
     required: true,
+    index: true,
+    enum: {
+      values: valores,
+      message: `Categoria no valida, las categorias disponibles son: ${valores}`,
+    },
   },
+
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
 
@@ -113,6 +138,10 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
       contenido: 1,
       respuesta: 1,
     });
+};
+
+articuloSchema.statics.listcategories = () => {
+  return valores;
 };
 
 const Articulo = model("Articulo", articuloSchema);

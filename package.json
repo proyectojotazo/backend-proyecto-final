@@ -8,8 +8,8 @@
     "start:mac": "NODE_ENV=production node app.js",
     "dev": "cross-env NODE_ENV=development nodemon",
     "dev:mac": "NODE_ENV=development nodemon",
-    "test": "cross-env NODE_ENV=test jest --verbose --silent -i",
-    "test:mac": "NODE_ENV=test jest --verbose --silent -i",
+    "test": "cross-env NODE_ENV=test jest --verbose -i",
+    "test:mac": "NODE_ENV=test jest --verbose -i",
     "test:watch": "npm run test -- --watch"
   },
   "dependencies": {

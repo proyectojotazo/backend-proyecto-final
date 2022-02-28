@@ -1,25 +1,12 @@
-const supertest = require("supertest");
 const mongoose = require("mongoose");
 
-const { app, server } = require("../../app");
+const { server } = require("../../app");
 
 const { Usuario } = require("../../models");
 
-const { testUser, testUser2, userServices } = require("../helpers");
+const { testUser, testUser2, userServices, api } = require("../helpers");
 
 const { getUserFromJwt } = require("../../utils");
-
-const api = supertest(app);
-
-const userData = {
-  email: testUser.email,
-  password: testUser.password,
-};
-
-const userNotExistsData = {
-  email: testUser2.email,
-  password: testUser2.password,
-};
 
 beforeEach(async () => {
   await Usuario.deleteMany({});
@@ -29,15 +16,15 @@ beforeEach(async () => {
 
 describe("/login", () => {
   test("Devuelve status 200", async () => {
-    await api.post("/login").send(userData).expect(200);
+    await api.post("/login").send(testUser).expect(200);
   });
   test("Si el usuario no existe devuelve 401", async () => {
-    await api.post("/login").send(userNotExistsData).expect(401);
+    await api.post("/login").send(testUser2).expect(401);
   });
   test("Devuelve el token correcto asociado al usuario", async () => {
-    const userId = await userServices.getUserId();
+    const userId = await userServices.getUserId(testUser);
 
-    const response = await api.post("/login").send(userData).expect(200);
+    const response = await api.post("/login").send(testUser).expect(200);
 
     const { token } = response.body;
 

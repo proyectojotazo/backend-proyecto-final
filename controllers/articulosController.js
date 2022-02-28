@@ -337,4 +337,31 @@ articulosController.respuestaArticulo = async (req, res, next) => {
   }
 };
 
+articulosController.buscarArticulos = async (req, res, next) => {
+  const busqueda = req.body.search;
+  const order = req.query.asc !== undefined ? 1 : -1;
+  const regex = new RegExp(busqueda, "i");
+  try {
+    const result = await Articulo.find()
+      .or([
+        { titulo: { $regex: regex } },
+        { textoIntroductorio: { $regex: regex } },
+        { contenido: { $regex: regex } },
+      ])
+      .sort({ fechaPublicacion: order });
+
+    return res.status(200).json({ result });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+articulosController.getCategorias = async (req, res, next) => {
+  try {
+    return res.json(Articulo.listcategories());
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = articulosController;

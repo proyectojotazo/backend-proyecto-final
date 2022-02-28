@@ -1,6 +1,5 @@
 const usuariosRouter = require("express").Router();
 const { jwtAuth, userAuthorized, userExists } = require("../middlewares");
-
 const { userController } = require("../controllers");
 
 /* GET */
@@ -25,9 +24,7 @@ usuariosRouter.delete(
 );
 
 /* POST */
-usuariosRouter.post("/follow/:user", jwtAuth, userController.followUsuario);
-
-usuariosRouter.post("/unfollow/:user", jwtAuth, userController.unfollowUsuario);
+usuariosRouter.post("/follow/:id", jwtAuth, userExists, userController.followUsuario);
 
 usuariosRouter.post(
   "/articles/favourites/:id",

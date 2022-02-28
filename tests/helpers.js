@@ -38,36 +38,45 @@ const USERS = [testUser, testUser2];
 
 const ERRORS = {
   CastError: "CastError",
-  NotFound: "NotFound",
-  Unauthorized: "Unauthorized",
-  RegisterValidationError: "RegisterValidationError",
+  notFound: "NotFound",
+  unauthorized: "Unauthorized",
+  registerTest: "RegisterValidationError",
 };
 
 const userServices = {
-  getUserId: async () => {
-    const user = await Usuario.findOne({ nombre: testUser.nombre });
+  getUserId: async (usuario) => {
+    const user = await Usuario.findOne({ nombre: usuario.nombre });
     return user._id;
   },
-  getOtherUserId: async () => {
-    const user = await Usuario.findOne({ nombre: testUser2.nombre });
-    return user._id;
-  },
-  getUser: async () => {
-    return await Usuario.findOne({ nombre: testUser.nombre });
+  getUser: async (usuario) => {
+    return await Usuario.findOne({ nombre: usuario.nombre });
   },
 };
 
 const apiServices = {
-  getToken: async () => {
+  getToken: async (usuario) => {
     const response = await api
       .post("/login")
-      .send({ email: testUser.email, password: testUser.password });
+      .send({ email: usuario.email, password: usuario.password });
     const { token } = response.body;
     return token;
+  },
+  followUser: async (userFollowed, userFollower) => {
+    // Conseguir el token del usuario que va a seguir a otro
+    const tokenFollower = await apiServices.getToken(userFollower);
+    // Conseguir el id del usuario a seguir
+    const idUserToFollow = await userServices.getUserId(userFollowed);
+
+    // Seguir al usuario
+    await api
+      .post(`/users/follow/${idUserToFollow}`)
+      .set("Authorization", `Bearer ${tokenFollower}`)
+      .expect(204);
   },
 };
 
 module.exports = {
+  api,
   testUser,
   testUser2,
   testArticle,

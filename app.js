@@ -2,7 +2,6 @@ require("./lib/connection");
 
 const { PORT } = require("./lib/config");
 
-// TODO: Configurar multer para subida de imagenes/videos
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
