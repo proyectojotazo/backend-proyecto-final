@@ -1,11 +1,7 @@
-// const multer = require("multer");
-// const upload = multer();
-const upload = require("../lib/multerConfig");
 const articulosRouter = require("express").Router();
-
-const { articulosController } = require("../controllers");
-
 const { jwtAuth } = require("../middlewares");
+const upload = require("../lib/multerConfig");
+const { articulosController } = require("../controllers");
 
 /* GET */
 articulosRouter.get("/categories", articulosController.getCategorias);
