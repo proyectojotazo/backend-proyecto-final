@@ -1,6 +1,5 @@
 const usuariosRouter = require("express").Router();
 const { jwtAuth, userAuthorized, userExists } = require("../middlewares");
-
 const { userController } = require("../controllers");
 
 /* GET */
