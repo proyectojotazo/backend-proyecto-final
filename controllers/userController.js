@@ -67,25 +67,15 @@ userController.borrarUsuario = async (req, res, next) => {
 // ToCheck: Porque buscar por mail o nickname y no por ID
 
 userController.followUsuario = async (req, res, next) => {
-  console.log("entro controller");
+  const { id: userIdDestino } = req.params;
+
   try {
-    const { id: userIdDestino } = req.params;
+
     const usuarioDestino = await Usuario.findById(userIdDestino);
     const tokenUser = req.get("Authorization").split(" ")[1];
     const userIdRemitente = getUserFromJwt(tokenUser);
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
-
-    // No permitir seguise a uno mismo
-    // ToCheck: ¿Como se daría éste caso?
-    // if (userIdDestino === userIdRemitente) {
-    //   const error = {
-    //     name: "Cant follow your self",
-    //     status: 404,
-    //     message: "No puedes seguirte a ti mismo",
-    //   };
-    //   return next(error);
-    // }
 
     const isFollowing =
       usuarioDestino.usuarios.seguidores.includes(userIdRemitente);
