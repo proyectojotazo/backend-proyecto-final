@@ -31,7 +31,7 @@ const testArticle = {
   textoIntroductorio: "Test texto introductorio articulo",
   contenido: "Test contenido articulo",
   estado: "Publicado",
-  categorias: "Pruebas",
+  categorias: "html",
 };
 
 const USERS = [testUser, testUser2];
@@ -73,6 +73,27 @@ const apiServices = {
       .set("Authorization", `Bearer ${tokenFollower}`)
       .expect(204);
   },
+  addArticle: async () => {
+    const tokenToAddArticle = await apiServices.getToken(testUser);
+    await api
+      .post("/articles")
+      .set("Authorization", `Bearer ${tokenToAddArticle}`)
+      .send(testArticle)
+      .expect(204);
+  },
+  followArticle: async (id) => {
+    const tokenToFollowArticle = await apiServices.getToken(testUser2);
+    await api
+      .post(`/users/articles/favourites/${id}`)
+      .set("Authorization", `Bearer ${tokenToFollowArticle}`)
+      .expect(204);
+  },
+  unfollowArticle: async (id) => {
+    // Para dejar de seguir, debemos primero seguir el articulo
+    await apiServices.followArticle(id)
+    // La segunda vez, se dejará de seguir
+    await apiServices.followArticle(id)
+  }
 };
 
 module.exports = {

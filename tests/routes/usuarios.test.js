@@ -270,6 +270,52 @@ describe("/users", () => {
       expect(seguidores.includes(userFollower.id)).not.toBe(true);
     });
   });
+  describe("POST /articles/favourites/:id", () => {
+    test("Debe agregar un articulo a favoritos correctamente", async () => {
+      // Agregar articulo
+      await apiServices.addArticle();
+
+      // Obtener el articulo a seguir
+      const articleToFollow = await Articulo.findOne({
+        titulo: testArticle.titulo,
+      });
+
+      const articleId = articleToFollow.id;
+
+      await apiServices.followArticle(articleId);
+
+      // Obtener usuario seguidor
+      const userFollower = await userServices.getUser(testUser2);
+
+      const { favoritos } = userFollower.articulos;
+
+      // Comprobar que el usuario seguidor tiene el articulo como favorito
+      expect(favoritos.length).toBe(1);
+      expect(favoritos.includes(articleId)).toBe(true);
+    });
+    test("Debe quitar un articulo de favoritos correctamente", async () => {
+      // Agregar articulo
+      await apiServices.addArticle();
+
+      // Obtener el articulo a seguir
+      const articleToFollow = await Articulo.findOne({
+        titulo: testArticle.titulo,
+      });
+
+      const articleId = articleToFollow.id;
+
+      await apiServices.unfollowArticle(articleId);
+
+      // Obtener usuario seguidor
+      const userFollower = await userServices.getUser(testUser2);
+
+      const { favoritos } = userFollower.articulos;
+
+      // Comprobar que el usuario seguidor tiene el articulo como favorito
+      expect(favoritos.length).toBe(0);
+      expect(favoritos.includes(articleId)).not.toBe(true);
+    });
+  });
 });
 
 afterAll(() => {

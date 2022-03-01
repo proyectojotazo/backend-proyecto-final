@@ -1,7 +1,11 @@
-const { Usuario, Articulo } = require("../models");
-const { getUserFromJwt } = require("../utils");
+const { Usuario } = require("../models");
 
-const getFollowData = require("../utils/getFollowData");
+const {
+  getUserFromJwt,
+  getFollowData,
+  getArticuloSeguidoData,
+} = require("../utils");
+
 const { deleteFolderUser } = require("../utils/deleteFiles");
 
 const userController = {};
@@ -76,10 +80,10 @@ userController.followUsuario = async (req, res, next) => {
 
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
 
-    const {
-      dataToRemitente,
-      dataToDestino,
-    } = getFollowData(usuarioDestino, usuarioRemitente);
+    const { dataToRemitente, dataToDestino } = getFollowData(
+      usuarioDestino,
+      usuarioRemitente
+    );
 
     // Actualizamos el usuario remitente y añadimos que sigue a esa persona
     await usuarioRemitente.actualizaUsuario(dataToRemitente);
@@ -93,56 +97,20 @@ userController.followUsuario = async (req, res, next) => {
   }
 };
 
-userController.articulosfavorito = async (req, res, next) => {
+userController.articulosFavorito = async (req, res, next) => {
   try {
     // obtenemos el id
     const { id } = req.params;
-    // buscamos el articulo
-    const articulo = await Articulo.findById(id);
-
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Articulo no encontrado",
-      };
-      return next(error);
-    }
 
     // obtener id de usuario del token
     const tokenUser = req.get("Authorization").split(" ")[1];
     const usuario = await Usuario.findOne({ _id: getUserFromJwt(tokenUser) });
-    // vemos si el articulos existe en favoritos
-    const articuloseguido = async () => {
-      if (usuario.articulos.favoritos.includes()) {
-        const result = usuario.articulos.favoritos.filter(
-          (ar) => ar.toString() !== articulo._id.toString()
-        );
-        const articulofavorito = {
-          articulos: {
-            creados: [...usuario.articulos.creados],
-            favoritos: [...result],
-          },
-        };
-        await usuario.actualizaUsuario(articulofavorito);
-        return res.status(200).json({
-          Message: `Has dejado de seguir el articulo ${articulo.titulo}`,
-        });
-      } else {
-        const articulofavorito = {
-          articulos: {
-            creados: [...usuario.articulos.creados],
-            favoritos: [...usuario.articulos.favoritos, id],
-          },
-        };
-        await usuario.actualizaUsuario(articulofavorito);
-        return res.status(200).json({
-          Message: `Has añadido a favoritos el articulo ${articulo.titulo}`,
-        });
-      }
-    };
 
-    articuloseguido();
+    const articulofavorito = getArticuloSeguidoData(id, usuario);
+
+    await usuario.actualizaUsuario(articulofavorito);
+
+    return res.status(204).end();
   } catch (error) {
     return next(error);
   }

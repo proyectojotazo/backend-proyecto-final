@@ -4,4 +4,6 @@ module.exports = {
   registroManejoErrores: require("./registroManejoErrores"),
   getUserFromJwt: require("./getUserFromJwt"),
   sendEmail: require("./sendEmail"),
+  getFollowData: require("./getFollowData"),
+  getArticuloSeguidoData: require("./getArticuloSeguidoData"),
 };

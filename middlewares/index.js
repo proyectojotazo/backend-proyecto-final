@@ -3,4 +3,5 @@ module.exports = {
   errorHandler: require("./errorHandler"),
   userAuthorized: require("./userAuthorized"),
   userExists: require("./userExists"),
+  articleExists: require("./articleExists"),
 };
