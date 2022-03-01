@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
-const mongooseDateFormat = require('mongoose-date-format');
-
+const mongooseDateFormat = require("mongoose-date-format");
 
 const valores = [
   "html",
@@ -52,6 +51,8 @@ const articuloSchema = new Schema({
   },
   fechaPublicacion: {
     type: Date,
+    min: Date.now(),
+    default: Date.now(),
     // validate: [
     //   {
     //     validator: (v) => v === min,
@@ -147,5 +148,3 @@ articuloSchema.statics.listcategories = () => {
 const Articulo = model("Articulo", articuloSchema);
 
 module.exports = Articulo;
-
-
