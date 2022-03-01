@@ -55,7 +55,7 @@
 // POST
 /**
  * @swagger
- * /users/follow/{nicknameOemailUser}:
+ * /users/follow/{idUsuario}:
  *   post:
  *     security:
  *          - bearerAuth: []
@@ -64,7 +64,7 @@
  *     description: Puedes seguir o dejar de seguir a un usuario incluyendo su "nickname" o "email" en la ruta
  *     parameters:
  *          - in: path
- *            name: nicknameOemailUser
+ *            name: idUsuario
  *            schema:
  *              type: string
  *            required: true
