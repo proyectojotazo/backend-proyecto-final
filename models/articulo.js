@@ -88,12 +88,10 @@ const articuloSchema = new Schema({
       message: `Categoria no valida, las categorias disponibles son: ${valores}`,
     },
   },
-
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
-
   respuesta: {
-    idArticulo: { type: Schema.Types.ObjectId, ref: "Respuesta" },
+    idArticulo: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],
     titulo: { type: String },
   },
 });
@@ -109,6 +107,7 @@ articuloSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     // returnedObject.id = returnedObject._id.toString()
     // delete returnedObject._id
+    delete returnedObject.fechaBorrador;
     delete returnedObject.__v;
   },
 });
