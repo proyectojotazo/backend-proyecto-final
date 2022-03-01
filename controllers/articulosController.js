@@ -1,6 +1,6 @@
 const { Articulo, Usuario, Comentario } = require("../models");
-const { getUserFromJwt, sendEmail } = require("../utils");
-const { deleteFileOfPath } = require("../utils/deleteFiles");
+const { getUserFromJwt, sendEmail, deleteF } = require("../utils");
+const { deleteFileOfPath } = deleteF;
 
 const articulosController = {};
 
@@ -193,6 +193,7 @@ articulosController.creaArticulo = async (req, res, next) => {
 
     return res.status(204).end();
   } catch (error) {
+    if (req.file) deleteFileOfPath(archivo);
     return next(error);
   }
 };

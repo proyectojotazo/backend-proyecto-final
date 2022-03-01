@@ -4,9 +4,10 @@ const {
   getUserFromJwt,
   getFollowData,
   getArticuloSeguidoData,
+  deleteF,
 } = require("../utils");
 
-const { deleteFolderUser } = require("../utils/deleteFiles");
+const { deleteFolderUser } = deleteF;
 
 const userController = {};
 

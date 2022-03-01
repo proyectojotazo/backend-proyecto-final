@@ -6,4 +6,5 @@ module.exports = {
   sendEmail: require("./sendEmail"),
   getFollowData: require("./getFollowData"),
   getArticuloSeguidoData: require("./getArticuloSeguidoData"),
+  deleteF: require("./deleteFiles"),
 };
