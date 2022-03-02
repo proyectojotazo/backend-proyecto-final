@@ -55,6 +55,7 @@ articulosController.getCategorias = async (req, res, next) => {
 articulosController.creaArticulo = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
   const usuarioId = getUserFromJwt(jwtToken);
+  // Si se envia archivo, se guarda el path
   const archivo = req.file ? req.file.path : undefined;
 
   // Obtenemos al usuario para actualizarlo con el nuevo post creado
@@ -79,6 +80,7 @@ articulosController.creaArticulo = async (req, res, next) => {
 
     return res.status(201).end();
   } catch (error) {
+    if (req.file) deleteFileOfPath(archivo);
     return next(error);
   }
 };
@@ -86,21 +88,23 @@ articulosController.creaArticulo = async (req, res, next) => {
 // Creación de un articulo en respuesta a otro articulo
 articulosController.respuestaArticulo = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
-
   const usuarioId = getUserFromJwt(jwtToken);
 
+  // Si se envia archivo, se guarda el path
+  const archivo = req.file ? req.file.path : undefined;
   // Obtenemos el id del articulo para poder responderlo
   const idArticulo = req.params.id;
-  // buscar el articulo
-  const articulo = await Articulo.findById(idArticulo);
-  // buscamos el usuario el cual esta respondiendo el articulo creado
-  const usuario = await Usuario.findById(usuarioId);
 
   try {
+    // buscar el articulo
+    const articulo = await Articulo.findById(idArticulo);
+    // buscamos el usuario el cual esta respondiendo el articulo creado
+    const usuario = await Usuario.findById(usuarioId);
     // creamos el articulo en respuesta al original
     const respuestaArticulo = new Articulo({
       ...req.body,
       usuario: usuarioId,
+      archivoDestacado: archivo,
       respuesta: {
         idArticulo: idArticulo,
         titulo: articulo.titulo,
@@ -119,6 +123,7 @@ articulosController.respuestaArticulo = async (req, res, next) => {
 
     return res.status(204).end();
   } catch (error) {
+    if (req.file) deleteFileOfPath(archivo);
     return next(error);
   }
 };
@@ -192,6 +197,8 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    await Articulo.findByIdAndUpdate(id, datosActualizar);
+
     if (
       (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
       undefined
@@ -199,9 +206,9 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       deleteFileOfPath(articulo.archivoDestacado);
     }
 
-    await Articulo.findByIdAndUpdate(id, datosActualizar);
     return res.status(200).json({ message: "Artículo actualizado" });
   } catch (error) {
+    if (req.file) deleteFileOfPath(datosActualizar.archivoDestacado);
     return next(error);
   }
 };
@@ -242,12 +249,13 @@ articulosController.borraArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    // Eliminamos el artículo por id
+    await Articulo.findByIdAndDelete(id);
+
+    // Eliminamos el archivo del artículo si lo hubiera
     if (articulo.archivoDestacado) {
       deleteFileOfPath(articulo.archivoDestacado);
     }
-
-    // Obtenemos el artículo que se ha eliminado
-    await Articulo.findByIdAndDelete(id);
 
     // Obtenemos dicho usuario para modificar sus articulos creados
     const usuario = await Usuario.findById(userIdArticle);
