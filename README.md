@@ -1,6 +1,5 @@
 # Bootcamp Full Stack Web Developer #
 
-
 ## Proyecto Final: "El último y me voy" - Backend
 
 ### EL ÚLTIMO Y ME VOY
@@ -123,6 +122,10 @@ Orden Descendente - Muestra artículos por fecha de publicación descendente (nu
 
     	http://localhost:3001/articles?sort=-fechaPublicacion
 
+Mostrar categorías disponibles:
+
+    	http://localhost:3001/articles/categories
+
 **- Comentarios -**
 
 Mostrar comentario por ID:
@@ -152,19 +155,15 @@ Restablecer contraseña:
 
 > Para enviar la petición generada al API, se deberá añadir un objeto en el "body" con la clave "password" y como valor la nueva contraseña, para que pueda ser modificada correctamente.
 
-Seguir a un usuario:
+Seguir o dejar de seguir a un usuario:
 
     	http://localhost:3001/users/follow/<nickNameOrEmail>
-> Puedes seguir a un usuario añadiendo a la ruta su "nickname" o "email".
+> Puedes seguir o dejar de seguir a un usuario añadiendo a la ruta su "nickname" o "email".
+
+> Si no sigues al usuario, se añadirá a tus seguidos y a su vez se te añadirá a ti como seguidor en el usuario que has seguido. Si ya sigues a este usuario, se os eliminará a ambos como usuario seguido y seguidor, respectivamente.
 
 > Esta petición necesita el header "Authorization" con el valor `Bearer <token>`
 
-Dejar de seguir a un usuario:
-
-    	http://localhost:3001/users/unfollow/<nickNameOrEmail>
-> Puedes dejar de seguir a un usuario añadiendo a la ruta su "nickname" o "email".
-
-> Esta petición necesita el header "Authorization" con el valor `Bearer <token>`
 
 Añadir o eliminar un artículo de favoritos:
 
@@ -188,6 +187,15 @@ Crear un nuevo artículo en respuesta a otro artículo:
 > Funciona igual que "Crear un artículo", sólo hay que añadir a la ruta el id del artículo existente del que se quiera crear la respuesta.
 
 > Al realizar la petición se añadirá automáticamente el id y título del artículo del que se crea la respuesta a la base de datos.
+
+Realizar búsqueda de artículos:
+
+    	http://localhost:3001/articles/search
+> Es necesario enviar un "body" con el campo "search" y con el contenido que queramos buscar. Se buscarán artículos que coincidan con: título, introducción y contenido del artículo (indistintamente de si es mayúscula o minúscula).
+
+> Por defecto devuelve una lista ordenada por orden descendente (más recientes primero). Si se quiere obtener con orden ascendente (más antiguos primero), habrá que añadir a la ruta `?asc`, quedando de la siguiente forma:
+
+    	http://localhost:3001/articles/search?asc
 
 **- Comentarios -**
 
@@ -233,7 +241,7 @@ Eliminar un usuario (y los anuncios que hubiese creado):
     	http://localhost:3001/users/<IdUsuario>
 > Para poder eliminar un usuario será necesario incluir el valor `Bearer <token>` del usuario correspondiente en la cabecera "Authorization". Si se intentara eliminar un usuario con un token válido, perteneciente a otro usuario, devolvería un error.
 
-> Se eliminará toda la información del usuario en la base de datos, incluidos los artículos que ese usuario hubiese creado.
+> Se eliminará toda la información del usuario en la base de datos, incluidos los artículos que ese usuario hubiese creado y su carpeta de archivos de imágenes/vídeos subidos con esos artículos.
 
 **- Artículos -**
 
@@ -241,4 +249,6 @@ Eliminar un artículo:
 
     	http://localhost:3001/articles/<IdArticulo>
 > Para poder eliminar un artículo, se necesitará incluir el valor `Bearer <token>` del usuario creador de ese artículo, en la cabecera "Authorization". Si se intentara eliminar un artículo con un token válido, perteneciente a otro usuario, devolvería un error.
+
+> Se eliminará el archivo de imagen/vídeo subido con el artículo de su carpeta de usuario
 

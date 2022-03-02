@@ -1,6 +1,6 @@
 const { Articulo, Usuario } = require("../models");
-const { getUserFromJwt } = require("../utils");
-const { deleteFileOfPath } = require("../utils/deleteFiles");
+const { getUserFromJwt, deleteF } = require("../utils");
+const { deleteFileOfPath } = deleteF
 
 const articulosController = {};
 
