@@ -273,7 +273,7 @@ describe("/users", () => {
   describe("POST /articles/favourites/:id", () => {
     test("Debe agregar un articulo a favoritos correctamente", async () => {
       // Agregar articulo
-      await apiServices.addArticle();
+      await apiServices.addArticle(testUser, testArticle);
 
       // Obtener el articulo a seguir
       const articleToFollow = await Articulo.findOne({
@@ -295,7 +295,7 @@ describe("/users", () => {
     });
     test("Debe quitar un articulo de favoritos correctamente", async () => {
       // Agregar articulo
-      await apiServices.addArticle();
+      await apiServices.addArticle(testUser, testArticle);
 
       // Obtener el articulo a seguir
       const articleToFollow = await Articulo.findOne({

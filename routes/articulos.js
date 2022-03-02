@@ -1,5 +1,5 @@
 const articulosRouter = require("express").Router();
-const { jwtAuth } = require("../middlewares");
+const { jwtAuth, articleExists } = require("../middlewares");
 const upload = require("../lib/multerConfig");
 const { articulosController } = require("../controllers");
 
@@ -8,7 +8,7 @@ articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/categories", articulosController.getCategorias);
 
-articulosRouter.get("/:id", articulosController.getArticulo);
+articulosRouter.get("/:id", articleExists, articulosController.getArticulo);
 
 /* PATCH */
 articulosRouter.patch(

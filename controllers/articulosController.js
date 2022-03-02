@@ -1,21 +1,21 @@
 const { Articulo, Usuario } = require("../models");
 const { getUserFromJwt, deleteF } = require("../utils");
-const { deleteFileOfPath } = deleteF
+const { deleteFileOfPath } = deleteF;
 
 const articulosController = {};
 
 articulosController.getArticulos = async (req, res, next) => {
-  const sort = req.query.sort;
-
   // Creamos el objeto de filtros
   const filtro = {};
   Object.entries(req.query).forEach(
     ([clave, valor]) => (filtro[clave] = valor)
   );
 
+  const { sort } = filtro;
+
   try {
-    const articulo = await Articulo.lista(filtro, null, sort);
-    return res.json({ articles: articulo });
+    const articles = await Articulo.lista(filtro, null, sort);
+    return res.status(200).json(articles);
   } catch (error) {
     return next(error);
   }
@@ -27,16 +27,7 @@ articulosController.getArticulo = async (req, res, next) => {
   try {
     const articulo = await Articulo.findByIdPopulated(id);
 
-    // Si no se encuentra el articulo
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Articulo no encontrado",
-      };
-      return next(error);
-    }
-    return res.status(302).json({ articulo });
+    return res.status(302).json(articulo);
   } catch (error) {
     return next(error);
   }
@@ -130,7 +121,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
     }
 
     await Articulo.findByIdAndUpdate(id, datosActualizar);
-    return res.status(200).json({ message: "Artículo actualizado" });
+    return res.status(204).end()
   } catch (error) {
     return next(error);
   }
