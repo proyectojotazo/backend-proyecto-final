@@ -1,5 +1,5 @@
 const { Articulo, Usuario } = require("../models");
-const { getUserFromJwt, deleteF } = require("../utils");
+const { getUserFromJwt, deleteF, sendEmail } = require("../utils");
 const { deleteFileOfPath } = deleteF;
 
 const articulosController = {};
@@ -77,6 +77,24 @@ articulosController.creaArticulo = async (req, res, next) => {
         favoritos: [...usuario.articulos.favoritos],
       },
     });
+
+    // Obtenemos los seguidores del usuario que esta creando el nuevo articulo
+    const idSeguidores = usuario.usuarios.seguidores.toString().split(',');
+    const seguidores = await Usuario.find({ _id: { $in: idSeguidores } }).select('email').exec()
+    let emailSeguidores = []
+    seguidores.forEach((e) => {
+      emailSeguidores.push(e.email)
+    })
+    // envio correo de notificación 
+    const link = `${process.env.BASE_URL}/articles/${nuevoArticulo._id}`;
+    const texto = `${usuario.nickname} a creado un nuevo articulo: \n ${link}`;
+    emailSeguidores.forEach(async (mail) => {
+      await sendEmail(
+        mail,
+        `${usuario.nickname} ha creado un nuevo articulo`,
+        texto
+      );
+    })
 
     return res.status(201).end();
   } catch (error) {
