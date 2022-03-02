@@ -1,16 +1,15 @@
 const { Usuario } = require("../models");
-
 const {
   getUserFromJwt,
   getFollowData,
   getArticuloSeguidoData,
   deleteF,
 } = require("../utils");
-
 const { deleteFolderUser } = deleteF;
 
 const userController = {};
 
+/* GET - Controllers */
 userController.getUsuario = async (req, res, next) => {
   const { nickname } = req.params;
 
@@ -32,45 +31,7 @@ userController.getUsuario = async (req, res, next) => {
   }
 };
 
-userController.updateUsuario = async (req, res, next) => {
-  // obtenemos id del usuario a actualizar
-  const { id } = req.params;
-
-  // datos a actualizar
-  const datosActualizar = req.body;
-
-  try {
-    // buscamos al usuario
-    const usuario = await Usuario.findById(id);
-
-    await usuario.actualizaUsuario(datosActualizar);
-
-    // Al no enviar información simplemente enviaremos .end()
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
-
-userController.borrarUsuario = async (req, res, next) => {
-  // obtendremos el id
-  const { id } = req.params;
-
-  try {
-    // buscamos al usuario
-    const usuario = await Usuario.findById(id);
-
-    await Usuario.deleteAllData(usuario);
-
-    deleteFolderUser(id);
-
-    // Al no enviar información simplemente enviaremos .end()
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
-
+/* POST - Controllers */
 userController.followUsuario = async (req, res, next) => {
   const { id: userIdDestino } = req.params;
 
@@ -111,6 +72,47 @@ userController.articulosFavorito = async (req, res, next) => {
 
     await usuario.actualizaUsuario(articulofavorito);
 
+    return res.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* PATCH - Controllers */
+userController.updateUsuario = async (req, res, next) => {
+  // obtenemos id del usuario a actualizar
+  const { id } = req.params;
+
+  // datos a actualizar
+  const datosActualizar = req.body;
+
+  try {
+    // buscamos al usuario
+    const usuario = await Usuario.findById(id);
+
+    await usuario.actualizaUsuario(datosActualizar);
+
+    // Al no enviar información simplemente enviaremos .end()
+    return res.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* DELETE - Controllers */
+userController.borrarUsuario = async (req, res, next) => {
+  // obtendremos el id
+  const { id } = req.params;
+
+  try {
+    // buscamos al usuario
+    const usuario = await Usuario.findById(id);
+
+    await Usuario.deleteAllData(usuario);
+
+    deleteFolderUser(id);
+
+    // Al no enviar información simplemente enviaremos .end()
     return res.status(204).end();
   } catch (error) {
     return next(error);

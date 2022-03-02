@@ -1,9 +1,10 @@
 const { Articulo, Usuario } = require("../models");
 const { getUserFromJwt, deleteF } = require("../utils");
-const { deleteFileOfPath } = deleteF
+const { deleteFileOfPath } = deleteF;
 
 const articulosController = {};
 
+/* GET - Controllers */
 articulosController.getArticulos = async (req, res, next) => {
   const sort = req.query.sort;
 
@@ -42,6 +43,15 @@ articulosController.getArticulo = async (req, res, next) => {
   }
 };
 
+articulosController.getCategorias = async (req, res, next) => {
+  try {
+    return res.json(Articulo.listcategories());
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* POST - Controllers */
 articulosController.creaArticulo = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
   const usuarioId = getUserFromJwt(jwtToken);
@@ -68,130 +78,6 @@ articulosController.creaArticulo = async (req, res, next) => {
     });
 
     return res.status(201).end();
-  } catch (error) {
-    return next(error);
-  }
-};
-
-articulosController.actualizarArticulo = async (req, res, next) => {
-  // id del artículo
-  const id = req.params.id;
-  // id del usuario desde el token
-  const tokenUser = req.get("Authorization").split(" ")[1];
-  const userIdAuth = getUserFromJwt(tokenUser);
-  // datos a actualizar
-  const datosActualizar = req.body;
-  if (req.file) datosActualizar.archivoDestacado = req.file.path;
-
-  try {
-    // buscamos el artículo y extraemos el id del usuario creador
-    const articulo = await Articulo.findById(id);
-    // Si no existe el articulo
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Articulo no encontrado",
-      };
-      return next(error);
-    }
-
-    const hayCamposVacios = Object.values(datosActualizar).some(
-      (campo) => campo === ""
-    );
-
-    // Si dejamos algún campo a actualizar vacío
-    if (hayCamposVacios) {
-      const error = {
-        name: "UpdateValidationError",
-        status: 400,
-        message: "Hay campos vacíos",
-      };
-      return next(error);
-    }
-
-    const userIdArticle = articulo.usuario.toString();
-
-    // si no coinciden, devolvemos el error
-    if (userIdAuth !== userIdArticle) {
-      const error = {
-        name: "Unauthorized",
-        status: 401,
-        message: "No estas autorizado para actualizar este artículo",
-      };
-      return next(error);
-    }
-
-    if (
-      (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
-      undefined
-    ) {
-      deleteFileOfPath(articulo.archivoDestacado);
-    }
-
-    await Articulo.findByIdAndUpdate(id, datosActualizar);
-    return res.status(200).json({ message: "Artículo actualizado" });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-articulosController.borraArticulo = async (req, res, next) => {
-  try {
-    // id del usuario desde el token
-    const tokenUser = req.get("Authorization").split(" ")[1];
-    const userIdAuth = getUserFromJwt(tokenUser);
-
-    // id del artículo proporcionado desde la ruta
-    const id = req.params.id;
-
-    // obtenemos el artículo por id
-    const articulo = await Articulo.findById(id);
-
-    // Si la id del articulo no existe nos devolverá el error
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Artículo no encontrado",
-      };
-      return next(error);
-    }
-
-    // extraemos el id del usuario creador del artículo
-    const userIdArticle = articulo.usuario.toString();
-
-    // si no coinciden ambos usuarios, devolvemos el error
-    if (userIdAuth !== userIdArticle) {
-      const error = {
-        name: "Unauthorized",
-        status: 401,
-        message: "No estas autorizado para eliminar este artículo",
-      };
-      return next(error);
-    }
-
-    if (articulo.archivoDestacado) {
-      deleteFileOfPath(articulo.archivoDestacado);
-    }
-
-    // Obtenemos el artículo que se ha eliminado
-    await Articulo.findByIdAndDelete(id);
-
-    // Obtenemos dicho usuario para modificar sus articulos creados
-    const usuario = await Usuario.findById(userIdArticle);
-
-    // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
-    await Usuario.findByIdAndUpdate(userIdArticle, {
-      articulos: {
-        ...usuario.articulos,
-        creados: usuario.articulos.creados.filter((articuloId) => {
-          return articuloId.toString() !== id;
-        }),
-      },
-    });
-
-    return res.status(200).json({ message: "Articulo borrado" });
   } catch (error) {
     return next(error);
   }
@@ -256,9 +142,127 @@ articulosController.buscarArticulos = async (req, res, next) => {
   }
 };
 
-articulosController.getCategorias = async (req, res, next) => {
+/* PATCH - Controllers */
+articulosController.actualizarArticulo = async (req, res, next) => {
+  // id del artículo
+  const id = req.params.id;
+  // id del usuario desde el token
+  const tokenUser = req.get("Authorization").split(" ")[1];
+  const userIdAuth = getUserFromJwt(tokenUser);
+  // datos a actualizar
+  const datosActualizar = req.body;
+  if (req.file) datosActualizar.archivoDestacado = req.file.path;
+
   try {
-    return res.json(Articulo.listcategories());
+    // buscamos el artículo y extraemos el id del usuario creador
+    const articulo = await Articulo.findById(id);
+    // Si no existe el articulo
+    if (!articulo) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Articulo no encontrado",
+      };
+      return next(error);
+    }
+
+    const hayCamposVacios = Object.values(datosActualizar).some(
+      (campo) => campo === ""
+    );
+
+    // Si dejamos algún campo a actualizar vacío
+    if (hayCamposVacios) {
+      const error = {
+        name: "UpdateValidationError",
+        status: 400,
+        message: "Hay campos vacíos",
+      };
+      return next(error);
+    }
+
+    const userIdArticle = articulo.usuario.toString();
+
+    // si no coinciden, devolvemos el error
+    if (userIdAuth !== userIdArticle) {
+      const error = {
+        name: "Unauthorized",
+        status: 401,
+        message: "No estas autorizado para actualizar este artículo",
+      };
+      return next(error);
+    }
+
+    if (
+      (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
+      undefined
+    ) {
+      deleteFileOfPath(articulo.archivoDestacado);
+    }
+
+    await Articulo.findByIdAndUpdate(id, datosActualizar);
+    return res.status(200).json({ message: "Artículo actualizado" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* DELETE - Controllers */
+articulosController.borraArticulo = async (req, res, next) => {
+  try {
+    // id del usuario desde el token
+    const tokenUser = req.get("Authorization").split(" ")[1];
+    const userIdAuth = getUserFromJwt(tokenUser);
+
+    // id del artículo proporcionado desde la ruta
+    const id = req.params.id;
+
+    // obtenemos el artículo por id
+    const articulo = await Articulo.findById(id);
+
+    // Si la id del articulo no existe nos devolverá el error
+    if (!articulo) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Artículo no encontrado",
+      };
+      return next(error);
+    }
+
+    // extraemos el id del usuario creador del artículo
+    const userIdArticle = articulo.usuario.toString();
+
+    // si no coinciden ambos usuarios, devolvemos el error
+    if (userIdAuth !== userIdArticle) {
+      const error = {
+        name: "Unauthorized",
+        status: 401,
+        message: "No estas autorizado para eliminar este artículo",
+      };
+      return next(error);
+    }
+
+    if (articulo.archivoDestacado) {
+      deleteFileOfPath(articulo.archivoDestacado);
+    }
+
+    // Obtenemos el artículo que se ha eliminado
+    await Articulo.findByIdAndDelete(id);
+
+    // Obtenemos dicho usuario para modificar sus articulos creados
+    const usuario = await Usuario.findById(userIdArticle);
+
+    // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
+    await Usuario.findByIdAndUpdate(userIdArticle, {
+      articulos: {
+        ...usuario.articulos,
+        creados: usuario.articulos.creados.filter((articuloId) => {
+          return articuloId.toString() !== id;
+        }),
+      },
+    });
+
+    return res.status(200).json({ message: "Articulo borrado" });
   } catch (error) {
     return next(error);
   }

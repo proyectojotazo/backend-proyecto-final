@@ -1,8 +1,33 @@
-const { Usuario, Comentario, Articulo } = require('../models')
+const { Usuario, Comentario, Articulo } = require("../models");
 const { getUserFromJwt, sendEmail } = require("../utils");
 
-const comentariosController = {}
+const comentariosController = {};
 
+/* GET - Controllers */
+// visualizar un comentario y sus respuestas
+comentariosController.getComentarios = async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const comentario = await Comentario.findById(id).populate("usuario", {
+      nickname: 1,
+    });
+    // Si no se encuentra el comentario
+    if (!comentario) {
+      const error = {
+        name: "NotFound",
+        status: 404,
+        message: "Articulo no encontrado",
+      };
+      return next(error);
+    }
+    return res.status(302).json({ comentario });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* POST - Controllers */
 // crea comentario
 comentariosController.creaComentario = async (req, res, next) => {
   // recoge el token para identificar el usuario
@@ -38,29 +63,6 @@ comentariosController.creaComentario = async (req, res, next) => {
     );
 
     return res.status(201).json({ message: "Comentario Creado" });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// visualizar un comentario y sus respuestas
-comentariosController.getComentarios = async (req, res, next) => {
-  const id = req.params.id;
-
-  try {
-    const comentario = await Comentario.findById(id).populate("usuario", {
-      nickname: 1,
-    });
-    // Si no se encuentra el comentario
-    if (!comentario) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Articulo no encontrado",
-      };
-      return next(error);
-    }
-    return res.status(302).json({ comentario });
   } catch (error) {
     return next(error);
   }
@@ -102,4 +104,4 @@ comentariosController.responderComentario = async (req, res, next) => {
   }
 };
 
-module.exports = comentariosController
+module.exports = comentariosController;
