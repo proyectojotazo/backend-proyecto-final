@@ -79,7 +79,7 @@ const apiServices = {
       .post("/articles")
       .set("Authorization", `Bearer ${tokenToAddArticle}`)
       .send(testArticle)
-      .expect(204);
+      .expect(201);
   },
   followArticle: async (id) => {
     const tokenToFollowArticle = await apiServices.getToken(testUser2);

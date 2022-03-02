@@ -1,15 +1,16 @@
 const comentariosRouter = require("express").Router();
 
-const { articulosController } = require("../controllers");
+const { comentariosController } = require("../controllers");
 
 const { jwtAuth } = require("../middlewares");
 
 // GET comentario TODO 
-comentariosRouter.get("/:id", jwtAuth, articulosController.getComentarios)
+comentariosRouter.get("/:id", jwtAuth, comentariosController.getComentarios)
 
 // POST CREAR comentario TODO 
-comentariosRouter.post("/:id", jwtAuth, articulosController.creaComentario)
+comentariosRouter.post("/:id", jwtAuth, comentariosController.creaComentario)
+
 // POST RESPONDER comentario TODO 
-comentariosRouter.post("/response/:id", jwtAuth, articulosController.responderComentario)
+comentariosRouter.post("/response/:id", jwtAuth, comentariosController.responderComentario)
 
 module.exports = comentariosRouter;
