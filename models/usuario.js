@@ -8,6 +8,7 @@ const Articulo = require("./articulo");
 const bcrypt = require("bcrypt");
 
 const usuarioSchema = new Schema({
+  avatar: { type: String },
   nombre: {
     type: String,
     required: [true, "Nombre requerido"],

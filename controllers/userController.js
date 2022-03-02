@@ -5,7 +5,7 @@ const {
   getArticuloSeguidoData,
   deleteF,
 } = require("../utils");
-const { deleteFolderUser } = deleteF;
+const { deleteFileOfPath, deleteFolderUser } = deleteF;
 
 const userController = {};
 
@@ -85,6 +85,8 @@ userController.updateUsuario = async (req, res, next) => {
 
   // datos a actualizar
   const datosActualizar = req.body;
+  // Si se envia avatar, se guarda el path
+  if (req.file) datosActualizar.avatar = req.file.path;
 
   try {
     // buscamos al usuario
@@ -92,9 +94,14 @@ userController.updateUsuario = async (req, res, next) => {
 
     await usuario.actualizaUsuario(datosActualizar);
 
+    if (datosActualizar.avatar && !usuario.avatar.includes("default")) {
+      deleteFileOfPath(usuario.avatar);
+    }
+
     // Al no enviar información simplemente enviaremos .end()
     return res.status(204).end();
   } catch (error) {
+    if (req.file) deleteFileOfPath(datosActualizar.avatar);
     return next(error);
   }
 };

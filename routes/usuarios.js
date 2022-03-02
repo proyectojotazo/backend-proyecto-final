@@ -6,6 +6,7 @@ const {
   articleExists,
 } = require("../middlewares");
 const { userController } = require("../controllers");
+const upload = require("../lib/multerConfig");
 
 /* GET */
 usuariosRouter.get("/:nickname", userController.getUsuario);
@@ -16,6 +17,7 @@ usuariosRouter.patch(
   jwtAuth,
   userExists,
   userAuthorized,
+  upload.single("avatar"),
   userController.updateUsuario
 );
 

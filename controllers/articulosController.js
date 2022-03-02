@@ -78,23 +78,31 @@ articulosController.creaArticulo = async (req, res, next) => {
       },
     });
 
-    // Obtenemos los seguidores del usuario que esta creando el nuevo articulo
-    const idSeguidores = usuario.usuarios.seguidores.toString().split(',');
-    const seguidores = await Usuario.find({ _id: { $in: idSeguidores } }).select('email').exec()
-    let emailSeguidores = []
-    seguidores.forEach((e) => {
-      emailSeguidores.push(e.email)
-    })
-    // envio correo de notificación 
-    const link = `${process.env.BASE_URL}/articles/${nuevoArticulo._id}`;
-    const texto = `${usuario.nickname} a creado un nuevo articulo: \n ${link}`;
-    emailSeguidores.forEach(async (mail) => {
-      await sendEmail(
-        mail,
-        `${usuario.nickname} ha creado un nuevo articulo`,
-        texto
-      );
-    })
+    // Obtenemos los seguidores del usuario que esta creando el nuevo articulo
+    const idSeguidores =
+      usuario.usuarios.seguidores.length > 0
+        ? usuario.usuarios.seguidores.toString().split(",")
+        : undefined;
+
+    if (idSeguidores !== undefined) {
+      const seguidores = await Usuario.find({ _id: { $in: idSeguidores } })
+        .select("email")
+        .exec();
+      const emailSeguidores = [];
+      seguidores.forEach((e) => {
+        emailSeguidores.push(e.email);
+      });
+      // envio correo de notificación a seguidores
+      const link = `${process.env.BASE_URL}/articles/${nuevoArticulo._id}`;
+      const texto = `${usuario.nickname} a creado un nuevo articulo: \n ${link}`;
+      emailSeguidores.forEach(async (mail) => {
+        await sendEmail(
+          mail,
+          `${usuario.nickname} ha creado un nuevo articulo`,
+          texto
+        );
+      });
+    }
 
     return res.status(201).end();
   } catch (error) {

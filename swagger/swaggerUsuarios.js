@@ -6,31 +6,6 @@
  *          type: http
  *          scheme: bearer
  *          bearerFormat: JWT
- *  schemas:
- *      Users:
- *          type: object
- *          properties:
- *              nombre:
- *                  type: string
- *                  description: Nombre
- *              apellidos:
- *                  type: string
- *                  description: Apellidos
- *              email:
- *                  type: string
- *                  description: Email
- *              nickname:
- *                  type: string
- *                  description: Nick de usuario
- *              password:
- *                  type: string
- *                  description: Contraseña
- *              articulos:
- *                  type: object
- *                  description: Artículos creados y favoritos
- *              usuarios:
- *                  type: object
- *                  description: Usuarios seguidos y seguidores
  */
 
 // GET
@@ -110,7 +85,7 @@
  *            required: true
  *     requestBody:
  *          content:
- *              application/x-www-form-urlencoded:
+ *              multipart/form-data:
  *                  schema:
  *                      type: object
  *                      properties:
@@ -129,6 +104,10 @@
  *                          password:
  *                              type: string
  *                              description: Contraseña
+ *                          avatar:
+ *                              type: string
+ *                              format: binary
+ *                              description: Avatar
  *     responses:
  *          204:
  *              description: Usuario actualizado!
