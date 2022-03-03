@@ -1,9 +1,10 @@
 const { Articulo, Usuario } = require("../models");
-const { getUserFromJwt, deleteF } = require("../utils");
+const { getUserFromJwt, deleteF, sendEmail } = require("../utils");
 const { deleteFileOfPath } = deleteF;
 
 const articulosController = {};
 
+/* GET - Controllers */
 articulosController.getArticulos = async (req, res, next) => {
   // Creamos el objeto de filtros
   const filtro = {};
@@ -33,9 +34,19 @@ articulosController.getArticulo = async (req, res, next) => {
   }
 };
 
+articulosController.getCategorias = async (req, res, next) => {
+  try {
+    return res.json(Articulo.listcategories());
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/* POST - Controllers */
 articulosController.creaArticulo = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
   const usuarioId = getUserFromJwt(jwtToken);
+  // Si se envia archivo, se guarda el path
   const archivo = req.file ? req.file.path : undefined;
 
   // Obtenemos al usuario para actualizarlo con el nuevo post creado
@@ -58,12 +69,102 @@ articulosController.creaArticulo = async (req, res, next) => {
       },
     });
 
+    // Obtenemos los seguidores del usuario que esta creando el nuevo articulo
+    const idSeguidores =
+      usuario.usuarios.seguidores.length > 0
+        ? usuario.usuarios.seguidores.toString().split(",")
+        : undefined;
+
+    if (idSeguidores !== undefined) {
+      const seguidores = await Usuario.find({ _id: { $in: idSeguidores } })
+        .select("email")
+        .exec();
+      const emailSeguidores = [];
+      seguidores.forEach((e) => {
+        emailSeguidores.push(e.email);
+      });
+      // envio correo de notificación a seguidores
+      const link = `${process.env.BASE_URL}/articles/${nuevoArticulo._id}`;
+      const texto = `${usuario.nickname} a creado un nuevo articulo: \n ${link}`;
+      emailSeguidores.forEach(async (mail) => {
+        await sendEmail(
+          mail,
+          `${usuario.nickname} ha creado un nuevo articulo`,
+          texto
+        );
+      });
+    }
+
     return res.status(201).end();
+  } catch (error) {
+    if (req.file) deleteFileOfPath(archivo);
+    return next(error);
+  }
+};
+
+// Creación de un articulo en respuesta a otro articulo
+articulosController.respuestaArticulo = async (req, res, next) => {
+  const jwtToken = req.get("Authorization").split(" ")[1];
+  const usuarioId = getUserFromJwt(jwtToken);
+
+  // Si se envia archivo, se guarda el path
+  const archivo = req.file ? req.file.path : undefined;
+  // Obtenemos el id del articulo para poder responderlo
+  const idArticulo = req.params.id;
+
+  try {
+    // buscar el articulo
+    const articulo = await Articulo.findById(idArticulo);
+    // buscamos el usuario el cual esta respondiendo el articulo creado
+    const usuario = await Usuario.findById(usuarioId);
+    // creamos el articulo en respuesta al original
+    const respuestaArticulo = new Articulo({
+      ...req.body,
+      usuario: usuarioId,
+      archivoDestacado: archivo,
+      respuesta: {
+        idArticulo: idArticulo,
+        titulo: articulo.titulo,
+      },
+    });
+
+    await respuestaArticulo.save();
+
+    // Creamos el nuevo articulo en respuesta al articulo original
+    await Usuario.findByIdAndUpdate(usuarioId, {
+      articulos: {
+        creados: [...usuario.articulos.creados, respuestaArticulo._id],
+        favoritos: [...usuario.articulos.favoritos],
+      },
+    });
+
+    return res.status(204).end();
+  } catch (error) {
+    if (req.file) deleteFileOfPath(archivo);
+    return next(error);
+  }
+};
+
+articulosController.buscarArticulos = async (req, res, next) => {
+  const busqueda = req.body.search;
+  const order = req.query.asc !== undefined ? 1 : -1;
+  const regex = new RegExp(busqueda, "i");
+  try {
+    const result = await Articulo.find()
+      .or([
+        { titulo: { $regex: regex } },
+        { textoIntroductorio: { $regex: regex } },
+        { contenido: { $regex: regex } },
+      ])
+      .sort({ fechaPublicacion: order });
+
+    return res.status(200).json({ result });
   } catch (error) {
     return next(error);
   }
 };
 
+/* PATCH - Controllers */
 articulosController.actualizarArticulo = async (req, res, next) => {
   // id del artículo
   const id = req.params.id;
@@ -113,6 +214,8 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    await Articulo.findByIdAndUpdate(id, datosActualizar);
+
     if (
       (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
       undefined
@@ -120,13 +223,14 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       deleteFileOfPath(articulo.archivoDestacado);
     }
 
-    await Articulo.findByIdAndUpdate(id, datosActualizar);
-    return res.status(204).end()
+    return res.status(204).end();
   } catch (error) {
+    if (req.file) deleteFileOfPath(datosActualizar.archivoDestacado);
     return next(error);
   }
 };
 
+/* DELETE - Controllers */
 articulosController.borraArticulo = async (req, res, next) => {
   try {
     // id del usuario desde el token
@@ -162,12 +266,13 @@ articulosController.borraArticulo = async (req, res, next) => {
       return next(error);
     }
 
+    // Eliminamos el artículo por id
+    await Articulo.findByIdAndDelete(id);
+
+    // Eliminamos el archivo del artículo si lo hubiera
     if (articulo.archivoDestacado) {
       deleteFileOfPath(articulo.archivoDestacado);
     }
-
-    // Obtenemos el artículo que se ha eliminado
-    await Articulo.findByIdAndDelete(id);
 
     // Obtenemos dicho usuario para modificar sus articulos creados
     const usuario = await Usuario.findById(userIdArticle);
@@ -183,73 +288,6 @@ articulosController.borraArticulo = async (req, res, next) => {
     });
 
     return res.status(200).json({ message: "Articulo borrado" });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// Creación de un articulo en respuesta a otro articulo
-articulosController.respuestaArticulo = async (req, res, next) => {
-  const jwtToken = req.get("Authorization").split(" ")[1];
-
-  const usuarioId = getUserFromJwt(jwtToken);
-
-  // Obtenemos el id del articulo para poder responderlo
-  const idArticulo = req.params.id;
-  // buscar el articulo
-  const articulo = await Articulo.findById(idArticulo);
-  // buscamos el usuario el cual esta respondiendo el articulo creado
-  const usuario = await Usuario.findById(usuarioId);
-
-  try {
-    // creamos el articulo en respuesta al original
-    const respuestaArticulo = new Articulo({
-      ...req.body,
-      usuario: usuarioId,
-      respuesta: {
-        idArticulo: idArticulo,
-        titulo: articulo.titulo,
-      },
-    });
-
-    await respuestaArticulo.save();
-
-    // Creamos el nuevo articulo en respuesta al articulo original
-    await Usuario.findByIdAndUpdate(usuarioId, {
-      articulos: {
-        creados: [...usuario.articulos.creados, respuestaArticulo._id],
-        favoritos: [...usuario.articulos.favoritos],
-      },
-    });
-
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
-
-articulosController.buscarArticulos = async (req, res, next) => {
-  const busqueda = req.body.search;
-  const order = req.query.asc !== undefined ? 1 : -1;
-  const regex = new RegExp(busqueda, "i");
-  try {
-    const result = await Articulo.find()
-      .or([
-        { titulo: { $regex: regex } },
-        { textoIntroductorio: { $regex: regex } },
-        { contenido: { $regex: regex } },
-      ])
-      .sort({ fechaPublicacion: order });
-
-    return res.status(200).json({ result });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-articulosController.getCategorias = async (req, res, next) => {
-  try {
-    return res.json(Articulo.listcategories());
   } catch (error) {
     return next(error);
   }

@@ -5,15 +5,16 @@ const deleteFileOfPath = (path) => {
   const splitPath = path.split("\\");
   const splitFile = splitPath[3].split("_");
   const userId = splitPath[2];
-  const dateId = splitFile[1].split(".")[0];
+  const typeFile = splitFile[0];
+  const indentificator = splitFile[1].split(".")[0];
   const extFile = splitFile[1].split(".")[1];
 
-  const deleteFilePath = `./public/upload/${userId}/archivoDestacado_${dateId}.${extFile}`;
+  const deleteFilePath = `./public/upload/${userId}/${typeFile}_${indentificator}.${extFile}`;
 
   try {
     unlink(deleteFilePath, (err) => {
       if (err) throw err;
-      console.log(`${dateId} ha sido eliminado`);
+      console.log(`${indentificator} ha sido eliminado`);
     });
   } catch (error) {
     console.log("Error eliminar archivo: ", error);
