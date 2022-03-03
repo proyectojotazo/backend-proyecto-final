@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const fs = require("fs");
+const path = require("path");
 const { Usuario, Articulo } = require("../../models");
 const {
   api,
@@ -14,6 +16,8 @@ const {
 } = require("../helpers");
 
 const { server } = require("../../app");
+
+const idNotExists = "6214b593b6c1fa7fee58f955";
 
 beforeEach(async () => {
   // Borramos todos los datos
@@ -93,8 +97,6 @@ describe("/articles", () => {
       expect(articleResponse.titulo).toBe(article.titulo);
     });
     test("Devuelve error 404 si no encuentra el artículo", async () => {
-      const idNotExists = "6214b593b6c1fa7fee58f955";
-
       const response = await api
         .get(`/articles/${idNotExists}`)
         .expect(404)
@@ -120,6 +122,29 @@ describe("/articles", () => {
       const articlesAfterNew = await Articulo.find({});
 
       expect(articlesAfterNew.length).toBe(articlesBeforeNew.length + 1);
+    });
+    test.skip("Crea un anuncio correctamente con una imagen", async () => {
+      // const articlesBeforeNew = await Articulo.find({});
+      // Obtener token para autenticacion (Logear)
+      const token = await apiServices.getToken(testUser);
+      // Crear anuncio
+      await api
+        .post("/articles")
+        .set("Authorization", `Bearer ${token}`)
+        .field("titulo", newArticle.titulo)
+        .field("textoIntroductorio", newArticle.textoIntroductorio)
+        .field("contenido", newArticle.contenido)
+        .field("estado", newArticle.estado)
+        .field("categorias", newArticle.categorias)
+        .attach(
+          "archivoDestacado",
+          fs.readFileSync(path.join(__dirname, "/img/cama.jpg"))
+        )
+        .expect(201);
+
+      
+      // const art = await Articulo.findOne({ titulo: newArticle.titulo });
+      
     });
     test("Devuelve error 401 si no enviamos token", async () => {
       await api
@@ -164,6 +189,20 @@ describe("/articles", () => {
         .set("Authorization", `Bearer `)
         .send(paramsToUpdate)
         .expect(401)
+        .expect("Content-Type", /application\/json/);
+    });
+    test("Devuelve error 404 si no encuentra el articulo", async () => {
+      const token = await apiServices.getToken(testUser);
+
+      const paramsToUpdate = {
+        titulo: "Titulo Actualizado desde Tests",
+      };
+
+      await api
+        .patch(`/articles/${idNotExists}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send(paramsToUpdate)
+        .expect(404)
         .expect("Content-Type", /application\/json/);
     });
   });
