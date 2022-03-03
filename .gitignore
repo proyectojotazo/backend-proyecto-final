@@ -6,3 +6,6 @@ node_modules
 # Archivos Javier
 requests/ 
 .vscode
+
+# Tests
+public/images/

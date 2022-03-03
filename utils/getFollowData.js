@@ -22,7 +22,7 @@ const getFollowData = (usuarioDestino, usuarioRemitente) => {
         ? usuarioRemitente.usuarios.seguidores.filter(
             (userId) => userId.toString() !== userIdDestino.toString()
           )
-        : [...usuarioRemitente.usuarios.seguidores, userIdDestino],
+        : [...usuarioRemitente.usuarios.seguidos, userIdDestino],
     },
   };
 

@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
-const fs = require("fs");
 const path = require("path");
+
 const { Usuario, Articulo } = require("../../models");
+
 const {
   api,
   USERS,
@@ -124,7 +125,15 @@ describe("/articles", () => {
       expect(articlesAfterNew.length).toBe(articlesBeforeNew.length + 1);
     });
     test.skip("Crea un anuncio correctamente con una imagen", async () => {
-      // const articlesBeforeNew = await Articulo.find({});
+      const articlesBeforeNew = await Articulo.find({});
+      // Obtenemos el directorio de la imagen a introducir
+      const dirSplitted = __dirname
+        .split("\\")
+        .filter((folder) => folder !== "routes" && folder !== "tests")
+        .join("\\");
+
+      const imgDir = path.join(dirSplitted, "public\\images\\cama.jpg");
+
       // Obtener token para autenticacion (Logear)
       const token = await apiServices.getToken(testUser);
       // Crear anuncio
@@ -136,15 +145,12 @@ describe("/articles", () => {
         .field("contenido", newArticle.contenido)
         .field("estado", newArticle.estado)
         .field("categorias", newArticle.categorias)
-        .attach(
-          "archivoDestacado",
-          fs.readFileSync(path.join(__dirname, "/img/cama.jpg"))
-        )
+        .attach("archivoDestacado", imgDir)
         .expect(201);
 
-      
-      // const art = await Articulo.findOne({ titulo: newArticle.titulo });
-      
+      const articlesAfterNew = await Articulo.find({});
+
+      expect(articlesAfterNew.length).toBe(articlesBeforeNew.length + 1);
     });
     test("Devuelve error 401 si no enviamos token", async () => {
       await api
