@@ -25,13 +25,27 @@
  *                  description: Contenido del artículo
  *              fechaPublicacion:
  *                  type: string
+ *                  format: date-time
  *                  description: Fecha de publicación
- *              estado:
- *                  type: string
- *                  description: Borrador o Publicado
  *              categorias:
  *                  type: array
  *                  description: Categorías
+ *                  items:
+ *                      type: string
+ *                      enum:
+ *                          - html
+ *                          - css
+ *                          - javascript
+ *                          - angular
+ *                          - vue
+ *                          - react
+ *                          - python
+ *                          - php
+ *                          - java
+ *                          - node
+ *                          - laravel
+ *                          - mysql
+ *                          - mongodb
  *          required:
  *              - titulo
  *              - textoIntroductorio
@@ -122,13 +136,27 @@
  *                              description: Contenido del artículo
  *                          fechaPublicacion:
  *                              type: string
+ *                              format: date-time
  *                              description: Fecha de publicación
- *                          estado:
- *                              type: string
- *                              description: Borrador o Publicado
  *                          categorias:
  *                              type: array
  *                              description: Categorías
+ *                              items:
+ *                                  type: string
+ *                                  enum:
+ *                                      - html
+ *                                      - css
+ *                                      - javascript
+ *                                      - angular
+ *                                      - vue
+ *                                      - react
+ *                                      - python
+ *                                      - php
+ *                                      - java
+ *                                      - node
+ *                                      - laravel
+ *                                      - mysql
+ *                                      - mongodb
  *     responses:
  *          200:
  *              description: Artículo actualizado!

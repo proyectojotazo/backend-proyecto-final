@@ -43,6 +43,10 @@ const usuarioSchema = new Schema({
     required: [true, "Password requerido"],
     validate: validators.password,
   },
+  online: {
+    type: Boolean,
+    default: false,
+  },
   articulos: {
     creados: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],
     favoritos: [{ type: Schema.Types.ObjectId, ref: "Articulo" }],

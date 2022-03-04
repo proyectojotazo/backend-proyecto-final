@@ -2,6 +2,7 @@ const { Articulo, Usuario } = require("../models");
 const { getUserFromJwt, deleteF } = require("../utils");
 const { emailServices } = require("../services");
 const { deleteFileOfPath } = deleteF;
+const usuariosMencionados = require("../utils/menciones");
 
 const articulosController = {};
 
@@ -60,7 +61,30 @@ articulosController.creaArticulo = async (req, res, next) => {
       archivoDestacado: archivo,
     });
 
+    if (Date.now() >= nuevoArticulo.fechaPublicacion) {
+      nuevoArticulo.estado = "Publicado";
+    }
+
     await nuevoArticulo.save();
+
+    // Si el artículo se publica, busca menciones
+    if (nuevoArticulo.estado === "Publicado") {
+      // Menciones de usuarios en artículos
+      const menciones = await usuariosMencionados(nuevoArticulo.contenido);
+      // Si los usuarios mencionados estan offline, les envía correo
+      if (menciones) {
+        menciones.forEach(async (u) => {
+          if (u.online === false) {
+            await emailServices.sendEmailToMentioned(
+              u.email,
+              u.nickname,
+              usuario.nickname,
+              nuevoArticulo._id
+            );
+          }
+        });
+      }
+    }
 
     // Actualizamos los articulos del usuario haciendo uso del operador SPREAD
     await Usuario.findByIdAndUpdate(usuarioId, {

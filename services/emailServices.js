@@ -26,4 +26,17 @@ emailServices.sendEmailToFollowers = async (usuario, articuloId) => {
   }
 };
 
+emailServices.sendEmailToMentioned = async (
+  email,
+  nickUser,
+  nickCreador,
+  idArticulo
+) => {
+  // Enviando email de notificación a quien se menciona
+  const asuntoEmail = `${nickCreador} te han mencionado en un artículo!`;
+  const link = `${process.env.BASE_URL}/articles/${idArticulo}`;
+  const textoEmail = `Hola ${nickUser}, ${nickCreador} te han mencionado en un artículo: \n ${link}`;
+  await sendEmail(email, asuntoEmail, textoEmail);
+};
+
 module.exports = emailServices;
