@@ -38,27 +38,13 @@ const articuloSchema = new Schema({
   },
   fechaBorrador: {
     type: Date,
-    min: Date.now(),
-    // validate: [
-    //   {
-    //     validator: (v) => v === min,
-    //     message: 'La fecha no puede ser menor al dia actual"',
-    //   },
-    // ],
+    inmmutable: true,
     default: Date.now(),
-    required: [true, "Fecha requerida"],
     index: true,
   },
   fechaPublicacion: {
     type: Date,
-    min: Date.now(),
     default: Date.now(),
-    // validate: [
-    //   {
-    //     validator: (v) => v === min,
-    //     message: 'La fecha no puede ser menor al dia actual"',
-    //   },
-    // ],
     required: [true, "Fecha requerida"],
     index: true,
   },
