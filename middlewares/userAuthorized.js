@@ -6,7 +6,7 @@ const userAuthorized = (req, res, next) => {
   const tokenUser = req.get("Authorization").split(" ")[1];
   const userId = getUserFromJwt(tokenUser);
 
-  // comprueba si el id del usuario a actualizar es el mismo que esta logueado
+  // comprueba si el id del usuario es el mismo que esta logueado
   if (userId !== id) {
     const error = {
       name: "Unauthorized",

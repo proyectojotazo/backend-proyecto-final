@@ -14,12 +14,18 @@ articulosRouter.get("/:id", articleExists, articulosController.getArticulo);
 articulosRouter.patch(
   "/:id",
   jwtAuth,
+  articleExists,
   upload.single("archivoDestacado"),
   articulosController.actualizarArticulo
 );
 
 /* DELETE */
-articulosRouter.delete("/:id", jwtAuth, articulosController.borraArticulo);
+articulosRouter.delete(
+  "/:id",
+  jwtAuth,
+  articleExists,
+  articulosController.borraArticulo
+);
 
 /* POST */
 articulosRouter.post(
@@ -34,6 +40,7 @@ articulosRouter.post("/search", articulosController.buscarArticulos);
 articulosRouter.post(
   "/response/:id",
   jwtAuth,
+  articleExists,
   upload.single("archivoDestacado"),
   articulosController.respuestaArticulo
 );

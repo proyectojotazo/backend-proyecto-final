@@ -85,7 +85,7 @@ articulosController.respuestaArticulo = async (req, res, next) => {
   const usuarioId = getUserFromJwt(jwtToken);
 
   // Si se envia archivo, se guarda el path
-  const archivo = req.file ? req.file.path : undefined;
+  const archivo = req.file?.path;
   // Obtenemos el id del articulo para poder responderlo
   const idArticulo = req.params.id;
 
@@ -115,7 +115,7 @@ articulosController.respuestaArticulo = async (req, res, next) => {
       },
     });
 
-    return res.status(204).end();
+    return res.status(201).end();
   } catch (error) {
     if (req.file) deleteFileOfPath(archivo);
     return next(error);
@@ -149,35 +149,14 @@ articulosController.actualizarArticulo = async (req, res, next) => {
   const tokenUser = req.get("Authorization").split(" ")[1];
   const userIdAuth = getUserFromJwt(tokenUser);
   // datos a actualizar
-  const datosActualizar = req.body;
-  if (req.file) datosActualizar.archivoDestacado = req.file.path;
+  const datosActualizar = {
+    ...req.body,
+    archivoDestacado: req.file?.path,
+  };
 
   try {
     // buscamos el artículo y extraemos el id del usuario creador
     const articulo = await Articulo.findById(id);
-    // Si no existe el articulo
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Articulo no encontrado",
-      };
-      return next(error);
-    }
-
-    const hayCamposVacios = Object.values(datosActualizar).some(
-      (campo) => campo === ""
-    );
-
-    // Si dejamos algún campo a actualizar vacío
-    if (hayCamposVacios) {
-      const error = {
-        name: "UpdateValidationError",
-        status: 400,
-        message: "Hay campos vacíos",
-      };
-      return next(error);
-    }
 
     const userIdArticle = articulo.usuario.toString();
 
@@ -191,7 +170,9 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       return next(error);
     }
 
-    await Articulo.findByIdAndUpdate(id, datosActualizar);
+    await Articulo.findByIdAndUpdate(id, datosActualizar, {
+      runValidators: true,
+    });
 
     if (
       (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
@@ -209,26 +190,16 @@ articulosController.actualizarArticulo = async (req, res, next) => {
 
 /* DELETE - Controllers */
 articulosController.borraArticulo = async (req, res, next) => {
+  // id del usuario desde el token
+  const tokenUser = req.get("Authorization").split(" ")[1];
+  const userIdAuth = getUserFromJwt(tokenUser);
+
+  // id del artículo proporcionado desde la ruta
+  const id = req.params.id;
+
   try {
-    // id del usuario desde el token
-    const tokenUser = req.get("Authorization").split(" ")[1];
-    const userIdAuth = getUserFromJwt(tokenUser);
-
-    // id del artículo proporcionado desde la ruta
-    const id = req.params.id;
-
     // obtenemos el artículo por id
     const articulo = await Articulo.findById(id);
-
-    // Si la id del articulo no existe nos devolverá el error
-    if (!articulo) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Artículo no encontrado",
-      };
-      return next(error);
-    }
 
     // extraemos el id del usuario creador del artículo
     const userIdArticle = articulo.usuario.toString();
@@ -254,17 +225,18 @@ articulosController.borraArticulo = async (req, res, next) => {
     // Obtenemos dicho usuario para modificar sus articulos creados
     const usuario = await Usuario.findById(userIdArticle);
 
-    // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
-    await Usuario.findByIdAndUpdate(userIdArticle, {
+    const articulosActualizar = {
       articulos: {
         ...usuario.articulos,
-        creados: usuario.articulos.creados.filter((articuloId) => {
-          return articuloId.toString() !== id;
-        }),
+        creados: usuario.articulos.creados.filter(
+          (articuloId) => articuloId.toString() !== id
+        ),
       },
-    });
+    };
+    // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
+    await usuario.actualizaUsuario(articulosActualizar);
 
-    return res.status(200).json({ message: "Articulo borrado" });
+    return res.status(204).end();
   } catch (error) {
     return next(error);
   }
