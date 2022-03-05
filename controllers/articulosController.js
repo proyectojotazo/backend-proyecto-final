@@ -68,6 +68,7 @@ articulosController.creaArticulo = async (req, res, next) => {
     await nuevoArticulo.save();
 
     // Si el artículo se publica, busca menciones
+    const mencionadosOnline = [];
     if (nuevoArticulo.estado === "Publicado") {
       // Menciones de usuarios en artículos
       const menciones = await usuariosMencionados(nuevoArticulo.contenido);
@@ -81,10 +82,13 @@ articulosController.creaArticulo = async (req, res, next) => {
               usuario.nickname,
               nuevoArticulo._id
             );
+          } else {
+            mencionadosOnline.push(u.nickname);
           }
         });
       }
     }
+    console.log(mencionadosOnline);
 
     // Actualizamos los articulos del usuario haciendo uso del operador SPREAD
     await Usuario.findByIdAndUpdate(usuarioId, {
