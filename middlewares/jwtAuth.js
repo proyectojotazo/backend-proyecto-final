@@ -2,26 +2,13 @@ const jwt = require("jsonwebtoken");
 
 const jwtAuth = async (req, res, next) => {
   const jwtToken = req.get("Authorization").split(" ")[1];
-  // Comprobamos existencia de Token
-  if (!jwtToken) {
-    const error = {
-      name: "Unauthorized",
-      status: 401,
-      message: "No se ha proporcionado token",
-    };
-    return next(error);
-  }
 
   try {
-    await jwt.verify(jwtToken, process.env.JWT_SECRET);
+    const decodedToken = await jwt.verify(jwtToken, process.env.JWT_SECRET);
+    req.userId = decodedToken.id;
     return next();
   } catch (error) {
-    const err = {
-      name: error.name,
-      status: error.status || 401,
-      message: error.message,
-    };
-    return next(err);
+    return next(error);
   }
 };
 

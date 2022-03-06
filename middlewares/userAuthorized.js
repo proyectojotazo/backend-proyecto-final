@@ -1,10 +1,7 @@
-const { getUserFromJwt } = require("../utils");
-
 const userAuthorized = (req, res, next) => {
   const { id } = req.params;
   // obtener id de usuario del token
-  const tokenUser = req.get("Authorization").split(" ")[1];
-  const userId = getUserFromJwt(tokenUser);
+  const userId = req.userId;
 
   // comprueba si el id del usuario es el mismo que esta logueado
   if (userId !== id) {

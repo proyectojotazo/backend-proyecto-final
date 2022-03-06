@@ -1,10 +1,5 @@
 const { Usuario } = require("../models");
-const {
-  getUserFromJwt,
-  getFollowData,
-  getArticuloSeguidoData,
-  deleteF,
-} = require("../utils");
+const { getFollowData, getArticuloSeguidoData, deleteF } = require("../utils");
 const { deleteFileOfPath, deleteFolderUser } = deleteF;
 
 const userController = {};
@@ -34,12 +29,10 @@ userController.getUsuario = async (req, res, next) => {
 /* POST - Controllers */
 userController.followUsuario = async (req, res, next) => {
   const { id: userIdDestino } = req.params;
+  const userIdRemitente = req.userId;
 
   try {
     const usuarioDestino = await Usuario.findById(userIdDestino);
-    const tokenUser = req.get("Authorization").split(" ")[1];
-    const userIdRemitente = getUserFromJwt(tokenUser);
-
     const usuarioRemitente = await Usuario.findById(userIdRemitente);
 
     const { dataToRemitente, dataToDestino } = getFollowData(
@@ -60,13 +53,13 @@ userController.followUsuario = async (req, res, next) => {
 };
 
 userController.articulosFavorito = async (req, res, next) => {
-  try {
-    // obtenemos el id
-    const { id } = req.params;
+  // obtenemos el id
+  const { id } = req.params;
+  // obtener id de usuario del token
+  const usuarioId = req.userId;
 
-    // obtener id de usuario del token
-    const tokenUser = req.get("Authorization").split(" ")[1];
-    const usuario = await Usuario.findOne({ _id: getUserFromJwt(tokenUser) });
+  try {
+    const usuario = await Usuario.findById(usuarioId);
 
     const articulofavorito = getArticuloSeguidoData(id, usuario);
 
@@ -84,9 +77,10 @@ userController.updateUsuario = async (req, res, next) => {
   const { id } = req.params;
 
   // datos a actualizar
-  const datosActualizar = req.body;
-  // Si se envia avatar, se guarda el path
-  if (req.file) datosActualizar.avatar = req.file.path;
+  const datosActualizar = {
+    ...req.body,
+    avatar: req.file?.path // Si se envia avatar, se guarda el path
+  }
 
   try {
     // buscamos al usuario

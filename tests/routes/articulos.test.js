@@ -52,6 +52,7 @@ beforeEach(async () => {
     },
   };
 
+  // Actualizamos al usuario para que tenga la id de los anuncios creados
   await userArticlesCreator.actualizaUsuario(data);
 });
 
@@ -418,6 +419,8 @@ describe("/articles", () => {
         .expect(404);
     });
   });
+  describe('POST /search', () => { 
+  })
 });
 
 afterAll(() => {

@@ -20,7 +20,7 @@ loginRouter.post("/", async (req, res, next) => {
   }
 
   const usuarioToken = {
-    _id: usuario._id,
+    id: usuario.id,
     nickname: usuario.nickname,
   };
 

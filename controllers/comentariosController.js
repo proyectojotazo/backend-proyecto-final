@@ -1,5 +1,5 @@
 const { Usuario, Comentario, Articulo } = require("../models");
-const { getUserFromJwt, sendEmail } = require("../utils");
+const { sendEmail } = require("../utils");
 
 const comentariosController = {};
 
@@ -31,9 +31,7 @@ comentariosController.getComentarios = async (req, res, next) => {
 // crea comentario
 comentariosController.creaComentario = async (req, res, next) => {
   // recoge el token para identificar el usuario
-  const jwtToken = req.get("Authorization").split(" ")[1];
-
-  const usuarioId = getUserFromJwt(jwtToken);
+  const usuarioId = req.userId;
 
   // Obtenemos el id del articulo
   const idArticulo = req.params.id;
@@ -70,19 +68,18 @@ comentariosController.creaComentario = async (req, res, next) => {
 
 // Responder a un comentario (leí mal y pense que era uno de los requisitos)
 comentariosController.responderComentario = async (req, res, next) => {
-  const jwtToken = req.get("Authorization").split(" ")[1];
-
-  const usuarioId = getUserFromJwt(jwtToken);
+  const usuarioId = req.userId;
 
   // Obtenemos el id del articulo
   const idComentario = req.params.id;
-  const comentario = await Comentario.findById(idComentario);
-
   try {
+    const comentario = await Comentario.findById(idComentario);
+
     const nuevoComentario = new Comentario({
       ...req.body,
       usuario: usuarioId,
     });
+
     await nuevoComentario.save();
     await Comentario.findByIdAndUpdate(idComentario, {
       respuestas: [...comentario.respuestas, nuevoComentario._id],

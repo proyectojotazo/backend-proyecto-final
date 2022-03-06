@@ -9,6 +9,10 @@ const ERRORS = {
     message: "Id used is malformed",
     status: 400,
   }),
+  JsonWebTokenError: (err) => ({
+    ...err,
+    status: 401,
+  }),
   defaultError: (err) => ({ ...err }),
 };
 

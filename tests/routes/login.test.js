@@ -4,9 +4,7 @@ const { server } = require("../../app");
 
 const { Usuario } = require("../../models");
 
-const { testUser, testUser2, userServices, api } = require("../helpers");
-
-const { getUserFromJwt } = require("../../utils");
+const { testUser, testUser2, api } = require("../helpers");
 
 beforeEach(async () => {
   await Usuario.deleteMany({});
@@ -22,15 +20,11 @@ describe("/login", () => {
     await api.post("/login").send(testUser2).expect(401);
   });
   test("Devuelve el token correcto asociado al usuario", async () => {
-    const userId = await userServices.getUserId(testUser);
-
     const response = await api.post("/login").send(testUser).expect(200);
 
     const { token } = response.body;
 
-    const userIdFromToken = getUserFromJwt(token);
-
-    expect(userIdFromToken).toBe(userId.toString());
+    expect(token).toBeDefined();
   });
 });
 

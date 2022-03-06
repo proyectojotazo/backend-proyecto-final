@@ -1,5 +1,5 @@
 const { Articulo, Usuario } = require("../models");
-const { getUserFromJwt, deleteF } = require("../utils");
+const { deleteF } = require("../utils");
 const { emailServices } = require("../services");
 const { deleteFileOfPath } = deleteF;
 const usuariosMencionados = require("../utils/menciones");
@@ -46,15 +46,14 @@ articulosController.getCategorias = async (req, res, next) => {
 
 /* POST - Controllers */
 articulosController.creaArticulo = async (req, res, next) => {
-  const jwtToken = req.get("Authorization").split(" ")[1];
-  const usuarioId = getUserFromJwt(jwtToken);
+  const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
 
-  // Obtenemos al usuario para actualizarlo con el nuevo post creado
-  const usuario = await Usuario.findById(usuarioId);
-
   try {
+    // Obtenemos al usuario para actualizarlo con el nuevo post creado
+    const usuario = await Usuario.findById(usuarioId);
+
     const nuevoArticulo = new Articulo({
       ...req.body,
       usuario: usuarioId,
@@ -105,9 +104,7 @@ articulosController.creaArticulo = async (req, res, next) => {
 
 // Creación de un articulo en respuesta a otro articulo
 articulosController.respuestaArticulo = async (req, res, next) => {
-  const jwtToken = req.get("Authorization").split(" ")[1];
-  const usuarioId = getUserFromJwt(jwtToken);
-
+  const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
   // Obtenemos el id del articulo para poder responderlo
@@ -132,7 +129,7 @@ articulosController.respuestaArticulo = async (req, res, next) => {
     await respuestaArticulo.save();
 
     // Creamos el nuevo articulo en respuesta al articulo original
-    await Usuario.findByIdAndUpdate(usuarioId, {
+    await usuario.actualizaUsuario({
       articulos: {
         creados: [...usuario.articulos.creados, respuestaArticulo._id],
         favoritos: [...usuario.articulos.favoritos],
@@ -170,8 +167,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
   // id del artículo
   const id = req.params.id;
   // id del usuario desde el token
-  const tokenUser = req.get("Authorization").split(" ")[1];
-  const userIdAuth = getUserFromJwt(tokenUser);
+  const userIdAuth = req.userId;
   // datos a actualizar
   const datosActualizar = {
     ...req.body,
@@ -215,8 +211,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
 /* DELETE - Controllers */
 articulosController.borraArticulo = async (req, res, next) => {
   // id del usuario desde el token
-  const tokenUser = req.get("Authorization").split(" ")[1];
-  const userIdAuth = getUserFromJwt(tokenUser);
+  const userIdAuth = req.userId;
 
   // id del artículo proporcionado desde la ruta
   const id = req.params.id;
