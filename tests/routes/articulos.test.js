@@ -11,6 +11,7 @@ const {
   testUser,
   testUser2,
   testArticle,
+  testArticle2,
   newArticle,
   apiServices,
   userServices,
@@ -20,6 +21,15 @@ const {
 const { server } = require("../../app");
 
 const idNotExists = "6214b593b6c1fa7fee58f955";
+
+const newArticleSearch = {
+  titulo: "Testing nuevo",
+  textoIntroductorio: "Introduccion al testing",
+  contenido: "Articulo creado para prueba en /search",
+  estado: "Publicado",
+  fechaPublicacion: Date.now(),
+  categorias: ["python", "css", "javascript"],
+};
 
 beforeEach(async () => {
   // Borramos todos los datos
@@ -419,8 +429,67 @@ describe("/articles", () => {
         .expect(404);
     });
   });
-  describe('POST /search', () => { 
-  })
+  describe("POST /search", () => {
+    test("Debe mostrar el articulo que contiene los parametros especificados", async () => {
+      // Pasamos los parametros
+      const searchParams = {
+        search: "articulo2",
+      };
+
+      // Hacemos la petición con los parametros
+      const response = await api
+        .post("/articles/search")
+        .send(searchParams)
+        .expect(200)
+        .expect("Content-Type", /application\/json/);
+
+      // Con los parametros especificados solo encontrará un articulo
+      const articleFounded = response.body[0];
+
+      expect(response.body.length).toBe(1);
+      expect(articleFounded).toBeDefined();
+      expect(articleFounded.title).toBe(testArticle2.title);
+    });
+    test("Si no se pasan parametros debe mostrar todos los articulos", async () => {
+      const searchParams = "";
+
+      const response = await api
+        .post("/articles/search")
+        .send(searchParams)
+        .expect(200)
+        .expect("Content-Type", /application\/json/);
+
+      const articlesFounded = response.body;
+
+      expect(articlesFounded.length).toBe(ARTICLES.length);
+    });
+    test("Si pasamos asc por query debe mostrar de mas antiguo a mas nuevo", async () => {
+      const user = await userServices.getUser(testUser2);
+
+      await new Articulo({
+        ...newArticleSearch,
+        usuario: user.id,
+      }).save();
+      // Insertamos un articulo, pasados unos segundos
+      const searchParams = "";
+
+      const response = await api
+        .post("/articles/search/?asc")
+        .send(searchParams)
+        .expect(200)
+        .expect("Content-Type", /application\/json/);
+
+      const searchArticle = await articlesServices.getArticle(newArticleSearch);
+
+      const articlesFounded = response.body;
+      const lastArticleSorted = articlesFounded.length - 1;
+
+      expect(articlesFounded.length).toBe(ARTICLES.length + 1);
+      expect(articlesFounded[lastArticleSorted].titulo).toBe(
+        searchArticle.titulo
+      );
+    });
+  });
 });
 
 afterAll(() => {

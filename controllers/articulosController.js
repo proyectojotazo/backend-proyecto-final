@@ -160,7 +160,7 @@ articulosController.buscarArticulos = async (req, res, next) => {
       ])
       .sort({ fechaPublicacion: order });
 
-    return res.status(200).json({ result });
+    return res.status(200).json(result);
   } catch (error) {
     return next(error);
   }
