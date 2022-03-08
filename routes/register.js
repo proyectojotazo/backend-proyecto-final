@@ -1,8 +1,11 @@
+const asyncHandler = require("express-async-handler");
+
 const registerRouter = require("express").Router();
 const { Usuario } = require("../models");
 
-registerRouter.post("/", async (req, res, next) => {
-  try {
+registerRouter.post(
+  "/",
+  asyncHandler(async (req, res) => {
     const nuevoUsuario = new Usuario({
       ...req.body,
     });
@@ -10,9 +13,7 @@ registerRouter.post("/", async (req, res, next) => {
     await nuevoUsuario.save();
 
     return res.status(201).end();
-  } catch (error) {
-    return next(error);
-  }
-});
+  })
+);
 
 module.exports = registerRouter;

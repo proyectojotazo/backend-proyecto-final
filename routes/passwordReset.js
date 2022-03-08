@@ -1,9 +1,9 @@
-const { Usuario } = require("../models");
-const { Token } = require("../models");
-const { sendEmail } = require("../utils");
-const { camposValidos } = require("../utils");
-const crypto = require("crypto");
 const passwordResetRouter = require("express").Router();
+const crypto = require("crypto");
+
+const { Usuario, Token } = require("../models");
+const { sendEmail, camposValidos } = require("../utils");
+
 
 passwordResetRouter.post("/", async (req, res, next) => {
   try {

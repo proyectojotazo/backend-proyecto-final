@@ -29,16 +29,17 @@ describe("/users", () => {
       const { nickname } = testUser;
 
       await api
-        .get(`/users/${nickname}`)
+        .get(`/users/${nickname.toLowerCase()}`)
         .expect(302)
         .expect("Content-Type", /application\/json/);
+
     });
     test("devuelve el usuario correcto", async () => {
       const { nickname } = testUser;
 
-      const response = await api.get(`/users/${nickname}`);
+      const response = await api.get(`/users/${nickname.toLowerCase()}`).expect(302);
 
-      const usuarioDevuelto = response.body.usuario;
+      const usuarioDevuelto = response.body;
 
       expect(usuarioDevuelto.nombre).toBe(testUser.nombre);
     });

@@ -1,7 +1,9 @@
 const articulosRouter = require("express").Router();
-const { jwtAuth, articleExists } = require("../middlewares");
-const upload = require("../lib/multerConfig");
+
 const { articulosController } = require("../controllers");
+
+const { jwtAuth, articleExists, uploadMiddleware } = require("../middlewares");
+const uploadArchivoDestacado = uploadMiddleware("archivoDestacado");
 
 /* GET */
 articulosRouter.get("/", articulosController.getArticulos);
@@ -15,7 +17,7 @@ articulosRouter.patch(
   "/:id",
   jwtAuth,
   articleExists,
-  upload.single("archivoDestacado"),
+  uploadArchivoDestacado,
   articulosController.actualizarArticulo
 );
 
@@ -31,7 +33,7 @@ articulosRouter.delete(
 articulosRouter.post(
   "/",
   jwtAuth,
-  upload.single("archivoDestacado"),
+  uploadArchivoDestacado,
   articulosController.creaArticulo
 );
 
@@ -41,7 +43,7 @@ articulosRouter.post(
   "/response/:id",
   jwtAuth,
   articleExists,
-  upload.single("archivoDestacado"),
+  uploadArchivoDestacado,
   articulosController.respuestaArticulo
 );
 

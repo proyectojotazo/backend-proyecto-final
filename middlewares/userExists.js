@@ -1,9 +1,12 @@
 const { Usuario } = require("../models");
 
 const userExists = async (req, res, next) => {
-  const { id } = req.params;
+  const { id, nickname } = req.params;
 
-  const usuario = await Usuario.findById(id);
+  const usuario = nickname
+    ? await Usuario.findOne({ nickname })
+    : await Usuario.findById(id);
+
   // Si no encuentra al usuario devuelve error
   if (!usuario) {
     const error = {

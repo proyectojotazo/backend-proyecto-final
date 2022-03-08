@@ -3,5 +3,6 @@ module.exports = {
   errorHandler: require("./errorHandler"),
   userAuthorized: require("./userAuthorized"),
   userExists: require("./userExists"),
+  uploadMiddleware: require("./uploadMiddleware"),
   articleExists: require("./articleExists"),
 };

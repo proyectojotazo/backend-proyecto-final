@@ -5,6 +5,9 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const Articulo = require("./articulo");
 
+const { deleteF } = require("../utils");
+const { deleteFileOfPath } = deleteF;
+
 const bcrypt = require("bcrypt");
 
 const usuarioSchema = new Schema({
@@ -99,14 +102,18 @@ cumple con los validadores y luego la hasheará y la introducirá en nuestro
 usuario.
 */
 usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
-  const { password, nickname } = datosActualizar;
+  const { password, nickname, avatar } = datosActualizar;
   await this.updateOne(datosActualizar, { runValidators: true });
+
   if (password) {
     this.password = await bcrypt.hash(password, Number(process.env.SALT));
     await this.updateOne({ password: this.password });
   }
   if (nickname) {
     await this.updateOne({ nickname: nickname.toLowerCase() });
+  }
+  if (avatar && !this.avatar.includes("default")) {
+    deleteFileOfPath(this.avatar);
   }
 };
 

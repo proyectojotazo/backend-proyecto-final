@@ -1,3 +1,5 @@
+const asyncHandler = require("express-async-handler");
+
 const { Articulo, Usuario } = require("../models");
 const { deleteF } = require("../utils");
 const { emailServices } = require("../services");
@@ -7,7 +9,7 @@ const usuariosMencionados = require("../utils/menciones");
 const articulosController = {};
 
 /* GET - Controllers */
-articulosController.getArticulos = async (req, res, next) => {
+articulosController.getArticulos = asyncHandler(async (req, res, next) => {
   // Creamos el objeto de filtros
   const filtro = {};
   Object.entries(req.query).forEach(
@@ -16,40 +18,29 @@ articulosController.getArticulos = async (req, res, next) => {
 
   const { sort } = filtro;
 
-  try {
-    const articles = await Articulo.lista(filtro, null, sort);
-    return res.status(200).json(articles);
-  } catch (error) {
-    return next(error);
-  }
-};
+  const articles = await Articulo.lista(filtro, null, sort);
+  return res.status(200).json(articles);
+});
 
-articulosController.getArticulo = async (req, res, next) => {
+articulosController.getArticulo = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
 
-  try {
-    const articulo = await Articulo.findByIdPopulated(id);
+  const articulo = await Articulo.findByIdPopulated(id);
 
-    return res.status(302).json(articulo);
-  } catch (error) {
-    return next(error);
-  }
-};
+  return res.status(302).json(articulo);
+});
 
-articulosController.getCategorias = async (req, res, next) => {
-  try {
-    return res.json(Articulo.listcategories());
-  } catch (error) {
-    return next(error);
-  }
-};
+articulosController.getCategorias = asyncHandler(async (req, res, next) => {
+  return res.json(Articulo.listcategories());
+});
 
 /* POST - Controllers */
+// TODO: Mirar implementacion de deletefile en errorhandler
 articulosController.creaArticulo = async (req, res, next) => {
   const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
-
+  
   try {
     // Obtenemos al usuario para actualizarlo con el nuevo post creado
     const usuario = await Usuario.findById(usuarioId);
@@ -107,6 +98,7 @@ articulosController.creaArticulo = async (req, res, next) => {
 };
 
 // Creación de un articulo en respuesta a otro articulo
+// TODO: Mirar implementacion de deletefile en errorhandler
 articulosController.respuestaArticulo = async (req, res, next) => {
   const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
@@ -147,26 +139,25 @@ articulosController.respuestaArticulo = async (req, res, next) => {
   }
 };
 
-articulosController.buscarArticulos = async (req, res, next) => {
+articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
   const busqueda = req.body.search;
   const order = req.query.asc !== undefined ? 1 : -1;
   const regex = new RegExp(busqueda, "i");
-  try {
-    const result = await Articulo.find()
-      .or([
-        { titulo: { $regex: regex } },
-        { textoIntroductorio: { $regex: regex } },
-        { contenido: { $regex: regex } },
-      ])
-      .sort({ fechaPublicacion: order });
 
-    return res.status(200).json(result);
-  } catch (error) {
-    return next(error);
-  }
-};
+  // TODO: Crear funcion en el articulo
+  const result = await Articulo.find()
+    .or([
+      { titulo: { $regex: regex } },
+      { textoIntroductorio: { $regex: regex } },
+      { contenido: { $regex: regex } },
+    ])
+    .sort({ fechaPublicacion: order });
+
+  return res.status(200).json(result);
+});
 
 /* PATCH - Controllers */
+// TODO: Mirar implementacion de deletefile en errorhandler
 articulosController.actualizarArticulo = async (req, res, next) => {
   // id del artículo
   const id = req.params.id;
@@ -213,56 +204,52 @@ articulosController.actualizarArticulo = async (req, res, next) => {
 };
 
 /* DELETE - Controllers */
-articulosController.borraArticulo = async (req, res, next) => {
+articulosController.borraArticulo = asyncHandler(async (req, res, next) => {
   // id del usuario desde el token
   const userIdAuth = req.userId;
 
   // id del artículo proporcionado desde la ruta
   const id = req.params.id;
 
-  try {
-    // obtenemos el artículo por id
-    const articulo = await Articulo.findById(id);
+  // obtenemos el artículo por id
+  const articulo = await Articulo.findById(id);
 
-    // extraemos el id del usuario creador del artículo
-    const userIdArticle = articulo.usuario.toString();
+  // extraemos el id del usuario creador del artículo
+  const userIdArticle = articulo.usuario.toString();
 
-    // si no coinciden ambos usuarios, devolvemos el error
-    if (userIdAuth !== userIdArticle) {
-      const error = {
-        name: "Unauthorized",
-        status: 401,
-        message: "No estas autorizado para eliminar este artículo",
-      };
-      return next(error);
-    }
-
-    // Eliminamos el artículo por id
-    await Articulo.findByIdAndDelete(id);
-
-    // Eliminamos el archivo del artículo si lo hubiera
-    if (articulo.archivoDestacado) {
-      deleteFileOfPath(articulo.archivoDestacado);
-    }
-
-    // Obtenemos dicho usuario para modificar sus articulos creados
-    const usuario = await Usuario.findById(userIdArticle);
-
-    const articulosActualizar = {
-      articulos: {
-        ...usuario.articulos,
-        creados: usuario.articulos.creados.filter(
-          (articuloId) => articuloId.toString() !== id
-        ),
-      },
+  // si no coinciden ambos usuarios, devolvemos el error
+  if (userIdAuth !== userIdArticle) {
+    const error = {
+      name: "Unauthorized",
+      status: 401,
+      message: "No estas autorizado para eliminar este artículo",
     };
-    // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
-    await usuario.actualizaUsuario(articulosActualizar);
-
-    return res.status(204).end();
-  } catch (error) {
     return next(error);
   }
-};
+
+  // Eliminamos el artículo por id
+  await Articulo.findByIdAndDelete(id);
+
+  // Eliminamos el archivo del artículo si lo hubiera
+  if (articulo.archivoDestacado) {
+    deleteFileOfPath(articulo.archivoDestacado);
+  }
+
+  // Obtenemos dicho usuario para modificar sus articulos creados
+  const usuario = await Usuario.findById(userIdArticle);
+
+  const articulosActualizar = {
+    articulos: {
+      ...usuario.articulos,
+      creados: usuario.articulos.creados.filter(
+        (articuloId) => articuloId.toString() !== id
+      ),
+    },
+  };
+  // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
+  await usuario.actualizaUsuario(articulosActualizar);
+
+  return res.status(204).end();
+});
 
 module.exports = articulosController;

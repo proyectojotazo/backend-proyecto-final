@@ -29,6 +29,8 @@ loginRouter.post("/", async (req, res, next) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+  // Una vez logeado pasaremos a cambiar el estado online a true
+  await usuario.actualizaUsuario({ online: true });
   return res.json({ token });
 });
 
