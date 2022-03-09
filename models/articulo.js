@@ -98,7 +98,7 @@ articuloSchema.set("toJSON", {
   },
 });
 
-articuloSchema.statics.lista = function (filtro, fields, sort) {
+articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
   const query = Articulo.find(filtro).populate("usuario", {
     nombre: 1,
     apellidos: 1,
@@ -107,6 +107,8 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   });
   query.select(fields);
   query.sort(sort);
+  query.skip(skip);
+  query.limit(limit);
   return query.exec();
 };
 

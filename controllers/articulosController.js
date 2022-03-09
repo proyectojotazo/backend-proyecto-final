@@ -14,10 +14,10 @@ articulosController.getArticulos = async (req, res, next) => {
     ([clave, valor]) => (filtro[clave] = valor)
   );
 
-  const { sort } = filtro;
+  const { sort, skip, limit } = filtro;
 
   try {
-    const articles = await Articulo.lista(filtro, null, sort);
+    const articles = await Articulo.lista(filtro, null, sort, skip, limit);
     return res.status(200).json(articles);
   } catch (error) {
     return next(error);
@@ -151,6 +151,7 @@ articulosController.buscarArticulos = async (req, res, next) => {
   const busqueda = req.body.search;
   const order = req.query.asc !== undefined ? 1 : -1;
   const regex = new RegExp(busqueda, "i");
+  const { skip, limit } = req.query;
   try {
     const result = await Articulo.find()
       .or([
@@ -158,7 +159,9 @@ articulosController.buscarArticulos = async (req, res, next) => {
         { textoIntroductorio: { $regex: regex } },
         { contenido: { $regex: regex } },
       ])
-      .sort({ fechaPublicacion: order });
+      .sort({ fechaPublicacion: order })
+      .skip(skip)
+      .limit(limit);
 
     return res.status(200).json(result);
   } catch (error) {
