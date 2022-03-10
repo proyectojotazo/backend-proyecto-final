@@ -177,5 +177,5 @@ module.exports = {
   articlesServices,
   apiServices,
   deleteAllFoldersInUpload,
-  closeConnection
+  closeConnection,
 };

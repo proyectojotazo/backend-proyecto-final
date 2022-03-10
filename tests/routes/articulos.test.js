@@ -13,7 +13,7 @@ const {
   userServices,
   articlesServices,
   deleteAllFoldersInUpload,
-  closeConnection
+  closeConnection,
 } = require("./helpers");
 
 const rootDir = path.join(__dirname, "../../");
@@ -415,6 +415,5 @@ describe("/articles", () => {
 
 afterAll(async () => {
   await deleteAllFoldersInUpload();
-
-  closeConnection()
+  closeConnection();
 });

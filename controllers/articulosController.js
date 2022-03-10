@@ -144,14 +144,7 @@ articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
   const order = req.query.asc !== undefined ? 1 : -1;
   const regex = new RegExp(busqueda, "i");
 
-  // TODO: Crear funcion en el articulo
-  const result = await Articulo.find()
-    .or([
-      { titulo: { $regex: regex } },
-      { textoIntroductorio: { $regex: regex } },
-      { contenido: { $regex: regex } },
-    ])
-    .sort({ fechaPublicacion: order });
+  const result = await Articulo.search(order, regex);
 
   return res.status(200).json(result);
 });

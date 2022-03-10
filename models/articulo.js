@@ -137,6 +137,19 @@ articuloSchema.statics.borraArticulo = async function (
   await usuarioPropietario.actualizaUsuario(articulosActualizar);
 };
 
+articuloSchema.statics.search = async function (order, regex) {
+  const result = await this.find()
+    .or([
+      { titulo: { $regex: regex } },
+      { textoIntroductorio: { $regex: regex } },
+      { contenido: { $regex: regex } },
+    ])
+    .sort({ fechaPublicacion: order });
+
+  console.log("result", result);
+  return result;
+};
+
 articuloSchema.statics.lista = function (filtro, fields, sort) {
   const query = this.find(filtro).populate("usuario", {
     nombre: 1,
