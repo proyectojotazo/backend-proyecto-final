@@ -1,16 +1,10 @@
-const mongoose = require("mongoose");
-
-const { Usuario } = require("../../models");
-
-const { server } = require("../../app");
-
 const {
-  testUser,
-  testUser2,
-  ERRORS,
-  userServices,
   api,
-} = require("../helpers");
+  user,
+  userServices,
+  deleteAllFoldersInUpload,
+  closeConnection
+} = require("./helpers");
 
 const userWrongFields = {
   nombre: "Wr2ong",
@@ -22,54 +16,46 @@ const userWrongFields = {
   usuarios: { seguidos: [], seguidores: [] },
 };
 
-const userRepeatedFields = {
-  ...testUser,
-};
-
 beforeEach(async () => {
-  await Usuario.deleteMany({});
-
-  await new Usuario(testUser).save();
+  await userServices.deleteAllUsers()
 });
 
 describe("/register", () => {
   test("Debe registrar un usuario correctamente", async () => {
-    const usersBeforeRegister = await Usuario.find();
-    await api.post("/register").send(testUser2).expect(201);
-    const usersAfterRegister = await Usuario.find();
+    // Obtenemos los usuarios de mongo antes del registro
+    const usersBeforeRegister = await userServices.getUsers();
 
-    const userRegistered = await userServices.getUser(testUser2);
+    // Realizamos la petición de registro de nuevo usuario
+    await api.post("/register").send(user).expect(201);
+
+    // Obtenemos los usuarios de mongo después del registro
+    const usersAfterRegister = await userServices.getUsers();
 
     expect(usersAfterRegister).toHaveLength(usersBeforeRegister.length + 1);
-    expect(usersAfterRegister).toContainEqual(userRegistered);
   });
 
   test("Debe devolver error 400 con campos invalidos", async () => {
-    const response = await api
+    await api
       .post("/register")
       .send(userWrongFields)
       .expect(400)
       .expect("Content-Type", /application\/json/);
-
-    const errName = response.body.name;
-
-    expect(errName).toBe(ERRORS.registerTest);
   });
 
   test("Debe devolver error 400 con campos unicos", async () => {
-    const response = await api
+    // Realizamos el registro del primer usuario
+    await api.post("/register").send(user).expect(201);
+
+    // Volvemos a registrar al mismo usuario
+    await api
       .post("/register")
-      .send(userRepeatedFields)
+      .send(user)
       .expect(400)
       .expect("Content-Type", /application\/json/);
-
-    const errName = response.body.name;
-
-    expect(errName).toBe(ERRORS.registerTest);
   });
 });
 
-afterAll(() => {
-  mongoose.connection.close();
-  server.close();
+afterAll(async () => {
+  await deleteAllFoldersInUpload();
+  closeConnection()
 });

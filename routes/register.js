@@ -1,7 +1,10 @@
 const asyncHandler = require("express-async-handler");
 
 const registerRouter = require("express").Router();
+
 const { Usuario } = require("../models");
+
+const { createUserDir } = require("../services/fileHandlerServices");
 
 registerRouter.post(
   "/",
@@ -10,7 +13,10 @@ registerRouter.post(
       ...req.body,
     });
 
-    await nuevoUsuario.save();
+    const newUser = await nuevoUsuario.save();
+    const newUserId = newUser.id;
+
+    await createUserDir(newUserId);
 
     return res.status(201).end();
   })

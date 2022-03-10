@@ -1,6 +1,8 @@
 const { Schema, model } = require("mongoose");
 const mongooseDateFormat = require("mongoose-date-format");
 
+const { deleteFile } = require("../services/fileHandlerServices");
+
 const valores = [
   "html",
   "css",
@@ -98,8 +100,45 @@ articuloSchema.set("toJSON", {
   },
 });
 
+articuloSchema.methods.actualizaArticulo = async function (datosActualizar) {
+  const { archivoDestacado } = datosActualizar;
+  await this.updateOne(datosActualizar, { runValidators: true });
+  // En caso de que ya tenga una imagen éste artículo
+  if (archivoDestacado && this.archivoDestacado) {
+    // Borramos la imagen del directorio
+    await deleteFile(this.archivoDestacado);
+  }
+};
+
+articuloSchema.statics.borraArticulo = async function (
+  articuloAborrar,
+  usuarioPropietario
+) {
+  // Borramos el articulo de mongo
+  await this.findByIdAndDelete(articuloAborrar.id);
+
+  // Si el articulo tenia una imagen la eliminamos de la carpeta del usuario
+  if (articuloAborrar.archivoDestacado) {
+    await deleteFile(articuloAborrar.archivoDestacado);
+  }
+
+  // Obtenemos todos los articulos del usuario propietario
+  // y borramos la referencia a éste
+  const articulosActualizar = {
+    articulos: {
+      ...usuarioPropietario.articulos,
+      creados: usuarioPropietario.articulos.creados.filter(
+        (articuloId) => articuloId.toString() !== articuloAborrar.id
+      ),
+    },
+  };
+
+  // Actualizamos al usuario sin éste articulo
+  await usuarioPropietario.actualizaUsuario(articulosActualizar);
+};
+
 articuloSchema.statics.lista = function (filtro, fields, sort) {
-  const query = Articulo.find(filtro).populate("usuario", {
+  const query = this.find(filtro).populate("usuario", {
     nombre: 1,
     apellidos: 1,
     email: 1,

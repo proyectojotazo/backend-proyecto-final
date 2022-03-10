@@ -2,13 +2,14 @@ const { Schema, model } = require("mongoose");
 // unique-validator comprueba que el dato es único
 const validators = require("./customValidators");
 const uniqueValidator = require("mongoose-unique-validator");
+const bcrypt = require("bcrypt");
 
 const Articulo = require("./articulo");
 
-const { deleteF } = require("../utils");
-const { deleteFileOfPath } = deleteF;
-
-const bcrypt = require("bcrypt");
+const {
+  deleteFile,
+  deleteUserDir,
+} = require("../services/fileHandlerServices");
 
 const usuarioSchema = new Schema({
   avatar: {
@@ -112,8 +113,10 @@ usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
   if (nickname) {
     await this.updateOne({ nickname: nickname.toLowerCase() });
   }
+  // Si actualizamos el avatar y el avatar que tenemos no es el default
   if (avatar && !this.avatar.includes("default")) {
-    deleteFileOfPath(this.avatar);
+    // Borramos el avatar anterior
+    await deleteFile(this.avatar);
   }
 };
 
@@ -148,7 +151,7 @@ usuarioSchema.statics.findOnePopulated = async function (nick) {
 
 // Función borrado completo del usuario
 usuarioSchema.statics.deleteAllData = async function (userToDelete) {
-  //  buscamos los articulos que ha creado el usuario
+  // buscamos los articulos que ha creado el usuario
   const articulosId = userToDelete.articulos.creados;
   // borramos todos esos articulos
   await Articulo.deleteMany({ _id: articulosId });
@@ -169,6 +172,9 @@ usuarioSchema.statics.deleteAllData = async function (userToDelete) {
     // Actualizamos a los followers del usuario a borrar
     await follower.actualizaUsuario({ usuarios });
   }
+
+  // borramos la carpeta del usuario
+  await deleteUserDir(userToDelete.id);
 
   // borramos al usuario
   await this.findByIdAndDelete({ _id: userToDelete._id });

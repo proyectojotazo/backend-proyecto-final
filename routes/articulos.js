@@ -3,6 +3,7 @@ const articulosRouter = require("express").Router();
 const { articulosController } = require("../controllers");
 
 const { jwtAuth, articleExists, uploadMiddleware } = require("../middlewares");
+
 const uploadArchivoDestacado = uploadMiddleware("archivoDestacado");
 
 /* GET */

@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 
 const { Usuario } = require("../models");
 const { getFollowData, getArticuloSeguidoData, deleteF } = require("../utils");
-const { deleteFileOfPath, deleteFolderUser } = deleteF;
+const { deleteFileOfPath } = deleteF;
 
 const userController = {};
 
@@ -87,8 +87,6 @@ userController.borrarUsuario = asyncHandler(async (req, res, next) => {
   const usuario = await Usuario.findById(id);
 
   await Usuario.deleteAllData(usuario);
-
-  deleteFolderUser(id);
 
   // Al no enviar información simplemente enviaremos .end()
   return res.status(204).end();

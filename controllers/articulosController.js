@@ -40,7 +40,7 @@ articulosController.creaArticulo = async (req, res, next) => {
   const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
-  
+
   try {
     // Obtenemos al usuario para actualizarlo con el nuevo post creado
     const usuario = await Usuario.findById(usuarioId);
@@ -185,16 +185,7 @@ articulosController.actualizarArticulo = async (req, res, next) => {
       return next(error);
     }
 
-    await Articulo.findByIdAndUpdate(id, datosActualizar, {
-      runValidators: true,
-    });
-
-    if (
-      (datosActualizar.archivoDestacado && articulo.archivoDestacado) !==
-      undefined
-    ) {
-      deleteFileOfPath(articulo.archivoDestacado);
-    }
+    await articulo.actualizaArticulo(datosActualizar);
 
     return res.status(204).end();
   } catch (error) {
@@ -227,27 +218,10 @@ articulosController.borraArticulo = asyncHandler(async (req, res, next) => {
     return next(error);
   }
 
-  // Eliminamos el artículo por id
-  await Articulo.findByIdAndDelete(id);
-
-  // Eliminamos el archivo del artículo si lo hubiera
-  if (articulo.archivoDestacado) {
-    deleteFileOfPath(articulo.archivoDestacado);
-  }
-
   // Obtenemos dicho usuario para modificar sus articulos creados
   const usuario = await Usuario.findById(userIdArticle);
 
-  const articulosActualizar = {
-    articulos: {
-      ...usuario.articulos,
-      creados: usuario.articulos.creados.filter(
-        (articuloId) => articuloId.toString() !== id
-      ),
-    },
-  };
-  // Actualizamos los articulos del usuario borrando el articulo anteriormente eliminado
-  await usuario.actualizaUsuario(articulosActualizar);
+  await Articulo.borraArticulo(articulo, usuario);
 
   return res.status(204).end();
 });
