@@ -1,5 +1,21 @@
 const { CAMPOS } = require("../utils");
 
+const categorias = [
+  "html",
+  "css",
+  "javascript",
+  "angular",
+  "vue",
+  "react",
+  "python",
+  "php",
+  "java",
+  "node",
+  "laravel",
+  "mysql",
+  "mongodb",
+];
+
 const validators = {
   nombre: [
     {
@@ -37,6 +53,16 @@ const validators = {
     {
       validator: (v) => CAMPOS.password.reg.test(v),
       message: CAMPOS.password.mensaje,
+    },
+  ],
+  categorias: [
+    {
+      validator: (v) => Array.isArray(v) && v.length > 0,
+      message: "Debes elegir por lo menos una categoria",
+    },
+    {
+      validator: (v) => v.every((el) => categorias.includes(el)),
+      message: "Alguna de las siguientes categorías no son válidas: {VALUE}",
     },
   ],
 };

@@ -1,9 +1,11 @@
 const { Schema, model } = require("mongoose");
 const mongooseDateFormat = require("mongoose-date-format");
 
+const validators = require("./customValidators");
+
 const { deleteFile } = require("../services/fileHandlerServices");
 
-const valores = [
+const categorias = [
   "html",
   "css",
   "javascript",
@@ -60,21 +62,11 @@ const articuloSchema = new Schema({
     ],
     index: true,
   },
-
   categorias: {
     type: [String],
-    validate: [
-      {
-        validator: (v) => Array.isArray(v) && v.length > 0,
-        message: "Debes elegir por lo menos una categoria",
-      },
-    ],
+    validate: validators.categorias,
     required: true,
     index: true,
-    enum: {
-      values: valores,
-      message: `Categoria no valida, las categorias disponibles son: ${valores}`,
-    },
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
@@ -179,7 +171,7 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
 };
 
 articuloSchema.statics.listcategories = () => {
-  return valores;
+  return categorias;
 };
 
 const Articulo = model("Articulo", articuloSchema);

@@ -35,67 +35,61 @@ articulosController.getCategorias = asyncHandler(async (req, res, next) => {
 });
 
 /* POST - Controllers */
-// TODO: Mirar implementacion de deletefile en errorhandler
-articulosController.creaArticulo = async (req, res, next) => {
+articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
   const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
 
-  try {
-    // Obtenemos al usuario para actualizarlo con el nuevo post creado
-    const usuario = await Usuario.findById(usuarioId);
+  // Obtenemos al usuario para actualizarlo con el nuevo post creado
+  const usuario = await Usuario.findById(usuarioId);
 
-    const nuevoArticulo = new Articulo({
-      ...req.body,
-      usuario: usuarioId,
-      archivoDestacado: archivo,
-    });
+  const nuevoArticulo = new Articulo({
+    ...req.body,
+    usuario: usuarioId,
+    archivoDestacado: archivo,
+  });
 
-    if (Date.now() >= nuevoArticulo.fechaPublicacion) {
-      nuevoArticulo.estado = "Publicado";
-    }
-
-    await nuevoArticulo.save();
-
-    // Si el artículo se publica, busca menciones
-    const mencionadosOnline = [];
-    if (nuevoArticulo.estado === "Publicado") {
-      // Menciones de usuarios en artículos
-      const menciones = await usuariosMencionados(nuevoArticulo.contenido);
-      // Si los usuarios mencionados estan offline, les envía correo
-      if (menciones) {
-        menciones.forEach(async (u) => {
-          if (u.online === false) {
-            await emailServices.sendEmailToMentioned(
-              u.email,
-              u.nickname,
-              usuario.nickname,
-              nuevoArticulo._id
-            );
-          } else {
-            mencionadosOnline.push(u.nickname);
-          }
-        });
-      }
-    }
-    console.log(mencionadosOnline);
-
-    // Actualizamos los articulos del usuario haciendo uso del operador SPREAD
-    await Usuario.findByIdAndUpdate(usuarioId, {
-      articulos: {
-        creados: [...usuario.articulos.creados, nuevoArticulo._id],
-        favoritos: [...usuario.articulos.favoritos],
-      },
-    });
-
-    await emailServices.sendEmailToFollowers(usuario, nuevoArticulo._id);
-
-    return res.status(201).end();
-  } catch (error) {
-    if (req.file) deleteFileOfPath(archivo);
-    return next(error);
+  if (Date.now() >= nuevoArticulo.fechaPublicacion) {
+    nuevoArticulo.estado = "Publicado";
   }
-};
+
+  await nuevoArticulo.save();
+
+  // Si el artículo se publica, busca menciones
+  const mencionadosOnline = [];
+  if (nuevoArticulo.estado === "Publicado") {
+    // Menciones de usuarios en artículos
+    const menciones = await usuariosMencionados(nuevoArticulo.contenido);
+    // Si los usuarios mencionados estan offline, les envía correo
+    if (menciones) {
+      menciones.forEach(async (u) => {
+        if (u.online === false) {
+          await emailServices.sendEmailToMentioned(
+            u.email,
+            u.nickname,
+            usuario.nickname,
+            nuevoArticulo._id
+          );
+        } else {
+          mencionadosOnline.push(u.nickname);
+        }
+      });
+    }
+  }
+  console.log(mencionadosOnline);
+
+  // Actualizamos los articulos del usuario haciendo uso del operador SPREAD
+  await Usuario.findByIdAndUpdate(usuarioId, {
+    articulos: {
+      creados: [...usuario.articulos.creados, nuevoArticulo._id],
+      favoritos: [...usuario.articulos.favoritos],
+    },
+  });
+
+  await emailServices.sendEmailToFollowers(usuario, nuevoArticulo._id);
+
+  return res.status(201).end();
+});
 
 // Creación de un articulo en respuesta a otro articulo
 // TODO: Mirar implementacion de deletefile en errorhandler
