@@ -28,9 +28,9 @@ articulosController.getArticulo = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const articulo = await Articulo.findByIdPopulated(id);
+    const articles = await Articulo.findByIdPopulated(id);
 
-    return res.status(302).json(articulo);
+    return res.status(201).json(articles);
   } catch (error) {
     return next(error);
   }

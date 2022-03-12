@@ -8,7 +8,7 @@ articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/categories", articulosController.getCategorias);
 
-articulosRouter.get("/:id", articleExists, articulosController.getArticulo);
+articulosRouter.get("/:id",articleExists , articulosController.getArticulo);
 
 /* PATCH */
 articulosRouter.patch(
