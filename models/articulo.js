@@ -88,7 +88,7 @@ articuloSchema.set("toJSON", {
 /* Funcion que actualiza el estado en funcion de la fecha que se le haya introducido */
 articuloSchema.pre("save", function (next) {
   this.estado = this.fechaPublicacion > Date.now() ? "Borrador" : "Publicado";
-  next()
+  next();
 });
 
 articuloSchema.methods.actualizaArticulo = async function (datosActualizar) {
@@ -128,19 +128,21 @@ articuloSchema.statics.borraArticulo = async function (
   await usuarioPropietario.actualizaUsuario(articulosActualizar);
 };
 
-articuloSchema.statics.search = async function (order, regex) {
+articuloSchema.statics.search = async function (order, regex, skip, limit) {
   const result = await this.find()
     .or([
       { titulo: { $regex: regex } },
       { textoIntroductorio: { $regex: regex } },
       { contenido: { $regex: regex } },
     ])
-    .sort({ fechaPublicacion: order });
+    .sort({ fechaPublicacion: order })
+    .skip(skip)
+    .limit(limit);
 
   return result;
 };
 
-articuloSchema.statics.lista = function (filtro, fields, sort) {
+articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
   const query = this.find(filtro).populate("usuario", {
     nombre: 1,
     apellidos: 1,
@@ -149,6 +151,8 @@ articuloSchema.statics.lista = function (filtro, fields, sort) {
   });
   query.select(fields);
   query.sort(sort);
+  query.skip(skip);
+  query.limit(limit);
   return query.exec();
 };
 
