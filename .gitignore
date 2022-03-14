@@ -6,7 +6,6 @@ public/upload/*
 # Archivos Javier
 requests/ 
 .vscode
-mytests/
 
 # Tests
 public/testImages/
