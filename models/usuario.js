@@ -173,11 +173,11 @@ usuarioSchema.statics.deleteAllData = async function (userToDelete) {
     await follower.actualizaUsuario({ usuarios });
   }
 
-  // borramos la carpeta del usuario
-  await deleteUserDir(userToDelete.id);
-
   // borramos al usuario
   await this.findByIdAndDelete({ _id: userToDelete._id });
+
+  // borramos la carpeta del usuario
+  await deleteUserDir(userToDelete.id);
 };
 
 module.exports = model("Usuario", usuarioSchema);

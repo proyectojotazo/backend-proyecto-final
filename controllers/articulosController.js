@@ -1,9 +1,7 @@
 const asyncHandler = require("express-async-handler");
 
 const { Articulo, Usuario } = require("../models");
-const { deleteF } = require("../utils");
 const { emailServices } = require("../services");
-const { deleteFileOfPath } = deleteF;
 const usuariosMencionados = require("../utils/menciones");
 
 const articulosController = {};
@@ -26,7 +24,6 @@ articulosController.getArticulo = asyncHandler(async (req, res, next) => {
   const id = req.params.id;
 
   const articulo = await Articulo.findByIdPopulated(id);
-
   return res.status(302).json(articulo);
 });
 
@@ -48,10 +45,6 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
     usuario: usuarioId,
     archivoDestacado: archivo,
   });
-
-  if (Date.now() >= nuevoArticulo.fechaPublicacion) {
-    nuevoArticulo.estado = "Publicado";
-  }
 
   await nuevoArticulo.save();
 
@@ -76,7 +69,7 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
       });
     }
   }
-  console.log(mencionadosOnline);
+  // console.log(mencionadosOnline);
 
   // Actualizamos los articulos del usuario haciendo uso del operador SPREAD
   await Usuario.findByIdAndUpdate(usuarioId, {
@@ -92,46 +85,40 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
 });
 
 // Creación de un articulo en respuesta a otro articulo
-// TODO: Mirar implementacion de deletefile en errorhandler
-articulosController.respuestaArticulo = async (req, res, next) => {
+articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
   const usuarioId = req.userId;
   // Si se envia archivo, se guarda el path
   const archivo = req.file?.path;
   // Obtenemos el id del articulo para poder responderlo
   const idArticulo = req.params.id;
 
-  try {
-    // buscar el articulo
-    const articulo = await Articulo.findById(idArticulo);
-    // buscamos el usuario el cual esta respondiendo el articulo creado
-    const usuario = await Usuario.findById(usuarioId);
-    // creamos el articulo en respuesta al original
-    const respuestaArticulo = new Articulo({
-      ...req.body,
-      usuario: usuarioId,
-      archivoDestacado: archivo,
-      respuesta: {
-        idArticulo: idArticulo,
-        titulo: articulo.titulo,
-      },
-    });
+  // buscar el articulo
+  const articulo = await Articulo.findById(idArticulo);
+  // buscamos el usuario el cual esta respondiendo el articulo creado
+  const usuario = await Usuario.findById(usuarioId);
+  // creamos el articulo en respuesta al original
+  const respuestaArticulo = new Articulo({
+    ...req.body,
+    usuario: usuarioId,
+    archivoDestacado: archivo,
+    respuesta: {
+      idArticulo: idArticulo,
+      titulo: articulo.titulo,
+    },
+  });
 
-    await respuestaArticulo.save();
+  await respuestaArticulo.save();
 
-    // Creamos el nuevo articulo en respuesta al articulo original
-    await usuario.actualizaUsuario({
-      articulos: {
-        creados: [...usuario.articulos.creados, respuestaArticulo._id],
-        favoritos: [...usuario.articulos.favoritos],
-      },
-    });
+  // Creamos el nuevo articulo en respuesta al articulo original
+  await usuario.actualizaUsuario({
+    articulos: {
+      creados: [...usuario.articulos.creados, respuestaArticulo._id],
+      favoritos: [...usuario.articulos.favoritos],
+    },
+  });
 
-    return res.status(201).end();
-  } catch (error) {
-    if (req.file) deleteFileOfPath(archivo);
-    return next(error);
-  }
-};
+  return res.status(201).end();
+});
 
 articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
   const busqueda = req.body.search;
@@ -144,19 +131,18 @@ articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
 });
 
 /* PATCH - Controllers */
-// TODO: Mirar implementacion de deletefile en errorhandler
-articulosController.actualizarArticulo = async (req, res, next) => {
-  // id del artículo
-  const id = req.params.id;
-  // id del usuario desde el token
-  const userIdAuth = req.userId;
-  // datos a actualizar
-  const datosActualizar = {
-    ...req.body,
-    archivoDestacado: req.file?.path,
-  };
+articulosController.actualizarArticulo = asyncHandler(
+  async (req, res, next) => {
+    // id del artículo
+    const id = req.params.id;
+    // id del usuario desde el token
+    const userIdAuth = req.userId;
+    // datos a actualizar
+    const datosActualizar = {
+      ...req.body,
+      archivoDestacado: req.file?.path,
+    };
 
-  try {
     // buscamos el artículo y extraemos el id del usuario creador
     const articulo = await Articulo.findById(id);
 
@@ -175,11 +161,8 @@ articulosController.actualizarArticulo = async (req, res, next) => {
     await articulo.actualizaArticulo(datosActualizar);
 
     return res.status(204).end();
-  } catch (error) {
-    if (req.file) deleteFileOfPath(datosActualizar.archivoDestacado);
-    return next(error);
   }
-};
+);
 
 /* DELETE - Controllers */
 articulosController.borraArticulo = asyncHandler(async (req, res, next) => {

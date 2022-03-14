@@ -1,12 +1,13 @@
 const passwordResetRouter = require("express").Router();
+const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
 
 const { Usuario, Token } = require("../models");
 const { sendEmail, camposValidos } = require("../utils");
 
-
-passwordResetRouter.post("/", async (req, res, next) => {
-  try {
+passwordResetRouter.post(
+  "/",
+  asyncHandler(async (req, res, next) => {
     // obtener usuario a través del email para recuperar la contraseña
     const usuario = await Usuario.findOne({ email: req.body.email });
 
@@ -39,18 +40,17 @@ passwordResetRouter.post("/", async (req, res, next) => {
       message:
         "Se ha enviado un correo electrónico para restablecer la contraseña",
     });
-  } catch (error) {
-    return next(error);
-  }
-});
+  })
+);
 
-passwordResetRouter.post("/:userId/:token", async (req, res, next) => {
-  const passwordActualizar = req.body;
-  const [validos, error] = camposValidos(passwordActualizar);
-  // Se comprueba si la contraseña no es válida
-  if (!validos) return next(error);
+passwordResetRouter.post(
+  "/:userId/:token",
+  asyncHandler(async (req, res, next) => {
+    const passwordActualizar = req.body;
+    const [validos, error] = camposValidos(passwordActualizar);
+    // Se comprueba si la contraseña no es válida
+    if (!validos) return next(error);
 
-  try {
     // obtener usuario con el id de la ruta
     const usuario = await Usuario.findById(req.params.userId);
     // si no existe usuario, devuelve error
@@ -101,9 +101,7 @@ passwordResetRouter.post("/:userId/:token", async (req, res, next) => {
     return res
       .status(200)
       .json({ message: "La contraseña ha sido modificada correctamente" });
-  } catch (error) {
-    return next(error);
-  }
-});
+  })
+);
 
 module.exports = passwordResetRouter;

@@ -1,8 +1,8 @@
 const asyncHandler = require("express-async-handler");
 
 const { Usuario } = require("../models");
-const { getFollowData, getArticuloSeguidoData, deleteF } = require("../utils");
-const { deleteFileOfPath } = deleteF;
+const { getFollowData, getArticuloSeguidoData } = require("../utils");
+
 
 const userController = {};
 
@@ -53,8 +53,7 @@ userController.articulosFavorito = asyncHandler(async (req, res, next) => {
 });
 
 /* PATCH - Controllers */
-// TODO: Mirar implementacion de deletefile en errorhandler
-userController.updateUsuario = async (req, res, next) => {
+userController.updateUsuario = asyncHandler(async (req, res, next) => {
   // obtenemos id del usuario a actualizar
   const { id } = req.params;
 
@@ -63,20 +62,14 @@ userController.updateUsuario = async (req, res, next) => {
     ...req.body,
     avatar: req.file?.path, // Si se envia avatar, se guarda el path
   };
-  
-  try {
-    // buscamos al usuario
-    const usuario = await Usuario.findById(id);
 
-    await usuario.actualizaUsuario(datosActualizar);
+  // buscamos al usuario
+  const usuario = await Usuario.findById(id);
 
-    // Al no enviar información simplemente enviaremos .end()
-    return res.status(204).end();
-  } catch (error) {
-    if (req.file) deleteFileOfPath(datosActualizar.avatar);
-    return next(error);
-  }
-};
+  await usuario.actualizaUsuario(datosActualizar);
+
+  return res.status(204).end();
+});
 
 /* DELETE - Controllers */
 userController.borrarUsuario = asyncHandler(async (req, res, next) => {
@@ -88,7 +81,6 @@ userController.borrarUsuario = asyncHandler(async (req, res, next) => {
 
   await Usuario.deleteAllData(usuario);
 
-  // Al no enviar información simplemente enviaremos .end()
   return res.status(204).end();
 });
 

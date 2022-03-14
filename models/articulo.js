@@ -49,17 +49,10 @@ const articuloSchema = new Schema({
   fechaPublicacion: {
     type: Date,
     default: Date.now(),
-    required: [true, "Fecha requerida"],
     index: true,
   },
   estado: {
     type: String,
-    validate: [
-      {
-        validator: (v) => v === "Borrador" || v === "Publicado",
-        message: 'El estado debe ser "Borrador" o "Publicado"',
-      },
-    ],
     index: true,
   },
   categorias: {
@@ -90,6 +83,12 @@ articuloSchema.set("toJSON", {
     delete returnedObject.fechaBorrador;
     delete returnedObject.__v;
   },
+});
+
+/* Funcion que actualiza el estado en funcion de la fecha que se le haya introducido */
+articuloSchema.pre("save", function (next) {
+  this.estado = this.fechaPublicacion > Date.now() ? "Borrador" : "Publicado";
+  next()
 });
 
 articuloSchema.methods.actualizaArticulo = async function (datosActualizar) {
@@ -138,7 +137,6 @@ articuloSchema.statics.search = async function (order, regex) {
     ])
     .sort({ fechaPublicacion: order });
 
-  console.log("result", result);
   return result;
 };
 

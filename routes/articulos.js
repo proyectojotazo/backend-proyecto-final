@@ -2,7 +2,12 @@ const articulosRouter = require("express").Router();
 
 const { articulosController } = require("../controllers");
 
-const { jwtAuth, articleExists, uploadMiddleware } = require("../middlewares");
+const {
+  jwtAuth,
+  articleExists,
+  validArticleId,
+  uploadMiddleware,
+} = require("../middlewares");
 
 const uploadArchivoDestacado = uploadMiddleware("archivoDestacado");
 
@@ -11,7 +16,12 @@ articulosRouter.get("/", articulosController.getArticulos);
 
 articulosRouter.get("/categories", articulosController.getCategorias);
 
-articulosRouter.get("/:id", articleExists, articulosController.getArticulo);
+articulosRouter.get(
+  "/:id",
+  validArticleId,
+  articleExists,
+  articulosController.getArticulo
+);
 
 /* PATCH */
 articulosRouter.patch(

@@ -8,7 +8,7 @@ const ERRORS = {
   },
   CastError: (err) => ({
     name: err.name,
-    message: "Id used is malformed",
+    message: "Id inválida",
     status: 400,
   }),
   JsonWebTokenError: (err) => ({
@@ -21,7 +21,7 @@ const ERRORS = {
 const errorHandler = (err, req, res, next) => {
   // Si ocurre un error en endpoint con multer borramos ese archivo creado
   if (req.file) deleteFile(req.file.path);
-  
+
   const handler = ERRORS[err.name] || ERRORS.defaultError;
   const error = handler(err);
   return res.status(error.status || 500).json(error);

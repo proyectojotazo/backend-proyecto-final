@@ -22,8 +22,8 @@ const folderExists = async (pathToFolder) => {
     // Comprobamos si existe
     await fspromises.access(folderToCheck);
   } catch (error) {
-    // Si no existe la carpeta, la generamos
-    await fspromises.mkdir(folderToCheck);
+    // La carpeta no existe
+    console.error(error);
   }
 };
 
