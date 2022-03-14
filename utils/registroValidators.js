@@ -2,7 +2,7 @@ const CAMPOS = require('./campos')
 
 const camposValidos = (data) => {
   const camposClave = Object.keys(data);
-  const err = { status: 400, name: 'RegisterValidationError' };
+  const err = { status: 400, name: 'FieldValidationError' };
   camposClave.forEach((campo) => {
     if (!CAMPOS[campo].reg.test(data[campo])) {
       err[campo] = {
