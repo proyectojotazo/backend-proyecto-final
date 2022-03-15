@@ -6,4 +6,5 @@ module.exports = {
   getFollowData: require("./getFollowData"),
   getArticuloSeguidoData: require("./getArticuloSeguidoData"),
   deleteF: require("./deleteFiles"),
+  isObjectId: require('./isObjectId')
 };

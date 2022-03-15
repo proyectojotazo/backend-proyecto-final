@@ -1,19 +1,32 @@
 const asyncHandler = require("express-async-handler");
 
 const { Usuario } = require("../models");
-const { getFollowData, getArticuloSeguidoData } = require("../utils");
+const { getFollowData, getArticuloSeguidoData, isObjectId } = require("../utils");
 
 
 const userController = {};
 
 /* GET - Controllers */
 userController.getUsuario = asyncHandler(async (req, res, next) => {
-  const { nickname } = req.params;
+  const { paramToSearch } = req.params;
 
-  const usuario = await Usuario.findOnePopulated(nickname);
+  if(!isObjectId(paramToSearch)){
+    const usuario = await Usuario.findOnePopulated(paramToSearch);
+  
+    return res.status(302).json(usuario);
+  }
 
-  return res.status(302).json(usuario);
+  next()
+
 });
+
+userController.getUsuarioById = asyncHandler(async (req, res, next) => {
+  const { paramToSearch } = req.params
+
+  const usuario = await Usuario.findById(paramToSearch);
+
+  return res.status(302).json(usuario)
+})
 
 /* POST - Controllers */
 userController.followUsuario = asyncHandler(async (req, res) => {
