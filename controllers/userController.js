@@ -10,23 +10,14 @@ const userController = {};
 userController.getUsuario = asyncHandler(async (req, res, next) => {
   const { paramToSearch } = req.params;
 
-  if(!isObjectId(paramToSearch)){
-    const usuario = await Usuario.findOnePopulated(paramToSearch);
-  
-    return res.status(302).json(usuario);
-  }
-
-  next()
-
-});
-
-userController.getUsuarioById = asyncHandler(async (req, res, next) => {
-  const { paramToSearch } = req.params
-
-  const usuario = await Usuario.findById(paramToSearch);
+  // Si es ObjectId lo busca por Id si no, por nickname
+  const usuario = isObjectId(paramToSearch) 
+    ? await Usuario.findById(paramToSearch) 
+    : await Usuario.findOnePopulated(paramToSearch)
 
   return res.status(302).json(usuario)
-})
+
+});
 
 /* POST - Controllers */
 userController.followUsuario = asyncHandler(async (req, res) => {

@@ -13,7 +13,7 @@ const {
 const uploadAvatar = uploadMiddleware("avatar");
 
 /* GET */
-usuariosRouter.get("/:paramToSearch", userExists, userController.getUsuario, userController.getUsuarioById);
+usuariosRouter.get("/:paramToSearch", userExists, userController.getUsuario);
 
 /* PATCH */
 usuariosRouter.patch(
