@@ -43,12 +43,12 @@ const articuloSchema = new Schema({
   fechaBorrador: {
     type: Date,
     inmmutable: true,
-    default: Date.now(),
+    default: () => Date.now(),
     index: true,
   },
   fechaPublicacion: {
     type: Date,
-    default: Date.now(),
+    default: () => Date.now(),
     index: true,
   },
   estado: {

@@ -5,7 +5,7 @@ const comentarioSchema = new Schema({
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   fechaPublicacion: {
     type: Date,
-    default: Date.now(),
+    default: () => Date.now(),
     index: true,
   },
   contenido: {
