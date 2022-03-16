@@ -59,7 +59,7 @@ userController.articulosFavorito = asyncHandler(async (req, res, next) => {
 /* PATCH - Controllers */
 userController.updateUsuario = asyncHandler(async (req, res, next) => {
   // obtenemos id del usuario a actualizar
-  const { id } = req.params;
+  const { paramToSearch } = req.params;
 
   // datos a actualizar
   const datosActualizar = {
@@ -68,7 +68,7 @@ userController.updateUsuario = asyncHandler(async (req, res, next) => {
   };
 
   // buscamos al usuario
-  const usuario = await Usuario.findById(id);
+  const usuario = await Usuario.findById(paramToSearch);
 
   await usuario.actualizaUsuario(datosActualizar);
 
@@ -78,10 +78,10 @@ userController.updateUsuario = asyncHandler(async (req, res, next) => {
 /* DELETE - Controllers */
 userController.borrarUsuario = asyncHandler(async (req, res, next) => {
   // obtendremos el id
-  const { id } = req.params;
+  const { paramToSearch } = req.params;
 
   // buscamos al usuario
-  const usuario = await Usuario.findById(id);
+  const usuario = await Usuario.findById(paramToSearch);
 
   await Usuario.deleteAllData(usuario);
 
