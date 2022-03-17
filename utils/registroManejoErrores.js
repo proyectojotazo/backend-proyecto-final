@@ -1,6 +1,6 @@
 const registroManejoErrores = (error) => {
+  const errores = { status: 400, name: "FieldValidationError" };
   const clavesError = Object.keys(error.errors);
-  const errores = { status: 400, name: "RegisterValidationError" };
   clavesError.forEach((clave) => {
     errores[clave] = {
       message: error.errors[clave].message,

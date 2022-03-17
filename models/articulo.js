@@ -1,7 +1,11 @@
 const { Schema, model } = require("mongoose");
 const mongooseDateFormat = require("mongoose-date-format");
 
-const valores = [
+const validators = require("./customValidators");
+
+const { deleteFile } = require("../services/fileHandlerServices");
+
+const categorias = [
   "html",
   "css",
   "javascript",
@@ -39,40 +43,23 @@ const articuloSchema = new Schema({
   fechaBorrador: {
     type: Date,
     inmmutable: true,
-    default: Date.now(),
+    default: () => Date.now(),
     index: true,
   },
   fechaPublicacion: {
     type: Date,
-    default: Date.now(),
-    required: [true, "Fecha requerida"],
+    default: () => Date.now(),
     index: true,
   },
   estado: {
     type: String,
-    validate: [
-      {
-        validator: (v) => v === "Borrador" || v === "Publicado",
-        message: 'El estado debe ser "Borrador" o "Publicado"',
-      },
-    ],
     index: true,
   },
-
   categorias: {
     type: [String],
-    validate: [
-      {
-        validator: (v) => Array.isArray(v) && v.length > 0,
-        message: "Debes elegir por lo menos una categoria",
-      },
-    ],
+    validate: validators.categorias,
     required: true,
     index: true,
-    enum: {
-      values: valores,
-      message: `Categoria no valida, las categorias disponibles son: ${valores}`,
-    },
   },
   usuario: [{ type: Schema.Types.ObjectId, ref: "Usuario" }],
   comentarios: [{ type: Schema.Types.ObjectId, ref: "Comentarios" }],
@@ -98,8 +85,65 @@ articuloSchema.set("toJSON", {
   },
 });
 
+/* Funcion que actualiza el estado en funcion de la fecha que se le haya introducido */
+articuloSchema.pre("save", function (next) {
+  this.estado = this.fechaPublicacion > Date.now() ? "Borrador" : "Publicado";
+  next();
+});
+
+articuloSchema.methods.actualizaArticulo = async function (datosActualizar) {
+  const { archivoDestacado } = datosActualizar;
+  await this.updateOne(datosActualizar, { runValidators: true });
+  // En caso de que ya tenga una imagen éste artículo
+  if (archivoDestacado && this.archivoDestacado) {
+    // Borramos la imagen del directorio
+    await deleteFile(this.archivoDestacado);
+  }
+};
+
+articuloSchema.statics.borraArticulo = async function (
+  articuloAborrar,
+  usuarioPropietario
+) {
+  // Borramos el articulo de mongo
+  await this.findByIdAndDelete(articuloAborrar.id);
+
+  // Si el articulo tenia una imagen la eliminamos de la carpeta del usuario
+  if (articuloAborrar.archivoDestacado) {
+    await deleteFile(articuloAborrar.archivoDestacado);
+  }
+
+  // Obtenemos todos los articulos del usuario propietario
+  // y borramos la referencia a éste
+  const articulosActualizar = {
+    articulos: {
+      ...usuarioPropietario.articulos,
+      creados: usuarioPropietario.articulos.creados.filter(
+        (articuloId) => articuloId.toString() !== articuloAborrar.id
+      ),
+    },
+  };
+
+  // Actualizamos al usuario sin éste articulo
+  await usuarioPropietario.actualizaUsuario(articulosActualizar);
+};
+
+articuloSchema.statics.search = async function (order, regex, skip, limit) {
+  const result = await this.find()
+    .or([
+      { titulo: { $regex: regex } },
+      { textoIntroductorio: { $regex: regex } },
+      { contenido: { $regex: regex } },
+    ])
+    .sort({ fechaPublicacion: order })
+    .skip(skip)
+    .limit(limit);
+
+  return result;
+};
+
 articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
-  const query = Articulo.find(filtro).populate("usuario", {
+  const query = this.find(filtro).populate("usuario", {
     nombre: 1,
     apellidos: 1,
     email: 1,
@@ -129,7 +173,7 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
 };
 
 articuloSchema.statics.listcategories = () => {
-  return valores;
+  return categorias;
 };
 
 const Articulo = model("Articulo", articuloSchema);

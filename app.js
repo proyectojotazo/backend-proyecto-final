@@ -16,6 +16,7 @@ const {
   articulosRouter,
   usuariosRouter,
   loginRouter,
+  logoutRouter,
   registerRouter,
   passwordResetRouter,
   comentariosRouter,
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
 app.use("/register", registerRouter);
 app.use("/password-reset", passwordResetRouter);
 app.use("/articles", articulosRouter);

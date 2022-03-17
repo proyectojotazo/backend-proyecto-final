@@ -9,7 +9,7 @@ function postProgramados() {
     console.log('Comprobando si hay post nuevos');
     Articulo.find({ estado: 'Borrador' }).then((data) => {
       data.forEach((articulo) => {
-        if (Date.now() > articulo.fechaPublicacion.getTime()) {
+        if (Date.now() > articulo.fechaPublicacion) {
           const id = articulo._id.toString();
           const newState = { estado: 'Publicado' };
 

@@ -1,69 +1,37 @@
-const mongoose = require("mongoose");
 const path = require("path");
-
-const { Usuario, Articulo } = require("../../models");
 
 const {
   api,
-  USERS,
-  ARTICLES,
-  ERRORS,
-  testUser,
-  testUser2,
-  testArticle,
-  testArticle2,
-  newArticle,
+  user,
+  userTwo,
+  article,
+  articleWithImage,
+  articleWithImageTwo,
+  newArticleResponse,
+  newArticleDelayed,
   apiServices,
   userServices,
   articlesServices,
-} = require("../helpers");
+  deleteAllFoldersInUpload,
+  closeConnection,
+} = require("./helpers");
 
-const { server } = require("../../app");
+const rootDir = path.join(__dirname, "../../");
 
 const idNotExists = "6214b593b6c1fa7fee58f955";
 
-const newArticleSearch = {
-  titulo: "Testing nuevo",
-  textoIntroductorio: "Introduccion al testing",
-  contenido: "Articulo creado para prueba en /search",
-  estado: "Publicado",
-  fechaPublicacion: Date.now(),
-  categorias: ["python", "css", "javascript"],
-};
-
 beforeEach(async () => {
-  // Borramos todos los datos
-  await Usuario.deleteMany({});
-  await Articulo.deleteMany({});
+  // Borramos todos los datos de mongo
+  await userServices.deleteAllUsers();
+  await articlesServices.deleteAllArticles();
 
-  // Creamos usuarios
-  for (const user of USERS) {
-    await new Usuario(user).save();
-  }
-
-  // Obtenemos el id del usuario que será el creador de articulos
-  const userArticlesCreator = await userServices.getUser(testUser);
-
-  const idArr = [];
-  // Insertamos articulos en la bd
-  for (const article of ARTICLES) {
-    const artCr = await new Articulo({
-      ...article,
-      usuario: userArticlesCreator.id,
-      archivoDestacado: undefined,
-    }).save();
-    idArr.push(artCr.id);
-  }
-
-  const data = {
-    articulos: {
-      creados: idArr,
-      favoritos: [...userArticlesCreator.articulos.favoritos],
-    },
-  };
-
-  // Actualizamos al usuario para que tenga la id de los anuncios creados
-  await userArticlesCreator.actualizaUsuario(data);
+  // Registramos un usuario
+  await apiServices.registerUser(user);
+  // Logueamos al usuario para obtener el token
+  const token = await apiServices.loginUser(user);
+  // Creamos dos articulos
+  await apiServices.createArticleWithImage(token, article);
+  await apiServices.createArticleWithImage(token, articleWithImage);
 });
 
 describe("/articles", () => {
@@ -74,7 +42,7 @@ describe("/articles", () => {
         .expect(200)
         .expect("Content-Type", /application\/json/);
 
-      const articlesDB = await Articulo.find({});
+      const articlesDB = await articlesServices.getArticles();
       const articlesResponse = response.body;
 
       expect(articlesResponse.length).toBe(articlesDB.length);
@@ -88,12 +56,14 @@ describe("/articles", () => {
         .expect("Content-Type", /application\/json/);
 
       const filteredArticles = response.body;
-      const filteredArticlesDB = await Articulo.find(filters);
+      const filteredArticlesDB = await articlesServices.getArticlesFiltered(
+        filters
+      );
 
       expect(filteredArticles.length).toBe(filteredArticlesDB.length);
     });
     test("Devuelve array vacío si no encuentra articulos con los filtros especificados", async () => {
-      const filters = { categorias: "python" };
+      const filters = { categorias: "laravel" };
       const response = await api
         .get("/articles")
         .query(filters)
@@ -101,124 +71,56 @@ describe("/articles", () => {
         .expect("Content-Type", /application\/json/);
 
       const filteredArticles = response.body;
-      const filteredArticlesDB = await Articulo.find(filters);
 
-      expect(filteredArticles.length).toBe(filteredArticlesDB.length);
+      expect(filteredArticles.length).toBe(0);
     });
   });
   describe("GET /:id", () => {
     test("Devuelve el articulo con la ID especificada", async () => {
-      const article = await articlesServices.getArticle(testArticle);
+      const articleId = await articlesServices.getArticleId(articleWithImage);
 
       const response = await api
-        .get(`/articles/${article.id}`)
+        .get(`/articles/${articleId}`)
         .expect(302)
         .expect("Content-Type", /application\/json/);
 
       const articleResponse = response.body;
 
-      expect(articleResponse._id).toBe(article.id);
-      expect(articleResponse.titulo).toBe(article.titulo);
+      expect(articleResponse._id).toBe(articleId);
+      expect(articleResponse.titulo).toBe(articleWithImage.titulo);
     });
     test("Devuelve error 404 si no encuentra el artículo", async () => {
-      const response = await api
+      await api
         .get(`/articles/${idNotExists}`)
         .expect(404)
         .expect("Content-Type", /application\/json/);
-
-      const error = response.body;
-
-      expect(error.name).toBe(ERRORS.notFound);
     });
   });
   describe("POST /", () => {
     test("Crea un articulo correctamente", async () => {
-      const articlesBeforeNew = await Articulo.find({});
+      const articlesBeforeNew = await articlesServices.getArticles();
       // Obtener token para autenticacion (Logear)
-      const token = await apiServices.getToken(testUser);
+      const token = await apiServices.loginUser(user);
       // Crear articulo
-      await api
-        .post("/articles")
-        .set("Authorization", `Bearer ${token}`)
-        .send(newArticle)
-        .expect(201);
+      await apiServices.createArticleWithImage(token, articleWithImageTwo);
 
-      const articlesAfterNew = await Articulo.find({});
-
-      expect(articlesAfterNew.length).toBe(articlesBeforeNew.length + 1);
-    });
-    test.skip("Crea un articulo correctamente con una imagen", async () => {
-      const articlesBeforeNew = await Articulo.find({});
-      // Obtenemos el directorio de la imagen a introducir
-      const dirSplitted = __dirname
-        .split("\\")
-        .filter((folder) => folder !== "routes" && folder !== "tests")
-        .join("\\");
-
-      const imgDir = path.join(dirSplitted, "public\\images\\cama.jpg");
-
-      // Obtener token para autenticacion (Logear)
-      const token = await apiServices.getToken(testUser);
-      // Crear articulo
-      await api
-        .post("/articles")
-        .set("Authorization", `Bearer ${token}`)
-        .field("titulo", newArticle.titulo)
-        .field("textoIntroductorio", newArticle.textoIntroductorio)
-        .field("contenido", newArticle.contenido)
-        .field("estado", newArticle.estado)
-        .field("categorias", newArticle.categorias)
-        .attach("archivoDestacado", imgDir)
-        .expect(201);
-
-      const articlesAfterNew = await Articulo.find({});
+      const articlesAfterNew = await articlesServices.getArticles();
 
       expect(articlesAfterNew.length).toBe(articlesBeforeNew.length + 1);
     });
     test("Devuelve error 401 si no enviamos token", async () => {
-      await api
-        .post("/articles")
-        .set("Authorization", `Bearer `)
-        .send(newArticle)
-        .expect(401);
+      await api.post("/articles").set("Authorization", `Bearer `).expect(401);
     });
   });
   describe("PATCH /:id", () => {
     test("Actualiza correctamente un articulo", async () => {
-      const token = await apiServices.getToken(testUser);
-
-      const articleToUpdate = await articlesServices.getArticle(testArticle);
-
-      const paramsToUpdate = {
-        titulo: "Titulo Actualizado desde Tests",
-      };
-
-      await api
-        .patch(`/articles/${articleToUpdate.id}`)
-        .set("Authorization", `Bearer ${token}`)
-        .send(paramsToUpdate)
-        .expect(204);
-
-      const articleUpdated = await Articulo.findOne({
-        titulo: paramsToUpdate.titulo,
-      });
-
-      expect(articleUpdated.titulo).toBe(paramsToUpdate.titulo);
-      expect(articleUpdated.id).toBe(articleToUpdate.id);
-    });
-    test.skip("Actualiza correctamente un articulo con imagen", async () => {
-      // Obtenemos el directorio de la imagen a introducir
-      const dirSplitted = __dirname
-        .split("\\")
-        .filter((folder) => folder !== "routes" && folder !== "tests")
-        .join("\\");
-
-      const imgDir = path.join(dirSplitted, "public\\images\\cama.jpg");
-
-      const token = await apiServices.getToken(testUser);
-
-      const articleToUpdate = await articlesServices.getArticle(testArticle);
-
+      // Logueamos al usuario propietario del articulo
+      const token = await apiServices.loginUser(user);
+      // Obtenemos el articulo a actualizar
+      const articleToUpdate = await articlesServices.getArticleByTitle(
+        article.titulo
+      );
+      // Creamos los parametros a actualizar
       const paramsToUpdate = {
         titulo: "Titulo Actualizado desde Tests",
       };
@@ -227,66 +129,79 @@ describe("/articles", () => {
         .patch(`/articles/${articleToUpdate.id}`)
         .set("Authorization", `Bearer ${token}`)
         .field("titulo", paramsToUpdate.titulo)
+        .expect(204);
+
+      // Obtenemos el articulo actualizado
+      const articleUpdated = await articlesServices.getArticleById(
+        articleToUpdate.id
+      );
+
+      expect(articleUpdated.titulo).toBe(paramsToUpdate.titulo);
+    });
+    test("Actualiza correctamente un articulo añadiendole una imagen", async () => {
+      // Obtenemos el directorio de la imagen a introducir
+      const imgDir = path.join(rootDir, "public\\testImages\\cama.jpg");
+      // Logueamos al usuario
+      const token = await apiServices.loginUser(user);
+      // Obtenemos el articulo a añadir imagen
+      const articleToUpdate = await articlesServices.getArticleByTitle(
+        article.titulo
+      );
+      // Comprobamos que no tiene imagen
+      expect(articleToUpdate.archivoDestacado).toBeUndefined();
+
+      await api
+        .patch(`/articles/${articleToUpdate.id}`)
+        .set("Authorization", `Bearer ${token}`)
         .attach("archivoDestacado", imgDir)
         .expect(204);
 
-      const articleUpdated = await Articulo.findOne({
-        titulo: paramsToUpdate.titulo,
-      });
+      // Obtenemos el articulo actualizado
+      const articleUpdated = await articlesServices.getArticleById(
+        articleToUpdate.id
+      );
 
-      expect(articleUpdated.titulo).toBe(paramsToUpdate.titulo);
-      expect(articleUpdated.id).toBe(articleToUpdate.id);
       expect(articleUpdated.archivoDestacado).toBeDefined();
     });
     test("Devuelve error 401 si no enviamos token", async () => {
-      const articleToUpdate = await articlesServices.getArticle(testArticle);
-
-      const paramsToUpdate = {
-        titulo: "Titulo Actualizado desde Tests",
-      };
+      const articleToUpdate = await articlesServices.getArticleByTitle(
+        article.titulo
+      );
 
       await api
         .patch(`/articles/${articleToUpdate.id}`)
         .set("Authorization", `Bearer `)
-        .send(paramsToUpdate)
-        .expect(401)
-        .expect("Content-Type", /application\/json/);
+        .expect(401);
     });
     test("Devuelve error 401 si no somos el usuario propietario del articulo", async () => {
       // Obtenemos id del articulo a actualizar
-      const articleId = await articlesServices.getArticleId(testArticle);
+      const articleId = await articlesServices.getArticleId(article);
+      // Registramos un usuario sin anuncios
+      await apiServices.registerUser(userTwo);
       // Obtenemos token de usuario no propietario del articulo
-      const tokenWrongUser = await apiServices.getToken(testUser2);
-
-      const paramsToUpdate = {
-        titulo: "Titulo Actualizado desde Tests",
-      };
+      const token = await apiServices.loginUser(userTwo);
 
       // Realizamos la petición de actualización
       await api
         .patch(`/articles/${articleId}`)
-        .set("Authorization", `Bearer ${tokenWrongUser}`)
-        .send(paramsToUpdate)
+        .set("Authorization", `Bearer ${token}`)
         .expect(401);
     });
     test("Devuelve error 404 si no encuentra el articulo", async () => {
-      const token = await apiServices.getToken(testUser);
-
-      const paramsToUpdate = {
-        titulo: "Titulo Actualizado desde Tests",
-      };
+      const token = await apiServices.loginUser(user);
 
       await api
         .patch(`/articles/${idNotExists}`)
         .set("Authorization", `Bearer ${token}`)
-        .send(paramsToUpdate)
         .expect(404)
         .expect("Content-Type", /application\/json/);
     });
     test("Devuelve error 400 si actualizamos un campo vacío", async () => {
-      const token = await apiServices.getToken(testUser);
+      const token = await apiServices.loginUser(user);
 
-      const articleToUpdate = await articlesServices.getArticle(testArticle);
+      const articleToUpdate = await articlesServices.getArticleByTitle(
+        article.titulo
+      );
 
       const paramsToUpdate = {
         titulo: "",
@@ -295,41 +210,38 @@ describe("/articles", () => {
       await api
         .patch(`/articles/${articleToUpdate.id}`)
         .set("Authorization", `Bearer ${token}`)
-        .send(paramsToUpdate)
+        .field("titulo", paramsToUpdate.titulo)
         .expect(400);
     });
   });
   describe("DELETE /:id", () => {
     test("Borra un articulo correctamente", async () => {
-      const articlesBeforeDelete = await Articulo.find({});
-      const userBeforeDelete = await userServices.getUser(testUser);
+      const articlesBeforeDelete = await articlesServices.getArticles();
 
       // Obtenemos id del articulo a eliminar
-      const articleId = await articlesServices.getArticleId(testArticle);
+      const articleId = await articlesServices.getArticleId(article);
+
       // Obtenemos token del usuario propietario
-      const token = await apiServices.getToken(testUser);
+      const token = await apiServices.loginUser(user);
+
       // Realizamos la peticion de borrado
       await api
         .delete(`/articles/${articleId}`)
         .set("Authorization", `Bearer ${token}`)
         .expect(204);
 
-      const articlesAfterDelete = await Articulo.find({});
+      const articlesAfterDelete = await articlesServices.getArticles();
 
-      const articleDeleted = await articlesServices.getArticle(testArticle);
-
-      const userAfterDelete = await userServices.getUser(testUser);
+      const articleDeleted = await articlesServices.getArticleByTitle(
+        article.titulo
+      );
 
       expect(articlesAfterDelete.length).toBe(articlesBeforeDelete.length - 1);
       expect(articleDeleted).toBeNull();
-      expect(userAfterDelete.articulos.creados.length).toBe(
-        userBeforeDelete.articulos.creados.length - 1
-      );
-      expect(userAfterDelete.articulos.creados.includes(articleId)).toBe(false);
     });
     test("Devuelve error 401 si no enviamos token", async () => {
       // Obtenemos id del articulo a eliminar
-      const articleId = await articlesServices.getArticleId(testArticle);
+      const articleId = await articlesServices.getArticleId(article);
       // Realizamos la peticion de borrado
       await api
         .delete(`/articles/${articleId}`)
@@ -338,7 +250,7 @@ describe("/articles", () => {
     });
     test("Devuelve error 404 si no encuentra el articulo", async () => {
       // Obtenemos token del usuario propietario
-      const token = await apiServices.getToken(testUser);
+      const token = await apiServices.loginUser(user);
       // Realizamos la peticion de borrado
       await api
         .delete(`/articles/${idNotExists}`)
@@ -348,84 +260,94 @@ describe("/articles", () => {
   });
   describe("POST /response/:id", () => {
     test("Se responde correctamente con un articulo", async () => {
+      // Registramos al usuario que responderá
+      await apiServices.registerUser(userTwo);
       // Obtenemos el token del usuario que responde al articulo
-      const token = await apiServices.getToken(testUser2);
+      const token = await apiServices.loginUser(userTwo);
       // Obtenemos el id del articulo al que se responde
-      const articleId = await articlesServices.getArticleId(testArticle);
+      const articleId = await articlesServices.getArticleId(article);
+
       // Hacemos la petición enviando el articulo en respuesta
       await api
         .post(`/articles/response/${articleId}`)
         .set("Authorization", `Bearer ${token}`)
-        .send(newArticle)
+        .field("titulo", newArticleResponse.titulo)
+        .field("textoIntroductorio", newArticleResponse.textoIntroductorio)
+        .field("contenido", newArticleResponse.contenido)
+        .field("estado", newArticleResponse.estado)
+        .field("categorias", newArticleResponse.categorias)
         .expect(201);
 
       // Obtenemos el articulo en respuesta desde la bd
-      const articleResponse = await articlesServices.getArticle(newArticle);
+      const articleResponse = await articlesServices.getArticleByTitle(
+        newArticleResponse.titulo
+      );
 
       // Obtenemos el articulo al que se ha respondido
-      const articleResponded = await articlesServices.getArticle(testArticle);
-
-      expect(articleResponse.respuesta.idArticulo.toString()).toBe(
-        articleId.toString()
+      const articleResponded = await articlesServices.getArticleByTitle(
+        article.titulo
       );
+
+      expect(
+        articleResponse.respuesta.idArticulo.includes(articleResponded.id)
+      ).toBe(true);
       expect(articleResponse.respuesta.title).toBe(articleResponded.title);
     });
-    test.skip("Se responde correctamente con un articulo con imagen", async () => {
+    test("Se responde correctamente con un articulo con imagen", async () => {
       // Obtenemos el directorio de la imagen a introducir
-      const dirSplitted = __dirname
-        .split("\\")
-        .filter((folder) => folder !== "routes" && folder !== "tests")
-        .join("\\");
-
-      const imgDir = path.join(dirSplitted, "public\\images\\cama.jpg");
+      const imgDir = path.join(rootDir, "public\\testImages\\cama.jpg");
+      // Registramos al usuario que responderá
+      await apiServices.registerUser(userTwo);
       // Obtenemos el token del usuario que responde al articulo
-      const token = await apiServices.getToken(testUser2);
+      const token = await apiServices.loginUser(userTwo);
       // Obtenemos el id del articulo al que se responde
-      const articleId = await articlesServices.getArticleId(testArticle);
+      const articleId = await articlesServices.getArticleId(article);
       // Hacemos la petición enviando el articulo en respuesta
       await api
         .post(`/articles/response/${articleId}`)
         .set("Authorization", `Bearer ${token}`)
-        .field("titulo", newArticle.titulo)
-        .field("textoIntroductorio", newArticle.textoIntroductorio)
-        .field("contenido", newArticle.contenido)
-        .field("estado", newArticle.estado)
-        .field("categorias", newArticle.categorias)
+        .field("titulo", newArticleResponse.titulo)
+        .field("textoIntroductorio", newArticleResponse.textoIntroductorio)
+        .field("contenido", newArticleResponse.contenido)
+        .field("estado", newArticleResponse.estado)
+        .field("categorias", newArticleResponse.categorias)
         .attach("archivoDestacado", imgDir)
         .expect(201);
 
       // Obtenemos el articulo en respuesta desde la bd
-      const articleResponse = await articlesServices.getArticle(newArticle);
+      const articleResponse = await articlesServices.getArticleByTitle(
+        newArticleResponse.titulo
+      );
 
       // Obtenemos el articulo al que se ha respondido
-      const articleResponded = await articlesServices.getArticle(testArticle);
-
-      expect(articleResponse.respuesta.idArticulo.toString()).toBe(
-        articleId.toString()
+      const articleResponded = await articlesServices.getArticleByTitle(
+        article.titulo
       );
+
+      expect(
+        articleResponse.respuesta.idArticulo.includes(articleResponded.id)
+      ).toBe(true);
+
       expect(articleResponse.respuesta.title).toBe(articleResponded.title);
 
       expect(articleResponse.archivoDestacado).toBeDefined();
     });
     test("Devuelve error 401 si no enviamos token", async () => {
       // Obtenemos el id del articulo al que se responde
-      const articleId = await articlesServices.getArticleId(testArticle);
-      // Hacemos la petición enviando el articulo en respuesta
+      const articleId = await articlesServices.getArticleId(article);
+
       await api
         .post(`/articles/response/${articleId}`)
         .set("Authorization", `Bearer `)
-        .send(newArticle)
-        .expect("Content-Type", /application\/json/)
         .expect(401);
     });
     test("Devuelve error 404 si no encuentra el articulo", async () => {
       // Obtenemos el token del usuario que responde al articulo
-      const token = await apiServices.getToken(testUser2);
+      const token = await apiServices.loginUser(user);
       // Hacemos la petición enviando el articulo en respuesta
       await api
         .post(`/articles/response/${idNotExists}`)
         .set("Authorization", `Bearer ${token}`)
-        .send(newArticle)
         .expect(404);
     });
   });
@@ -433,7 +355,7 @@ describe("/articles", () => {
     test("Debe mostrar el articulo que contiene los parametros especificados", async () => {
       // Pasamos los parametros
       const searchParams = {
-        search: "articulo2",
+        search: "articulo con imagen especial",
       };
 
       // Hacemos la petición con los parametros
@@ -448,7 +370,6 @@ describe("/articles", () => {
 
       expect(response.body.length).toBe(1);
       expect(articleFounded).toBeDefined();
-      expect(articleFounded.title).toBe(testArticle2.title);
     });
     test("Si no se pasan parametros debe mostrar todos los articulos", async () => {
       const searchParams = "";
@@ -459,17 +380,20 @@ describe("/articles", () => {
         .expect(200)
         .expect("Content-Type", /application\/json/);
 
+      // Obtenemos los articulos
       const articlesFounded = response.body;
+      // Obtenemos los articulos que contiene mongo
+      const articlesDB = await articlesServices.getArticles();
 
-      expect(articlesFounded.length).toBe(ARTICLES.length);
+      expect(articlesFounded.length).toBe(articlesDB.length);
     });
     test("Si pasamos asc por query debe mostrar de mas antiguo a mas nuevo", async () => {
-      const user = await userServices.getUser(testUser2);
-
-      await new Articulo({
-        ...newArticleSearch,
-        usuario: user.id,
-      }).save();
+      // Registramos un usuario
+      await apiServices.registerUser(userTwo);
+      // Logueamos al usuario para obtener el token
+      const token = await apiServices.loginUser(userTwo);
+      // Creamos un articulo con fecha anterior
+      await apiServices.createArticleWithImage(token, newArticleDelayed);
       // Insertamos un articulo, pasados unos segundos
       const searchParams = "";
 
@@ -479,20 +403,17 @@ describe("/articles", () => {
         .expect(200)
         .expect("Content-Type", /application\/json/);
 
-      const searchArticle = await articlesServices.getArticle(newArticleSearch);
-
-      const articlesFounded = response.body;
-      const lastArticleSorted = articlesFounded.length - 1;
-
-      expect(articlesFounded.length).toBe(ARTICLES.length + 1);
-      expect(articlesFounded[lastArticleSorted].titulo).toBe(
-        searchArticle.titulo
+      const articles = response.body;
+      const oldArticle = await articlesServices.getArticleByTitle(
+        newArticleDelayed.titulo
       );
+
+      expect(articles[0].titulo).toBe(oldArticle.titulo);
     });
   });
 });
 
-afterAll(() => {
-  mongoose.connection.close();
-  server.close();
+afterAll(async () => {
+  await deleteAllFoldersInUpload();
+  closeConnection();
 });

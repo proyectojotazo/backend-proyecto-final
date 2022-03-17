@@ -1,5 +1,5 @@
 node_modules
-
+public/upload/*
 .env
 
 .npmrc
@@ -8,4 +8,4 @@ requests/
 .vscode
 
 # Tests
-public/images/
+public/testImages/

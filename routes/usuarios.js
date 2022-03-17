@@ -1,15 +1,19 @@
 const usuariosRouter = require("express").Router();
+
+const { userController } = require("../controllers");
+
 const {
   jwtAuth,
   userAuthorized,
   userExists,
   articleExists,
+  uploadMiddleware,
 } = require("../middlewares");
-const { userController } = require("../controllers");
-const upload = require("../lib/multerConfig");
+
+const uploadAvatar = uploadMiddleware("avatar");
 
 /* GET */
-usuariosRouter.get("/:nickname", userController.getUsuario);
+usuariosRouter.get("/:paramToSearch", userExists, userController.getUsuario);
 
 /* PATCH */
 usuariosRouter.patch(
@@ -17,7 +21,7 @@ usuariosRouter.patch(
   jwtAuth,
   userExists,
   userAuthorized,
-  upload.single("avatar"),
+  uploadAvatar,
   userController.updateUsuario
 );
 

@@ -1,123 +1,91 @@
+const asyncHandler = require("express-async-handler");
+
 const { Usuario } = require("../models");
-const { getFollowData, getArticuloSeguidoData, deleteF } = require("../utils");
-const { deleteFileOfPath, deleteFolderUser } = deleteF;
+const { getFollowData, getArticuloSeguidoData, isObjectId } = require("../utils");
+
 
 const userController = {};
 
 /* GET - Controllers */
-userController.getUsuario = async (req, res, next) => {
-  const { nickname } = req.params;
+userController.getUsuario = asyncHandler(async (req, res, next) => {
+  const { paramToSearch } = req.params;
 
-  try {
-    const usuario = await Usuario.findOnePopulated(nickname);
+  // Si es ObjectId lo busca por Id si no, por nickname
+  const usuario = isObjectId(paramToSearch) 
+    ? await Usuario.findById(paramToSearch) 
+    : await Usuario.findOnePopulated(paramToSearch)
 
-    // Si no se encuentra el usuario
-    if (!usuario) {
-      const error = {
-        name: "NotFound",
-        status: 404,
-        message: "Usuario no encontrado",
-      };
-      return next(error);
-    }
-    return res.status(302).json({ usuario });
-  } catch (error) {
-    return next(error);
-  }
-};
+  return res.status(302).json(usuario)
+
+});
 
 /* POST - Controllers */
-userController.followUsuario = async (req, res, next) => {
+userController.followUsuario = asyncHandler(async (req, res) => {
   const { id: userIdDestino } = req.params;
   const userIdRemitente = req.userId;
 
-  try {
-    const usuarioDestino = await Usuario.findById(userIdDestino);
-    const usuarioRemitente = await Usuario.findById(userIdRemitente);
+  const usuarioDestino = await Usuario.findById(userIdDestino);
+  const usuarioRemitente = await Usuario.findById(userIdRemitente);
 
-    const { dataToRemitente, dataToDestino } = getFollowData(
-      usuarioDestino,
-      usuarioRemitente
-    );
+  const { dataToRemitente, dataToDestino } = getFollowData(
+    usuarioDestino,
+    usuarioRemitente
+  );
 
-    // Actualizamos el usuario remitente y añadimos que sigue a esa persona
-    await usuarioRemitente.actualizaUsuario(dataToRemitente);
+  // Actualizamos el usuario remitente y añadimos que sigue a esa persona
+  await usuarioRemitente.actualizaUsuario(dataToRemitente);
 
-    // Actualizamos el usuario destino y le añadimos el seguidor que le sigue
-    await usuarioDestino.actualizaUsuario(dataToDestino);
+  // Actualizamos el usuario destino y le añadimos el seguidor que le sigue
+  await usuarioDestino.actualizaUsuario(dataToDestino);
 
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
+  return res.status(204).end();
+});
 
-userController.articulosFavorito = async (req, res, next) => {
+userController.articulosFavorito = asyncHandler(async (req, res, next) => {
   // obtenemos el id
   const { id } = req.params;
   // obtener id de usuario del token
   const usuarioId = req.userId;
 
-  try {
-    const usuario = await Usuario.findById(usuarioId);
+  const usuario = await Usuario.findById(usuarioId);
 
-    const articulofavorito = getArticuloSeguidoData(id, usuario);
+  const articulofavorito = getArticuloSeguidoData(id, usuario);
 
-    await usuario.actualizaUsuario(articulofavorito);
+  await usuario.actualizaUsuario(articulofavorito);
 
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
+  return res.status(204).end();
+});
 
 /* PATCH - Controllers */
-userController.updateUsuario = async (req, res, next) => {
+userController.updateUsuario = asyncHandler(async (req, res, next) => {
   // obtenemos id del usuario a actualizar
   const { id } = req.params;
 
   // datos a actualizar
   const datosActualizar = {
     ...req.body,
-    avatar: req.file?.path // Si se envia avatar, se guarda el path
-  }
+    avatar: req.file?.path, // Si se envia avatar, se guarda el path
+  };
 
-  try {
-    // buscamos al usuario
-    const usuario = await Usuario.findById(id);
+  // buscamos al usuario
+  const usuario = await Usuario.findById(id);
 
-    await usuario.actualizaUsuario(datosActualizar);
+  await usuario.actualizaUsuario(datosActualizar);
 
-    if (datosActualizar.avatar && !usuario.avatar.includes("default")) {
-      deleteFileOfPath(usuario.avatar);
-    }
-
-    // Al no enviar información simplemente enviaremos .end()
-    return res.status(204).end();
-  } catch (error) {
-    if (req.file) deleteFileOfPath(datosActualizar.avatar);
-    return next(error);
-  }
-};
+  return res.status(204).end();
+});
 
 /* DELETE - Controllers */
-userController.borrarUsuario = async (req, res, next) => {
+userController.borrarUsuario = asyncHandler(async (req, res, next) => {
   // obtendremos el id
   const { id } = req.params;
 
-  try {
-    // buscamos al usuario
-    const usuario = await Usuario.findById(id);
+  // buscamos al usuario
+  const usuario = await Usuario.findById(id);
 
-    await Usuario.deleteAllData(usuario);
+  await Usuario.deleteAllData(usuario);
 
-    deleteFolderUser(id);
-
-    // Al no enviar información simplemente enviaremos .end()
-    return res.status(204).end();
-  } catch (error) {
-    return next(error);
-  }
-};
+  return res.status(204).end();
+});
 
 module.exports = userController;
