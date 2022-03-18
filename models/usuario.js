@@ -10,6 +10,7 @@ const {
   deleteFile,
   deleteUserDir,
 } = require("../services/fileHandlerServices");
+const { isObjectId } = require("../utils");
 
 const usuarioSchema = new Schema({
   avatar: {
@@ -120,31 +121,37 @@ usuarioSchema.methods.actualizaUsuario = async function (datosActualizar) {
   }
 };
 
-// Función que nos devuelve el usuario populated
-usuarioSchema.statics.findOnePopulated = async function (nick) {
-  /* 
-  Pongo select en articulos.creados porque creo que es redundante que al pedir
-  un usuario populado tambien demos la id del mismo
-  */
-  return await this.findOne({ nickname: nick.toLowerCase() }).populate([
+// Función que nos devuelve el usuario populated por id o nickname
+usuarioSchema.statics.findOnePopulated = async function (paramToSearch) {
+  const id = { _id: paramToSearch };
+  const usuario = { nickname: paramToSearch.toLowerCase() };
+
+  return await this.findOne(isObjectId(paramToSearch) ? id : usuario).populate([
     {
       path: "articulos.creados",
       model: "Articulo",
-      select: "-usuario",
+      populate: {
+        path: "usuario",
+        model: "Usuario",
+      },
     },
     {
       path: "articulos.favoritos",
       model: "Articulo",
+      populate: {
+        path: "usuario",
+        model: "Usuario",
+      },
     },
     {
       path: "usuarios.seguidos",
       model: "Usuario",
-      select: "nickname nombre articulos.creados",
+      select: "nickname nombre avatar articulos.creados",
     },
     {
       path: "usuarios.seguidores",
       model: "Usuario",
-      select: "nickname nombre articulos.creados",
+      select: "nickname nombre avatar articulos.creados",
     },
   ]);
 };
