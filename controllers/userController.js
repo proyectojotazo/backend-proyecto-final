@@ -1,8 +1,7 @@
 const asyncHandler = require("express-async-handler");
 
 const { Usuario } = require("../models");
-const { getFollowData, getArticuloSeguidoData, isObjectId } = require("../utils");
-
+const { getFollowData, getArticuloSeguidoData } = require("../utils");
 
 const userController = {};
 
@@ -11,12 +10,9 @@ userController.getUsuario = asyncHandler(async (req, res, next) => {
   const { paramToSearch } = req.params;
 
   // Si es ObjectId lo busca por Id si no, por nickname
-  const usuario = isObjectId(paramToSearch) 
-    ? await Usuario.findById(paramToSearch) 
-    : await Usuario.findOnePopulated(paramToSearch)
+  const usuario = await Usuario.findOnePopulated(paramToSearch);
 
-  return res.status(302).json(usuario)
-
+  return res.status(302).json(usuario);
 });
 
 /* POST - Controllers */
@@ -59,7 +55,7 @@ userController.articulosFavorito = asyncHandler(async (req, res, next) => {
 /* PATCH - Controllers */
 userController.updateUsuario = asyncHandler(async (req, res, next) => {
   // obtenemos id del usuario a actualizar
-  const { id } = req.params;
+  const { paramToSearch } = req.params;
 
   // datos a actualizar
   const datosActualizar = {
@@ -68,7 +64,7 @@ userController.updateUsuario = asyncHandler(async (req, res, next) => {
   };
 
   // buscamos al usuario
-  const usuario = await Usuario.findById(id);
+  const usuario = await Usuario.findById(paramToSearch);
 
   await usuario.actualizaUsuario(datosActualizar);
 
@@ -78,10 +74,10 @@ userController.updateUsuario = asyncHandler(async (req, res, next) => {
 /* DELETE - Controllers */
 userController.borrarUsuario = asyncHandler(async (req, res, next) => {
   // obtendremos el id
-  const { id } = req.params;
+  const { paramToSearch } = req.params;
 
   // buscamos al usuario
-  const usuario = await Usuario.findById(id);
+  const usuario = await Usuario.findById(paramToSearch);
 
   await Usuario.deleteAllData(usuario);
 

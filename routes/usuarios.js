@@ -17,7 +17,7 @@ usuariosRouter.get("/:paramToSearch", userExists, userController.getUsuario);
 
 /* PATCH */
 usuariosRouter.patch(
-  "/:id",
+  "/:paramToSearch",
   jwtAuth,
   userExists,
   userAuthorized,
@@ -27,7 +27,7 @@ usuariosRouter.patch(
 
 /* DELETE */
 usuariosRouter.delete(
-  "/:id",
+  "/:paramToSearch",
   jwtAuth,
   userExists,
   userAuthorized,

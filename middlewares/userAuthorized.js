@@ -1,10 +1,10 @@
 const userAuthorized = (req, res, next) => {
-  const { id } = req.params;
+  const { paramToSearch } = req.params;
   // obtener id de usuario del token
   const userId = req.userId;
 
   // comprueba si el id del usuario es el mismo que esta logueado
-  if (userId !== id) {
+  if (userId !== paramToSearch) {
     const error = {
       name: "Unauthorized",
       status: 401,

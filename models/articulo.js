@@ -148,6 +148,7 @@ articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
     apellidos: 1,
     email: 1,
     nickname: 1,
+    avatar: 1,
   });
   query.select(fields);
   query.sort(sort);
@@ -163,6 +164,7 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
       apellidos: 1,
       email: 1,
       nickname: 1,
+      avatar: 1,
     })
     .populate("comentarios", {
       usuario: 1,

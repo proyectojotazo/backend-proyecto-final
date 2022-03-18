@@ -42,7 +42,8 @@ comentariosController.creaComentario = asyncHandler(async (req, res, next) => {
     usuario: usuarioId,
   });
   // guardamos el comentario dentro del articulo
-  await nuevoComentario.save();
+  const comentario = await nuevoComentario.save()
+
   await Articulo.findByIdAndUpdate(idArticulo, {
     comentarios: [...articulo.comentarios, nuevoComentario._id],
   });
@@ -57,7 +58,8 @@ comentariosController.creaComentario = asyncHandler(async (req, res, next) => {
     link
   );
 
-  return res.status(201).json({ message: "Comentario Creado" });
+  // return res.status(201).json({ message: "Comentario Creado" });
+  return res.status(201).json(comentario)
 });
 
 // Responder a un comentario (leí mal y pense que era uno de los requisitos)
