@@ -149,6 +149,8 @@ articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
     email: 1,
     nickname: 1,
     avatar: 1,
+    articulos: 1,
+    usuarios: 1
   });
   query.select(fields);
   query.sort(sort);

@@ -36,7 +36,7 @@ usuariosRouter.delete(
 
 /* POST */
 usuariosRouter.post(
-  "/follow/:id",
+  "/follow/:paramToSearch",
   jwtAuth,
   userExists,
   userController.followUsuario
