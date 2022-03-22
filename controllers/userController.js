@@ -20,6 +20,11 @@ userController.followUsuario = asyncHandler(async (req, res) => {
   const { paramToSearch: userIdDestino } = req.params;
   const userIdRemitente = req.userId;
 
+  const sameUser = userIdDestino === userIdRemitente
+  
+  if (sameUser) return res.status(401).end()
+
+
   const usuarioDestino = await Usuario.findById(userIdDestino);
   const usuarioRemitente = await Usuario.findById(userIdRemitente);
 
