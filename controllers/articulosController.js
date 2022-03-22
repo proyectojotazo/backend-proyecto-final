@@ -16,7 +16,7 @@ articulosController.getArticulos = asyncHandler(async (req, res, next) => {
 
   const { sort, skip, limit } = filtro;
 
-  const articles = await Articulo.lista(filtro, null, sort, skip, limit)
+  const articles = await Articulo.lista(filtro, sort, skip, limit);
   return res.status(200).json(articles);
 });
 
@@ -122,11 +122,15 @@ articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
 
 articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
   const busqueda = req.body.search;
-  const order = req.query.asc !== undefined ? 1 : -1;
   const regex = new RegExp(busqueda, "i");
 
-  const { skip, limit } = req.query;
-  const result = await Articulo.search(order, regex, skip, limit);
+  const filtro = {};
+  Object.entries(req.query).forEach(
+    ([clave, valor]) => (filtro[clave] = valor)
+  );
+
+  const { sort, skip, limit } = filtro;
+  const result = await Articulo.search(filtro, regex, sort, skip, limit);
 
   return res.status(200).json(result);
 });

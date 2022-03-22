@@ -128,21 +128,35 @@ articuloSchema.statics.borraArticulo = async function (
   await usuarioPropietario.actualizaUsuario(articulosActualizar);
 };
 
-articuloSchema.statics.search = async function (order, regex, skip, limit) {
-  const result = await this.find()
-    .or([
-      { titulo: { $regex: regex } },
-      { textoIntroductorio: { $regex: regex } },
-      { contenido: { $regex: regex } },
-    ])
-    .sort({ fechaPublicacion: order })
-    .skip(skip)
-    .limit(limit);
-
-  return result;
+articuloSchema.statics.search = async function (
+  filtro,
+  regex,
+  sort,
+  skip,
+  limit
+) {
+  const query = this.find(filtro);
+  query.populate("usuario", {
+    nombre: 1,
+    apellidos: 1,
+    email: 1,
+    nickname: 1,
+    avatar: 1,
+    articulos: 1,
+    usuarios: 1,
+  });
+  query.or([
+    { titulo: { $regex: regex } },
+    { textoIntroductorio: { $regex: regex } },
+    { contenido: { $regex: regex } },
+  ]);
+  query.sort(sort);
+  query.skip(skip);
+  query.limit(limit);
+  return query.exec();
 };
 
-articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
+articuloSchema.statics.lista = function (filtro, sort, skip, limit) {
   const query = this.find(filtro).populate("usuario", {
     nombre: 1,
     apellidos: 1,
@@ -150,9 +164,8 @@ articuloSchema.statics.lista = function (filtro, fields, sort, skip, limit) {
     nickname: 1,
     avatar: 1,
     articulos: 1,
-    usuarios: 1
+    usuarios: 1,
   });
-  query.select(fields);
   query.sort(sort);
   query.skip(skip);
   query.limit(limit);
@@ -168,7 +181,7 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
       nickname: 1,
       avatar: 1,
       articulos: 1,
-      usuarios: 1
+      usuarios: 1,
     })
     .populate("comentarios", {
       usuario: 1,

@@ -11,20 +11,20 @@
 // GET
 /**
  * @swagger
- * /users/{nickname}:
+ * /users/{nicknameOrIdUser}:
  *   get:
- *     summary: Muestra un usuario por nickname
+ *     summary: Muestra un usuario por nickname o id
  *     tags: [Usuarios]
- *     description: Devuelve un usuario por nickname
+ *     description: Devuelve un usuario por nickname o id
  *     parameters:
  *          - in: path
- *            name: nickname
+ *            name: nicknameOrIdUser
  *            schema:
  *              type: string
  *            required: true
  *     responses:
  *       302:
- *         description: Muestra un usuario por nickname
+ *         description: Usuario encontrado!
  */
 
 // POST

@@ -64,7 +64,7 @@
  *   get:
  *     summary: Muestra todos los artículos
  *     tags: [Artículos]
- *     description: Devuelve todos los artículos
+ *     description: Devuelve todos los artículos. Pueden incluirse parámetros en la query para filtrar, ordenar o paginar los artículos encontrados.
  *     responses:
  *       200:
  *         description: Muestra todos los artículos
@@ -205,32 +205,6 @@
 
 /**
  * @swagger
- * /articles/search?{asc}:
- *   post:
- *     summary: Realiza búsqueda de artículos
- *     tags: [Artículos]
- *     description: Realiza búsqueda de artículos (incluir "asc" para orden ascendente, si no se incluye, el orden será descendente)
- *     parameters:
- *          - in: path
- *            name: asc
- *            schema:
- *              type: string
- *     requestBody:
- *          content:
- *              application/x-www-form-urlencoded:
- *                  schema:
- *                      type: object
- *                      properties:
- *                          search:
- *                              type: string
- *                              description: Búsqueda por título, introducción o contenido
- *     responses:
- *       200:
- *         description: Búsqueda realizada con éxito!
- */
-
-/**
- * @swagger
  * /articles/response/{idArticulo}:
  *   post:
  *     security:
@@ -254,4 +228,25 @@
  *     responses:
  *          201:
  *              description: Nuevo artículo creado!
+ */
+
+/**
+ * @swagger
+ * /articles/search:
+ *   post:
+ *     summary: Realiza búsqueda de artículos
+ *     tags: [Artículos]
+ *     description: Realiza búsqueda de artículos. Pueden incluirse parámetros en la query para filtrar, ordenar o paginar los artículos encontrados.
+ *     requestBody:
+ *          content:
+ *              application/x-www-form-urlencoded:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          search:
+ *                              type: string
+ *                              description: Búsqueda por título, introducción o contenido
+ *     responses:
+ *       200:
+ *         description: Búsqueda realizada con éxito!
  */
