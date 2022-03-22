@@ -167,6 +167,8 @@ articuloSchema.statics.findByIdPopulated = async function (id) {
       email: 1,
       nickname: 1,
       avatar: 1,
+      articulos: 1,
+      usuarios: 1
     })
     .populate("comentarios", {
       usuario: 1,

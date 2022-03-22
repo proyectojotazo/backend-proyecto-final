@@ -16,7 +16,7 @@ articulosController.getArticulos = asyncHandler(async (req, res, next) => {
 
   const { sort, skip, limit } = filtro;
 
-  const articles = await Articulo.lista(filtro, null, sort, skip, limit);
+  const articles = await Articulo.lista(filtro, null, sort, skip, limit)
   return res.status(200).json(articles);
 });
 
