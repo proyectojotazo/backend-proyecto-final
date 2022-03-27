@@ -5,7 +5,7 @@ const CAMPOS = {
   },
   apellidos: {
     reg: /^([a-zA-ZÀ-ÿ\u00f1\u00d1]{1,}(([']){1}[a-zA-ZÀ-ÿ\u00f1\u00d1]{1,})?)(([\s-]){1}[a-zA-ZÀ-ÿ\u00f1\u00d1]{1,}(([']){1}[a-zA-ZÀ-ÿ\u00f1\u00d1]{1,})?)?$/i,
-    mensaje: "Los apellidos tienen cáracteres no válidos",
+    mensaje: "Los apellidos tienen carácteres no válidos",
   },
   email: {
     reg: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
