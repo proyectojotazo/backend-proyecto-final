@@ -35,13 +35,12 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
     // Si se envia archivo, se guarda el path
     const archivo = req.file?.path;
 
-    console.log(archivo);
-
     // Obtenemos al usuario para actualizarlo con el nuevo post creado
     const usuario = await Usuario.findById(usuarioId);
 
     const nuevoArticulo = new Articulo({
         ...req.body,
+        categorias: req.body.categorias.split(','),
         usuario: usuarioId,
         archivoDestacado: archivo,
     });
