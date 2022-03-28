@@ -93,3 +93,23 @@
  *          201:
  *              description: Respuesta a comentario realizada con éxito!
  */
+
+/* DELETE */
+/**
+ * @swagger
+ * /comment/{id}:
+ *   delete:
+ *     security:
+ *          - bearerAuth: []
+ *     summary: Elimina un comentario
+ *     tags: [Comentarios]
+ *     parameters:
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *     responses:
+ *          200:
+ *              description: Comentario eliminado!
+ */
