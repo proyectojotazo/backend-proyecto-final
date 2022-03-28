@@ -4,13 +4,24 @@ const { comentariosController } = require("../controllers");
 
 const { jwtAuth } = require("../middlewares");
 
-// GET comentario TODO 
-comentariosRouter.get("/:id", jwtAuth, comentariosController.getComentarios)
+// GET comentario TODO
+comentariosRouter.get("/:id", jwtAuth, comentariosController.getComentarios);
 
-// POST CREAR comentario TODO 
-comentariosRouter.post("/:id", jwtAuth, comentariosController.creaComentario)
+// POST CREAR comentario TODO
+comentariosRouter.post("/:id", jwtAuth, comentariosController.creaComentario);
 
-// POST RESPONDER comentario TODO 
-comentariosRouter.post("/response/:id", jwtAuth, comentariosController.responderComentario)
+// POST RESPONDER comentario TODO
+comentariosRouter.post(
+  "/response/:id",
+  jwtAuth,
+  comentariosController.responderComentario
+);
+
+// DELETE
+comentariosRouter.delete(
+  "/:id",
+  jwtAuth,
+  comentariosController.deleteComentario
+);
 
 module.exports = comentariosRouter;

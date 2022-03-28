@@ -42,12 +42,13 @@ comentariosController.creaComentario = asyncHandler(async (req, res, next) => {
     usuario: usuarioId,
   });
   // guardamos el comentario dentro del articulo
-  const comentario = await nuevoComentario.save()
+  const comentario = await nuevoComentario.save();
 
   await Articulo.findByIdAndUpdate(idArticulo, {
     comentarios: [...articulo.comentarios, nuevoComentario._id],
   });
-  // TODO enviar email al creador del comentario diciendo que se ha comentado su articulo
+
+  // Enviar email al creador del artículo
   const usuarioArticulo = await Usuario.findById(articulo.usuario[0]._id);
   const texto = `${usuarioArticulo.nickname} a respondido a tu articulo con el siguiente comentario "${nuevoComentario.contenido}"`;
   const link = `${texto} \n ${process.env.BASE_URL}/articles/${idArticulo}`;
@@ -58,11 +59,10 @@ comentariosController.creaComentario = asyncHandler(async (req, res, next) => {
     link
   );
 
-  // return res.status(201).json({ message: "Comentario Creado" });
-  return res.status(201).json(comentario)
+  return res.status(201).json(comentario);
 });
 
-// Responder a un comentario (leí mal y pense que era uno de los requisitos)
+// Responder a un comentario
 comentariosController.responderComentario = asyncHandler(
   async (req, res, next) => {
     const usuarioId = req.userId;
@@ -93,6 +93,62 @@ comentariosController.responderComentario = asyncHandler(
     );
 
     return res.status(201).json({ message: "Respuesta Creada" });
+  }
+);
+
+/* DELETE - Controllers */
+// Elimina comentario
+comentariosController.deleteComentario = asyncHandler(
+  async (req, res, next) => {
+    // recoge el token para identificar el usuario
+    const usuarioId = req.userId;
+    // id del comentario
+    const idComment = req.params.id;
+
+    try {
+      const comentario = await Comentario.findById(idComment).populate(
+        "usuario",
+        {
+          nickname: 1,
+        }
+      );
+      // Si no se encuentra el comentario
+      if (!comentario) {
+        const error = {
+          name: "NotFound",
+          status: 404,
+          message: "Comentario no encontrado",
+        };
+        return next(error);
+      }
+
+      const articulo = await Articulo.findOne({ comentarios: idComment });
+
+      const ownerComment = comentario.usuario[0]._id.toString();
+      const ownerArticle = articulo.usuario[0].toString();
+
+      // Si el usuario es creador del comentario o artículo, puede eliminarlo
+      if (usuarioId === ownerComment || usuarioId === ownerArticle) {
+        const articleUpdate = {
+          comentarios: articulo.comentarios.filter(
+            (comentarioId) => comentarioId.toString() !== idComment
+          ),
+        };
+        await Articulo.findByIdAndUpdate(articulo._id, articleUpdate);
+        await Comentario.findByIdAndDelete(idComment);
+      } else {
+        const error = {
+          name: "Unauthorized",
+          status: 401,
+          message: "No estás autorizado para eliminar el comentario",
+        };
+        return next(error);
+      }
+
+      return res.status(200).json({ message: "Comentario Eliminado" });
+    } catch (error) {
+      return next(error);
+    }
   }
 );
 
