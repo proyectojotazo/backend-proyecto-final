@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 
 const { Usuario } = require("../models");
-const { getFollowData, getArticuloSeguidoData } = require("../utils");
+const { getFollowData, getArticuloSeguidoData, urlConvert } = require("../utils");
 
 const userController = {};
 
@@ -65,7 +65,7 @@ userController.updateUsuario = asyncHandler(async (req, res, next) => {
   // datos a actualizar
   const datosActualizar = {
     ...req.body,
-    avatar: req.file?.path, // Si se envia avatar, se guarda el path
+    avatar: urlConvert(req.file?.path), // Si se envia avatar, se guarda el path
   };
 
   // buscamos al usuario

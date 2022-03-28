@@ -15,7 +15,7 @@ const { isObjectId } = require("../utils");
 const usuarioSchema = new Schema({
   avatar: {
     type: String,
-    default: "public\\upload\\avatar_default.jpg",
+    default: "/upload/avatar_default.jpg",
   },
   nombre: {
     type: String,

@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 
 const { Articulo, Usuario } = require('../models');
 const { emailServices } = require('../services');
+const { urlConvert } = require('../utils')
 const usuariosMencionados = require('../utils/menciones');
 
 const articulosController = {};
@@ -33,7 +34,7 @@ articulosController.getCategorias = asyncHandler(async (req, res, next) => {
 articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
     const usuarioId = req.userId;
     // Si se envia archivo, se guarda el path
-    const archivo = req.file?.path;
+    const archivo = urlConvert(req.file?.path)
 
     // Obtenemos al usuario para actualizarlo con el nuevo post creado
     const usuario = await Usuario.findById(usuarioId);
@@ -87,7 +88,7 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
 articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
     const usuarioId = req.userId;
     // Si se envia archivo, se guarda el path
-    const archivo = req.file?.path;
+    const archivo = urlConvert(req.file?.path)
     // Obtenemos el id del articulo para poder responderlo
     const idArticulo = req.params.id;
 
@@ -141,7 +142,7 @@ articulosController.actualizarArticulo = asyncHandler(async (req, res, next) => 
     // datos a actualizar
     const datosActualizar = {
         ...req.body,
-        archivoDestacado: req.file?.path,
+        archivoDestacado: urlConvert(req.file?.path),
     };
 
     // buscamos el artículo y extraemos el id del usuario creador

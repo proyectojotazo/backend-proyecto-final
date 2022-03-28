@@ -1,10 +1,10 @@
 const fspromises = require("fs/promises");
 const path = require("path");
 
-const rootPath = path.join(__dirname, "../");
+const rootPath = path.join(__dirname, "../public");
 
 const createUserDir = async (userId) => {
-  const dest = path.join(rootPath, `public/upload/${userId}`);
+  const dest = path.join(rootPath, `/upload/${userId}`);
 
   try {
     await fspromises.mkdir(dest);
@@ -43,7 +43,8 @@ const fileExists = async (pathToFile) => {
 };
 
 const deleteFile = async (filePath) => {
-  const pathFileToDelete = path.join(rootPath, "\\", filePath);
+  console.log(filePath)
+  const pathFileToDelete = path.join(rootPath, "/", filePath);
   await folderExists(pathFileToDelete);
   await fileExists(pathFileToDelete);
   try {
@@ -54,7 +55,7 @@ const deleteFile = async (filePath) => {
 };
 
 const deleteUserDir = async (userId) => {
-  const userFolder = path.join(rootPath, `public/upload/${userId}`);
+  const userFolder = path.join(rootPath, `/upload/${userId}`);
   try {
     await fspromises.rm(userFolder, { recursive: true });
   } catch (error) {
