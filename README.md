@@ -51,7 +51,7 @@ Estructura del `.env`:
 		USER=<Dirección de email (ejemplo: demo@gmail.com)>
 		PASS=<Contraseña de la dirección email>
 		SERVICE=<Servicio de envío (ejemplo: gmail)>
-		BASE_URL=<URL Base (ejemplo: http://localhost:3001)>
+		BASE_URL=<URL Base Frontend (ejemplo: http://localhost:3000)>
 
 #### Añadir fichero .npmrc (sólo en Windows)
 
