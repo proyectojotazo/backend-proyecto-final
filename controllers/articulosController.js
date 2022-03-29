@@ -46,7 +46,7 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
         archivoDestacado: archivo,
     });
 
-    await nuevoArticulo.save();
+    const articuloCreado = await nuevoArticulo.save();
 
     // Si el artículo se publica, busca menciones
     const mencionadosOnline = [];
@@ -81,7 +81,7 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
 
     await emailServices.sendEmailToFollowers(usuario, nuevoArticulo._id);
 
-    return res.status(201).end();
+    return res.status(201).json(articuloCreado);
 });
 
 // Creación de un articulo en respuesta a otro articulo
