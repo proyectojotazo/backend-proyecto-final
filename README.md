@@ -1,14 +1,15 @@
 # Bootcamp Full Stack Web Developer #
 
-## Proyecto Final: "El último y me voy" - Backend
+## Proyecto Final: "El Último & Me Voy" - Backend
 
-### EL ÚLTIMO Y ME VOY
+### EL ÚLTIMO & ME VOY
 
-*Este repositorio es la parte "Backend" del proyecto final del Bootcamp, el cual hemos llamado: "El último y me voy".*
+> *Este repositorio es la parte "Backend" del proyecto final del Bootcamp, el cual hemos llamado: "El Último & Me Voy".*
 
-"El último y me voy" es una aplicación web de "*Blogging*" enfocada en temas relacionados con la programación y, más concretamente, con la programación web. En ella se brinda al usuario la posibilidad de leer, buscar o compartir, cualquier tipo de artículo relacionado con la tecnología web que más le interese. Además, también tiene la posibilidad de hacerse miembro realizando el proceso de registro, y esto, le añadirá muchas más funcionalidades.
+"El Último & Me Voy" es una aplicación web de "*Blogging*" enfocada en temas relacionados con la programación y, más concretamente, con la programación web. 
 
-*...Continuará...*
+En esta aplicación se brinda al usuario la posibilidad de leer, buscar o compartir cualquier tipo de artículo relacionado con la tecnología web que más le interese. Además, también tiene la posibilidad de hacerse miembro realizando el proceso de registro, y esto, le añadirá más funcionalidades, como: crear artículos y así contribuir a la plataforma, crear artículos en respuesta a otros artículos, seguir usuarios, tener seguidores, guardar artículos como favoritos, comentar artículos, recibir notificaciones en el correo electrónico, etc.
+
 
 ## Equipo
 
@@ -91,14 +92,16 @@ El API dispone de una documentación a través de Swagger, para poder probar tod
 
     	http://localhost:3001/swagger
 
+> *Para las peticiones, se usará como referencia http://localhost:3001, pero el puerto dependerá del que configuremos a través de las variables de entorno en el archivo `.env`*
+
 ### GET:
 
 **- Usuarios -**
 
-Mostrar usuario por su Nickname:
+Mostrar usuario por su Nickname o ID de Usuario:
 
-    	http://localhost:3001/users/<nickName>
-> Esta petición se puede realizar indicando el nick del usuario en mayúscula o minúscula. La búsqueda se hará en minúscula indistintamente, ya que así es como se almacena en la base de datos.
+    	http://localhost:3001/users/<nickNameOrUserId>
+> Esta petición se puede realizar indicando el nick del usuario en mayúscula o minúscula o el ID de usuario. La búsqueda se hará en minúscula indistintamente, ya que así es como se almacena en la base de datos.
 
 **- Artículos -**
 
@@ -157,8 +160,8 @@ Restablecer contraseña:
 
 Seguir o dejar de seguir a un usuario:
 
-    	http://localhost:3001/users/follow/<nickNameOrEmail>
-> Puedes seguir o dejar de seguir a un usuario añadiendo a la ruta su "nickname" o "email".
+    	http://localhost:3001/users/follow/<IdUsuario>
+> Puedes seguir o dejar de seguir a un usuario añadiendo a la ruta su ID de usuario.
 
 > Si no sigues al usuario, se añadirá a tus seguidos y a su vez se te añadirá a ti como seguidor en el usuario que has seguido. Si ya sigues a este usuario, se os eliminará a ambos como usuario seguido y seguidor, respectivamente.
 
@@ -193,9 +196,7 @@ Realizar búsqueda de artículos:
     	http://localhost:3001/articles/search
 > Es necesario enviar un "body" con el campo "search" y con el contenido que queramos buscar. Se buscarán artículos que coincidan con: título, introducción y contenido del artículo (indistintamente de si es mayúscula o minúscula).
 
-> Por defecto devuelve una lista ordenada por orden descendente (más recientes primero). Si se quiere obtener con orden ascendente (más antiguos primero), habrá que añadir a la ruta `?asc`, quedando de la siguiente forma:
-
-    	http://localhost:3001/articles/search?asc
+> A la ruta, se le pueden añadir los mismos parámetros condicionales que en "GET /articles" (filtro, orden, paginación, etc.)
 
 **- Comentarios -**
 
@@ -251,4 +252,12 @@ Eliminar un artículo:
 > Para poder eliminar un artículo, se necesitará incluir el valor `Bearer <token>` del usuario creador de ese artículo, en la cabecera "Authorization". Si se intentara eliminar un artículo con un token válido, perteneciente a otro usuario, devolvería un error.
 
 > Se eliminará el archivo de imagen/vídeo subido con el artículo de su carpeta de usuario
+
+**- Comentarios -**
+
+Eliminar un comentario de un artículo:
+
+    	http://localhost:3001/comment/<idComentario>
+
+> Esta acción eliminará el comentario de la colección "Comentarios" y del artículo al que pertenezca ese comentario
 

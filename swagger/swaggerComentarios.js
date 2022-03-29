@@ -97,11 +97,11 @@
 /* DELETE */
 /**
  * @swagger
- * /comment/{id}:
+ * /comment/{idComentario}:
  *   delete:
  *     security:
  *          - bearerAuth: []
- *     summary: Elimina un comentario
+ *     summary: Elimina un comentario proporcionando su ID
  *     tags: [Comentarios]
  *     parameters:
  *          - in: path
