@@ -81,7 +81,7 @@ articulosController.creaArticulo = asyncHandler(async (req, res, next) => {
 
     await emailServices.sendEmailToFollowers(usuario, nuevoArticulo._id);
 
-    return res.status(201).json(articuloCreado);
+    return res.status(201).json({ id: articuloCreado._id});
 });
 
 // Creación de un articulo en respuesta a otro articulo
@@ -99,6 +99,7 @@ articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
     // creamos el articulo en respuesta al original
     const respuestaArticulo = new Articulo({
         ...req.body,
+        categorias: req.body.categorias.split(','),
         usuario: usuarioId,
         archivoDestacado: archivo,
         respuesta: {
@@ -107,7 +108,7 @@ articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
         },
     });
 
-    await respuestaArticulo.save();
+    const articuloCreado = await respuestaArticulo.save();
 
     // Creamos el nuevo articulo en respuesta al articulo original
     await usuario.actualizaUsuario({
@@ -117,7 +118,7 @@ articulosController.respuestaArticulo = asyncHandler(async (req, res, next) => {
         },
     });
 
-    return res.status(201).end();
+    return res.status(201).json({ id: articuloCreado._id });
 });
 
 articulosController.buscarArticulos = asyncHandler(async (req, res, next) => {
@@ -142,6 +143,7 @@ articulosController.actualizarArticulo = asyncHandler(async (req, res, next) => 
     // datos a actualizar
     const datosActualizar = {
         ...req.body,
+        categorias: req.body.categorias.split(','),
         archivoDestacado: urlConvert(req.file?.path),
     };
 
