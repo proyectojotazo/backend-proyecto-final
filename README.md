@@ -15,6 +15,17 @@ En esta aplicación se brinda al usuario la posibilidad de leer, buscar o compar
 
 [![](https://contrib.rocks/image?repo=proyectojotazo/backend-proyecto-final)](https://github.com/proyectojotazo/backend-proyecto-final/graphs/contributors)
 
+## Repositorios
+
+- Frontend: **[https://github.com/proyectojotazo/frontend-proyecto-final](https://github.com/proyectojotazo/frontend-proyecto-final)**
+- Backend: **[https://github.com/proyectojotazo/backend-proyecto-final](https://github.com/proyectojotazo/backend-proyecto-final)**
+
+## Despliegue en producción
+
+A modo de demostración, la aplicación se encuentra desplegada en AWS, en el siguiente enlace:
+
+**[http://ec2-3-70-140-211.eu-central-1.compute.amazonaws.com/](http://ec2-3-70-140-211.eu-central-1.compute.amazonaws.com/)**
+
 ## Instrucciones
 
 #### Instalar dependencias:
