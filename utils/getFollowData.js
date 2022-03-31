@@ -19,7 +19,7 @@ const getFollowData = (usuarioDestino, usuarioRemitente) => {
     usuarios: {
       ...usuarioRemitente.usuarios,
       seguidos: isFollowing
-        ? usuarioRemitente.usuarios.seguidores.filter(
+        ? usuarioRemitente.usuarios.seguidos.filter(
             (userId) => userId.toString() !== userIdDestino.toString()
           )
         : [...usuarioRemitente.usuarios.seguidos, userIdDestino],
