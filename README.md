@@ -24,7 +24,7 @@ En esta aplicación se brinda al usuario la posibilidad de leer, buscar o compar
 
 A modo de demostración, la aplicación se encuentra desplegada en AWS, en el siguiente enlace:
 
-**[http://ec2-3-70-140-211.eu-central-1.compute.amazonaws.com/](http://ec2-3-70-140-211.eu-central-1.compute.amazonaws.com/)**
+**[https://elultimoymevoy.com](https://elultimoymevoy.com)**
 
 ## Instrucciones
 
